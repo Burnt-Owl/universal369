@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universal 369 — Portal to Infinite Knowledge</title>
+<meta name="description" content="A curated cosmic directory of the internet's best resources for expanding consciousness, knowledge, and understanding.">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   UNIVERSAL 369 · COSMIC DIRECTORY · CSS
+═══════════════════════════════════════════════ */
+:root {
+  --bg: #060810;
+  --surface: #0a0d14;
+  --surface2: #0f1219;
+  --border: #1a1d2e;
+  --gold: #c9a84c;
+  --gold-dim: #8a7535;
+  --purple: #8b5cf6;
+  --purple-dim: #6b4cc6;
+  --cyan: #4db8c8;
+  --text: #cdc8d8;
+  --text-dim: #6a6578;
+  --text-bright: #f0eef5;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ── COSMIC CANVAS ── */
+#cosmos {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-video {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%; min-height: 100%;
+  width: auto; height: auto;
+  z-index: -2;
+  opacity: 0.5;
+  object-fit: cover;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+    linear-gradient(to bottom, rgba(6,8,16,0.3) 0%, rgba(6,8,16,0.7) 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hero-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: fadeUp 1s ease 0.3s forwards;
+}
+
+.hero-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--text-bright) 0%, var(--gold) 50%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  opacity: 0;
+  animation: fadeUp 1s ease 0.5s forwards;
+}
+
+.hero-numbers {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 400;
+  letter-spacing: 0.5em;
+  color: var(--purple);
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 1s ease 0.7s forwards;
+}
+
+.hero-tagline {
+  font-size: 1.2rem;
+  font-style: italic;
+  color: var(--text);
+  max-width: 600px;
+  margin-bottom: 3rem;
+  opacity: 0;
+  animation: fadeUp 1s ease 0.9s forwards;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--text-dim);
+  opacity: 0;
+  animation: fadeUp 1s ease 1.2s forwards, float 3s ease-in-out infinite 2s;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-8px); }
+}
+
+/* ── SECTION ── */
+.section {
+  padding: 5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  color: var(--purple);
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text-bright);
+  margin-bottom: 1rem;
+}
+
+.section-line {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 0 auto;
+}
+
+/* ── CATEGORY GRID ── */
+.categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 2rem;
+}
+
+.category {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.category::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: linear-gradient(90deg, var(--purple), var(--gold));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.category:hover {
+  border-color: var(--border);
+  transform: translateY(-4px);
+}
+
+.category:hover::before {
+  opacity: 1;
+}
+
+.category-icon {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.category-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.category-desc {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+  font-style: italic;
+}
+
+.resource-list {
+  list-style: none;
+}
+
+.resource-item {
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.resource-item:last-child {
+  border-bottom: none;
+}
+
+.resource-link {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.resource-link::before {
+  content: '→';
+  color: var(--purple-dim);
+  font-size: 0.8rem;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.resource-link:hover {
+  color: var(--gold);
+}
+
+.resource-link:hover::before {
+  transform: translateX(4px);
+  color: var(--gold);
+}
+
+.resource-note {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-left: auto;
+  font-style: italic;
+}
+
+/* ── SACRED GEOMETRY DIVIDER ── */
+.divider {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.divider svg {
+  opacity: 0.3;
+}
+
+/* ── FOOTER ── */
+footer {
+  text-align: center;
+  padding: 4rem 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.footer-symbol {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.footer-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.footer-tagline {
+  font-style: italic;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.footer-note {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .categories {
+    grid-template-columns: 1fr;
+  }
+  .hero {
+    padding: 1.5rem;
+  }
+  .section {
+    padding: 3rem 1.5rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<canvas id="cosmos"></canvas>
+
+<div class="page">
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <video class="hero-video" autoplay muted loop playsinline>
+    <source src="cosmic-energy-enhanced.mp4" type="video/mp4">
+  </video>
+  <div class="hero-badge">✦ PORTAL TO INFINITE KNOWLEDGE ✦</div>
+  <h1 class="hero-title">UNIVERSAL</h1>
+  <div class="hero-numbers">3 · 6 · 9</div>
+  <p class="hero-tagline">"If you only knew the magnificence of the 3, 6, and 9, then you would have the key to the universe." — Nikola Tesla</p>
+  <div class="scroll-hint">↓ EXPLORE THE ARCHIVES ↓</div>
+</section>
+
+<!-- ═══ KNOWLEDGE ARCHIVES ═══ -->
+<section class="section">
+  <div class="section-header">
+    <div class="section-badge">✦ CURATED PORTALS ✦</div>
+    <h2 class="section-title">THE ARCHIVES</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="categories">
+
+    <!-- KNOWLEDGE ARCHIVES -->
+    <div class="category">
+      <div class="category-icon">📚</div>
+      <h3 class="category-title">KNOWLEDGE ARCHIVES</h3>
+      <p class="category-desc">Digital libraries and open knowledge repositories</p>
+      <ul class="resource-list">
+        <li class="resource-item">
+          <a href="https://archive.org/" target="_blank" rel="noopener" class="resource-link">
+            Internet Archive
+            <span class="resource-note">The library of everything</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.gutenberg.org/" target="_blank" rel="noopener" class="resource-link">
+            Project Gutenberg
+            <span class="resource-note">70,000+ free ebooks</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://openlibrary.org/" target="_blank" rel="noopener" class="resource-link">
+            Open Library
+            <span class="resource-note">Borrow books free</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.jstor.org/" target="_blank" rel="noopener" class="resource-link">
+            JSTOR
+            <span class="resource-note">Academic journals</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://arxiv.org/" target="_blank" rel="noopener" class="resource-link">
+            arXiv
+            <span class="resource-note">Scientific papers</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- LEARNING PLATFORMS -->
+    <div class="category">
+      <div class="category-icon">🎓</div>
+      <h3 class="category-title">LEARNING PLATFORMS</h3>
+      <p class="category-desc">Expand your mind with structured knowledge</p>
+      <ul class="resource-list">
+        <li class="resource-item">
+          <a href="https://www.khanacademy.org/" target="_blank" rel="noopener" class="resource-link">
+            Khan Academy
+            <span class="resource-note">Free world-class education</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://ocw.mit.edu/" target="_blank" rel="noopener" class="resource-link">
+            MIT OpenCourseWare
+            <span class="resource-note">MIT courses free</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.coursera.org/" target="_blank" rel="noopener" class="resource-link">
+            Coursera
+            <span class="resource-note">University courses</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.edx.org/" target="_blank" rel="noopener" class="resource-link">
+            edX
+            <span class="resource-note">Harvard, Berkeley & more</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.ted.com/" target="_blank" rel="noopener" class="resource-link">
+            TED Talks
+            <span class="resource-note">Ideas worth spreading</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- DEEP READS -->
+    <div class="category">
+      <div class="category-icon">📖</div>
+      <h3 class="category-title">DEEP READS</h3>
+      <p class="category-desc">Longform essays and intellectual exploration</p>
+      <ul class="resource-list">
+        <li class="resource-item">
+          <a href="https://aeon.co/" target="_blank" rel="noopener" class="resource-link">
+            Aeon
+            <span class="resource-note">Philosophy & ideas</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://nautil.us/" target="_blank" rel="noopener" class="resource-link">
+            Nautilus
+            <span class="resource-note">Science meets philosophy</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://waitbutwhy.com/" target="_blank" rel="noopener" class="resource-link">
+            Wait But Why
+            <span class="resource-note">Deep dives on everything</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.themarginalian.org/" target="_blank" rel="noopener" class="resource-link">
+            The Marginalian
+            <span class="resource-note">Art, science, meaning</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://longreads.com/" target="_blank" rel="noopener" class="resource-link">
+            Longreads
+            <span class="resource-note">Best longform writing</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- SCIENCE & COSMOS -->
+    <div class="category">
+      <div class="category-icon">🔭</div>
+      <h3 class="category-title">SCIENCE & COSMOS</h3>
+      <p class="category-desc">Explore the universe and natural world</p>
+      <ul class="resource-list">
+        <li class="resource-item">
+          <a href="https://www.nasa.gov/" target="_blank" rel="noopener" class="resource-link">
+            NASA
+            <span class="resource-note">Space exploration</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.space.com/" target="_blank" rel="noopener" class="resource-link">
+            Space.com
+            <span class="resource-note">Space news & discovery</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.nature.com/" target="_blank" rel="noopener" class="resource-link">
+            Nature
+            <span class="resource-note">Scientific research</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.quantamagazine.org/" target="_blank" rel="noopener" class="resource-link">
+            Quanta Magazine
+            <span class="resource-note">Math, physics, biology</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://earthsky.org/" target="_blank" rel="noopener" class="resource-link">
+            EarthSky
+            <span class="resource-note">Earth & sky science</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- CONSCIOUSNESS & PHILOSOPHY -->
+    <div class="category">
+      <div class="category-icon">🕉</div>
+      <h3 class="category-title">CONSCIOUSNESS & PHILOSOPHY</h3>
+      <p class="category-desc">The inner journey and eternal questions</p>
+      <ul class="resource-list">
+        <li class="resource-item">
+          <a href="https://plato.stanford.edu/" target="_blank" rel="noopener" class="resource-link">
+            Stanford Encyclopedia of Philosophy
+            <span class="resource-note">Definitive reference</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.accesstoinsight.org/" target="_blank" rel="noopener" class="resource-link">
+            Access to Insight
+            <span class="resource-note">Buddhist texts</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.sacred-texts.com/" target="_blank" rel="noopener" class="resource-link">
+            Sacred Texts Archive
+            <span class="resource-note">World religions & esoterica</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://dailystoic.com/" target="_blank" rel="noopener" class="resource-link">
+            Daily Stoic
+            <span class="resource-note">Stoic philosophy</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.samharris.org/" target="_blank" rel="noopener" class="resource-link">
+            Sam Harris / Waking Up
+            <span class="resource-note">Mindfulness & reason</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- CREATIVE INSPIRATION -->
+    <div class="category">
+      <div class="category-icon">🎨</div>
+      <h3 class="category-title">CREATIVE INSPIRATION</h3>
+      <p class="category-desc">Art, design, music, and creative fuel</p>
+      <ul class="resource-list">
+        <li class="resource-item">
+          <a href="https://www.behance.net/" target="_blank" rel="noopener" class="resource-link">
+            Behance
+            <span class="resource-note">Creative portfolios</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://dribbble.com/" target="_blank" rel="noopener" class="resource-link">
+            Dribbble
+            <span class="resource-note">Design inspiration</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.are.na/" target="_blank" rel="noopener" class="resource-link">
+            Are.na
+            <span class="resource-note">Visual thinking network</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://www.booooooom.com/" target="_blank" rel="noopener" class="resource-link">
+            Booooooom
+            <span class="resource-note">Art & photography</span>
+          </a>
+        </li>
+        <li class="resource-item">
+          <a href="https://musicforprogramming.net/" target="_blank" rel="noopener" class="resource-link">
+            Music for Programming
+            <span class="resource-note">Focus music</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ DIVIDER ═══ -->
+<div class="divider">
+  <svg viewBox="0 0 100 60" width="100" height="60">
+    <circle cx="50" cy="30" r="25" fill="none" stroke="#c9a84c" stroke-width="0.5"/>
+    <circle cx="50" cy="30" r="15" fill="none" stroke="#8b5cf6" stroke-width="0.5"/>
+    <circle cx="50" cy="30" r="5" fill="none" stroke="#c9a84c" stroke-width="0.5"/>
+    <line x1="25" y1="30" x2="75" y2="30" stroke="#8b5cf6" stroke-width="0.3"/>
+    <line x1="50" y1="5" x2="50" y2="55" stroke="#8b5cf6" stroke-width="0.3"/>
+  </svg>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-symbol">✦</div>
+  <div class="footer-title">UNIVERSAL 369</div>
+  <p class="footer-tagline">The key to the universe is within your reach.</p>
+  <p class="footer-note">Curated for seekers. Built with intention.</p>
+</footer>
+
+</div><!-- /.page -->
+
+<!-- ═══════════════════════════════════════════════
+     UNIVERSAL 369 · COSMIC ENGINE · JAVASCRIPT
+═══════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── Cosmos Canvas ──────────────────────────────── */
+function initCosmos() {
+  const canvas = document.getElementById('cosmos');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function mkStar() {
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.2 + 0.2,
+      o: Math.random() * 0.5 + 0.1,
+      sp: Math.random() * 0.15 + 0.02,
+      twinkle: Math.random() * Math.PI * 2
+    };
+  }
+
+  resize();
+  stars = Array.from({ length: 200 }, mkStar);
+  window.addEventListener('resize', resize);
+
+  (function tick() {
+    ctx.clearRect(0, 0, W, H);
+    stars.forEach(s => {
+      s.twinkle += 0.02;
+      const o = s.o * (0.7 + Math.sin(s.twinkle) * 0.3);
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${o})`;
+      ctx.fill();
+      s.y -= s.sp;
+      if (s.y < -5) {
+        s.y = H + 5;
+        s.x = Math.random() * W;
+      }
+    });
+    requestAnimationFrame(tick);
+  })();
+}
+
+/* ── Reveal on Scroll ───────────────────────────── */
+function initReveal() {
+  const categories = document.querySelectorAll('.category');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  categories.forEach((cat, i) => {
+    cat.style.opacity = '0';
+    cat.style.transform = 'translateY(30px)';
+    cat.style.transition = `opacity 0.6s ease ${i * 0.1}s, transform 0.6s ease ${i * 0.1}s`;
+    observer.observe(cat);
+  });
+}
+
+/* ── Init ─────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  initCosmos();
+  initReveal();
+});
+</script>
+</body>
+</html>
