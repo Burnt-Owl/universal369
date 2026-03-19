@@ -1,0 +1,53 @@
+name: Deploy to VPS
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Deploy note (optional)"
+        required: false
+        default: "Manual deploy"
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 187.77.208.156
+          port: 2222
+          username: root
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "index.html,cosmic-energy-enhanced.mp4"
+          target: /home/universal369.com/public_html/
+
+      - name: Set permissions
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 187.77.208.156
+          port: 2222
+          username: root
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            chmod 644 /home/universal369.com/public_html/index.html
+            chmod 644 /home/universal369.com/public_html/cosmic-energy-enhanced.mp4
+            echo "Deploy complete: $(date)"
+
+      - name: Verify site is live
+        run: |
+          sleep 5
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://universal369.com)
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Warning: site returned $STATUS"
+          else
+            echo "Site is live!"
+          fi
