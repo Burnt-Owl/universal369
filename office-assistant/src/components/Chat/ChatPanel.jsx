@@ -17,8 +17,19 @@ export default function ChatPanel() {
   const [input, setInput] = useState('')
   const [streamingText, setStreamingText] = useState('')
   const { send, loading, error } = useClaude()
+  const [hasKey, setHasKey] = useState(!!localStorage.getItem('oa_api_key'))
   const bottomRef = useRef(null)
   const textareaRef = useRef(null)
+
+  useEffect(() => {
+    const sync = () => setHasKey(!!localStorage.getItem('oa_api_key'))
+    window.addEventListener('storage', sync)
+    window.addEventListener('oa_key_updated', sync)
+    return () => {
+      window.removeEventListener('storage', sync)
+      window.removeEventListener('oa_key_updated', sync)
+    }
+  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -37,12 +48,10 @@ export default function ChatPanel() {
     // Build messages for API (role + content only)
     const apiMessages = nextMessages.map(({ role, content }) => ({ role, content }))
 
-    let accumulated = ''
     await send({
       messages: apiMessages,
       system: SYSTEM,
       onChunk: (_, full) => {
-        accumulated = full
         setStreamingText(full)
       },
       onDone: (full) => {
@@ -68,8 +77,6 @@ export default function ChatPanel() {
     }
   }
 
-  const noKey = !localStorage.getItem('oa_api_key')
-
   return (
     <div className="chat-layout">
       <div className="panel-header">
@@ -83,7 +90,7 @@ export default function ChatPanel() {
         </div>
       </div>
 
-      {noKey && (
+      {!hasKey && (
         <div style={{ padding: '0 28px', paddingTop: 14 }}>
           <div className="no-key-banner">
             ⚠️ No API key set — go to <strong style={{ margin: '0 3px' }}>Settings</strong> to enter your Anthropic key.

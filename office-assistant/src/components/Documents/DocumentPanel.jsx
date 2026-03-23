@@ -70,10 +70,13 @@ export default function DocumentPanel() {
     setSummarizing(prev => ({ ...prev, [doc.id]: true }))
     setSummaries(prev => ({ ...prev, [doc.id]: '' }))
 
+    // Sanitize filename before embedding in prompt to prevent prompt injection
+    const safeName = doc.name.replace(/[^\w.\-_ ]/g, '_').slice(0, 200)
+
     await streamClaude({
       messages: [{
         role: 'user',
-        content: `Please provide a concise summary of the following document named "${doc.name}":\n\n${doc.content}`,
+        content: `Please provide a concise summary of the following document named "${safeName}":\n\n${doc.content}`,
       }],
       system: 'You are a document summarizer. Provide clear, structured summaries highlighting key points, main topics, and important details. Be concise but thorough.',
       onChunk: (_, full) => {

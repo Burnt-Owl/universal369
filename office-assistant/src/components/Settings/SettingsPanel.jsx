@@ -8,12 +8,14 @@ export default function SettingsPanel() {
   const saveKey = () => {
     localStorage.setItem('oa_api_key', apiKey.trim())
     setSaved(true)
+    window.dispatchEvent(new Event('oa_key_updated'))
     setTimeout(() => setSaved(false), 2500)
   }
 
   const clearKey = () => {
     localStorage.removeItem('oa_api_key')
     setApiKey('')
+    window.dispatchEvent(new Event('oa_key_updated'))
   }
 
   const clearAllData = () => {
