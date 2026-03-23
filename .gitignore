@@ -1,0 +1,13 @@
+# Audit report output files (may contain sensitive server info)
+vps-audit-*.txt
+audit-report-*.txt
+
+# Local environment / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
