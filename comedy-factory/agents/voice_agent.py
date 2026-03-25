@@ -46,7 +46,7 @@ def parse_script(script_md: str) -> list[tuple[str, str]]:
 def lines_for_speaker(parsed: list[tuple[str, str]], speaker: str) -> str:
     """Concatenate all lines for a speaker with natural pauses."""
     parts = [line for spk, line in parsed if spk == speaker]
-    return "  ...  ".join(parts)  # ElevenLabs reads "..." as a pause
+    return ". ".join(parts)  # short natural pause between lines
 
 
 def _gtts_fallback(text: str, slow: bool = False) -> bytes:
