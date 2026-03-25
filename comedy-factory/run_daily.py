@@ -9,6 +9,7 @@ Usage:
   python run_daily.py --skip-publish     # Full pipeline, skip YouTube/TikTok upload
   python run_daily.py --skip-visuals     # Skip visual frame generation
   python run_daily.py --regen-characters # Re-generate Raven & Jax shots via Leonardo
+  python run_daily.py --gen-characters   # Generate characters only (no news/script needed)
   python run_daily.py --date 2026-03-25  # Run for a specific date
   python run_daily.py --test-config      # Validate all env vars are set (no API calls)
 """
@@ -109,12 +110,23 @@ def main():
     parser.add_argument("--skip-publish", action="store_true", help="Skip YouTube/TikTok upload")
     parser.add_argument("--skip-visuals", action="store_true", help="Skip visual frame generation")
     parser.add_argument("--regen-characters", action="store_true", help="Force re-generation of Raven & Jax character PNGs via Leonardo")
+    parser.add_argument("--gen-characters", action="store_true", help="Generate characters only — skips news/script steps")
     parser.add_argument("--date", default=date.today().isoformat(), help="Run date (YYYY-MM-DD)")
     parser.add_argument("--test-config", action="store_true", help="Validate all env vars, no API calls")
     args = parser.parse_args()
 
     if args.test_config:
         _test_config()
+        return
+
+    if args.gen_characters:
+        print("\n🎨 Generating Raven & Jax character images via Leonardo...\n")
+        chars = visual_agent.ensure_characters(regen=True)
+        for name, path in chars.items():
+            if path and path.exists():
+                print(f"  ✅ {name}: {path}")
+            else:
+                print(f"  ❌ {name}: generation failed")
         return
 
     run_dir = RUNS_DIR / args.date

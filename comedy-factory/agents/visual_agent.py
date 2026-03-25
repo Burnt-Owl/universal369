@@ -145,10 +145,9 @@ def _generate_character_leonardo(name: str, prompt: str) -> bytes:
     payload = {
         "prompt": prompt,
         "modelId": LEONARDO_MODEL_ID,
-        "width": 1080,
-        "height": 1920,
+        "width": 1024,
+        "height": 1536,
         "num_images": 1,
-        "photoReal": True,
         "alchemy": True,
     }
 
