@@ -58,10 +58,16 @@ def parse_script_lines(script_md: str) -> list[tuple[str, str]]:
     return lines
 
 
+def _split_caption(text: str, max_chars: int = 42) -> list[str]:
+    """Split long lines into ≤max_chars chunks at word/sentence boundaries."""
+    import textwrap
+    return textwrap.wrap(text, width=max_chars, break_long_words=False)
+
+
 def write_srt(lines: list[tuple[str, str]], raven_dur: float, jax_dur: float, path: Path):
     """
-    Write a .srt subtitle file.
-    Raven lines fill the first raven_dur seconds, Jax lines fill the next jax_dur seconds.
+    Write a .srt subtitle file, one entry per dialogue line, split to ≤2 display lines.
+    Raven lines fill raven_dur seconds, Jax lines fill jax_dur seconds.
     """
     raven_lines = [(s, t) for s, t in lines if s == "Raven"]
     jax_lines   = [(s, t) for s, t in lines if s == "Jax"]
@@ -72,11 +78,15 @@ def write_srt(lines: list[tuple[str, str]], raven_dur: float, jax_dur: float, pa
         n = len(speaker_lines)
         if not n:
             return
-        per = total_dur / n
-        for i, (spk, text) in enumerate(speaker_lines):
-            t_in  = start_time + i * per
-            t_out = t_in + per - 0.15
-            entries.append((t_in, t_out, spk, text))
+        # Weight time by character count so longer lines get more screen time
+        lengths = [max(len(t), 1) for _, t in speaker_lines]
+        total_chars = sum(lengths)
+        t = start_time
+        for (spk, text), chars in zip(speaker_lines, lengths):
+            dur = (chars / total_chars) * (total_dur - 0.3)
+            display = "\n".join(_split_caption(text))
+            entries.append((t, t + dur - 0.1, spk, display))
+            t += dur
 
     spread(raven_lines, 0.3, raven_dur - 0.3)
     spread(jax_lines,   raven_dur + 0.3, jax_dur - 0.3)
@@ -91,8 +101,8 @@ def write_srt(lines: list[tuple[str, str]], raven_dur: float, jax_dur: float, pa
     srt = ""
     for idx, (t_in, t_out, spk, text) in enumerate(entries, 1):
         color = "#FFD741" if spk == "Raven" else "#64B9FF"
-        srt += f"{idx}\n{fmt(t_in)} --> {fmt(t_out)}\n"
-        srt += f"<font color='{color}'><b>{spk}</b></font>  {text}\n\n"
+        label = f"<font color='{color}'><b>{spk}</b></font>"
+        srt += f"{idx}\n{fmt(t_in)} --> {fmt(t_out)}\n{label}\n{text}\n\n"
 
     path.write_text(srt, encoding="utf-8")
 
@@ -200,9 +210,9 @@ def run(run_dir: Path) -> Path:
         "-i", str(out_file),
         "-vf", (
             f"subtitles='{srt_file}':force_style='"
-            "FontName=DejaVu Sans Bold,FontSize=20,"
+            "FontName=DejaVu Sans Bold,FontSize=13,"
             "PrimaryColour=&HFFFFFF,OutlineColour=&H000000,"
-            "Outline=2,Shadow=1,Alignment=2,MarginV=35'"
+            "Outline=2,Shadow=1,Alignment=2,MarginV=40'"
         ),
         "-c:v", "libx264", "-preset", "fast",
         "-c:a", "copy",
