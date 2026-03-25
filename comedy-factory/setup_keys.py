@@ -40,12 +40,13 @@ KEYS = [
     },
     {
         "key": "GEMINI_API_KEY",
-        "label": "Google Gemini API key (Imagen backgrounds — free 500/day)",
+        "label": "Google Gemini API key (backgrounds — free 500/day, preferred)",
         "where": "aistudio.google.com  →  Get API key  →  Create API key",
+        "optional": True,
     },
     {
         "key": "LEONARDO_API_KEY",
-        "label": "Leonardo.ai API key (--regen-characters only)",
+        "label": "Leonardo.ai API key (backgrounds fallback + --regen-characters)",
         "where": "app.leonardo.ai  →  User Settings  →  API Access  →  Create key",
         "optional": True,
     },

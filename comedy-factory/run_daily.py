@@ -41,16 +41,19 @@ REQUIRED_VARS = [
     ("ELEVENLABS_API_KEY", "elevenlabs.io"),
     ("RAVEN_VOICE_ID", "ElevenLabs voice ID for Raven"),
     ("JAX_VOICE_ID", "ElevenLabs voice ID for Jax"),
-    ("GEMINI_API_KEY", "aistudio.google.com"),
 ]
 
 OPTIONAL_VARS = [
-    ("LEONARDO_API_KEY", "app.leonardo.ai (--regen-characters only)"),
+    ("GEMINI_API_KEY", "aistudio.google.com (backgrounds — free 500/day, preferred)"),
+    ("LEONARDO_API_KEY", "app.leonardo.ai (backgrounds fallback + --regen-characters)"),
     ("CANVA_ACCESS_TOKEN", "canva.com (episode thumbnail)"),
     ("TIKTOK_ACCESS_TOKEN", "developers.tiktok.com"),
     ("YOUTUBE_CLIENT_SECRETS", "Google Cloud Console"),
     ("SLACK_WEBHOOK_URL", "Slack app webhook (for review gate)"),
 ]
+
+# At least one image provider must be set for visual generation
+IMAGE_PROVIDER_VARS = ("GEMINI_API_KEY", "LEONARDO_API_KEY")
 
 
 def _test_config():
@@ -70,11 +73,19 @@ def _test_config():
         status = "SET" if val else "not set"
         print(f"  [{status}] {var:<30} ({source})")
 
+    # Check image provider
+    has_image_provider = any(os.getenv(v, "") for v in IMAGE_PROVIDER_VARS)
+    if has_image_provider:
+        print("  [OK ] Image provider: set")
+    else:
+        all_ok = False
+        print("  [MISSING] Image provider: set GEMINI_API_KEY or LEONARDO_API_KEY")
+
     print()
     if all_ok:
         print("All required vars are set. Ready to run.")
     else:
-        print("Some required vars are missing. Fill in comedy-factory/.env")
+        print("Some required vars are missing. Fill in ~/.comedy-factory/.env")
     print()
 
 
