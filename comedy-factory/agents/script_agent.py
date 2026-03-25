@@ -41,6 +41,19 @@ RULES:
 - Never reference real politicians by full name in a way that could be defamatory"""
 
 
+def _fallback_script(event: dict) -> str:
+    h = event["headline"]
+    return f"""RAVEN: Okay, did you see this? {h}
+JAX: Wait — what? When did that happen?
+RAVEN: Like, today, Jax. I literally told you this would happen.
+JAX: You did not tell me that.
+RAVEN: I one hundred percent told you that. There are no coincidences.
+JAX: Okay but is that bad?
+RAVEN: Is that bad. JAX. Look at me. Yes. It is bad.
+JAX: Huh. That's wild. You want another beer?
+RAVEN: I want answers. But also yes."""
+
+
 def write_script(event: dict) -> str:
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
@@ -52,14 +65,17 @@ def write_script(event: dict) -> str:
         "Make it funny, natural, and punchy."
     )
 
-    message = client.messages.create(
-        model=CLAUDE_MODEL,
-        max_tokens=1024,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_prompt}],
-    )
-
-    return message.content[0].text.strip()
+    try:
+        message = client.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=1024,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": user_prompt}],
+        )
+        return message.content[0].text.strip()
+    except Exception as e:
+        print(f"[script_agent] Claude unavailable ({e.__class__.__name__}), using template script fallback.")
+        return _fallback_script(event)
 
 
 def count_words(script: str) -> int:

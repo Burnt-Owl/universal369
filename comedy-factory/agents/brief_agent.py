@@ -32,6 +32,27 @@ Return a JSON array with this format for each story:
 Only return the JSON array. No other text."""
 
 
+COMEDY_KEYWORDS = [
+    "ban", "fine", "lawsuit", "robot", "alien", "crypto", "hack", "weird",
+    "bizarre", "musk", "ai", "recall", "leak", "scandal", "tax", "fee",
+    "glitch", "mistake", "oops", "crash", "shortage", "price", "deal",
+]
+
+def _fallback_scores(stories: list[dict]) -> list[dict]:
+    """Keyword-based scoring when Claude API is unavailable."""
+    results = []
+    for i, s in enumerate(stories):
+        text = (s["headline"] + " " + s.get("summary", "")).lower()
+        hits = sum(1 for kw in COMEDY_KEYWORDS if kw in text)
+        score = min(5 + hits, 9)
+        results.append({
+            "index": i,
+            "score": score,
+            "comedy_angle": f"Raven and Jax react to: {s['headline'][:80]}",
+        })
+    return results
+
+
 def score_stories(stories: list[dict]) -> list[dict]:
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
@@ -40,21 +61,23 @@ def score_stories(stories: list[dict]) -> list[dict]:
         for i, s in enumerate(stories)
     )
 
-    message = client.messages.create(
-        model=CLAUDE_MODEL,
-        max_tokens=1024,
-        messages=[
-            {"role": "user", "content": f"{SCORING_PROMPT}\n\nStories:\n{stories_text}"},
-        ],
-    )
-
-    raw = message.content[0].text.strip()
-    # Strip markdown code blocks if present
-    if raw.startswith("```"):
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
-    return json.loads(raw)
+    try:
+        message = client.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=1024,
+            messages=[
+                {"role": "user", "content": f"{SCORING_PROMPT}\n\nStories:\n{stories_text}"},
+            ],
+        )
+        raw = message.content[0].text.strip()
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        return json.loads(raw)
+    except Exception as e:
+        print(f"[brief_agent] Claude unavailable ({e.__class__.__name__}), using keyword scoring fallback.")
+        return _fallback_scores(stories)
 
 
 def run(run_dir: Path) -> Path:
