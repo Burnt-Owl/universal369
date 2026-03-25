@@ -1,0 +1,62 @@
+name: Comedy Factory Daily Run
+
+on:
+  schedule:
+    - cron: "0 6 * * *"  # 6:00 AM UTC daily
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (script only, no media)"
+        required: false
+        default: "false"
+        type: boolean
+      skip_publish:
+        description: "Skip YouTube/TikTok upload"
+        required: false
+        default: "false"
+        type: boolean
+
+jobs:
+  run-comedy-factory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install ffmpeg
+        run: sudo apt-get install -y ffmpeg
+
+      - name: Install Python dependencies
+        run: pip install -r comedy-factory/requirements.txt
+
+      - name: Run Comedy Factory
+        working-directory: comedy-factory
+        env:
+          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          RAVEN_VOICE_ID: ${{ secrets.RAVEN_VOICE_ID }}
+          JAX_VOICE_ID: ${{ secrets.JAX_VOICE_ID }}
+          LEONARDO_API_KEY: ${{ secrets.LEONARDO_API_KEY }}
+          TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+          REVIEW_GATE_ENABLED: "false"
+        run: |
+          FLAGS=""
+          if [ "${{ inputs.dry_run }}" == "true" ]; then FLAGS="$FLAGS --dry-run"; fi
+          if [ "${{ inputs.skip_publish }}" == "true" ]; then FLAGS="$FLAGS --skip-publish"; fi
+          python run_daily.py $FLAGS
+
+      - name: Upload video artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comedy-factory-${{ github.run_id }}
+          path: comedy-factory/runs/
+          retention-days: 7
