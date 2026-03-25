@@ -41,7 +41,17 @@ def lines_for_speaker(parsed: list[tuple[str, str]], speaker: str) -> str:
     return "  ...  ".join(parts)  # ElevenLabs reads "..." as a pause
 
 
-def generate_audio(text: str, voice_id: str, voice_settings: dict) -> bytes:
+def _gtts_fallback(text: str, slow: bool = False) -> bytes:
+    """Generate audio via Google TTS when ElevenLabs is unavailable."""
+    import io
+    from gtts import gTTS
+    tts = gTTS(text, lang="en", slow=slow)
+    buf = io.BytesIO()
+    tts.write_to_fp(buf)
+    return buf.getvalue()
+
+
+def generate_audio(text: str, voice_id: str, voice_settings: dict, slow: bool = False) -> bytes:
     url = ELEVENLABS_TTS_URL.format(voice_id=voice_id)
     headers = {
         "xi-api-key": ELEVENLABS_API_KEY,
@@ -60,7 +70,8 @@ def generate_audio(text: str, voice_id: str, voice_settings: dict) -> bytes:
             return resp.content
         except Exception as e:
             if delay is None:
-                raise RuntimeError(f"ElevenLabs failed after {attempt} attempts: {e}")
+                print(f"[voice_agent] ElevenLabs unavailable, falling back to gTTS.")
+                return _gtts_fallback(text, slow=slow)
             print(f"[voice_agent] Attempt {attempt} failed: {e}. Retrying in {delay}s...")
             time.sleep(delay)
 
@@ -84,12 +95,12 @@ def run(run_dir: Path) -> tuple[Path, Path]:
         raise ValueError("[voice_agent] RAVEN_VOICE_ID and JAX_VOICE_ID must be set in .env")
 
     print("[voice_agent] Generating Raven's voice...")
-    raven_audio = generate_audio(raven_text, RAVEN_VOICE_ID, RAVEN_VOICE_SETTINGS)
+    raven_audio = generate_audio(raven_text, RAVEN_VOICE_ID, RAVEN_VOICE_SETTINGS, slow=False)
     raven_file = run_dir / "raven-voice.mp3"
     raven_file.write_bytes(raven_audio)
 
     print("[voice_agent] Generating Jax's voice...")
-    jax_audio = generate_audio(jax_text, JAX_VOICE_ID, JAX_VOICE_SETTINGS)
+    jax_audio = generate_audio(jax_text, JAX_VOICE_ID, JAX_VOICE_SETTINGS, slow=True)
     jax_file = run_dir / "jax-voice.mp3"
     jax_file.write_bytes(jax_audio)
 

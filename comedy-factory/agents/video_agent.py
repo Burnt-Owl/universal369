@@ -13,6 +13,21 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS
 
+# Use system ffmpeg if available, else fall back to imageio-ffmpeg binary
+def _find_ffmpeg() -> tuple[str, str]:
+    import shutil
+    if shutil.which("ffmpeg"):
+        return "ffmpeg", "ffprobe"
+    try:
+        import imageio_ffmpeg
+        ff = imageio_ffmpeg.get_ffmpeg_exe()
+        fp = ff.replace("ffmpeg", "ffprobe") if Path(ff.replace("ffmpeg", "ffprobe")).exists() else ff
+        return ff, fp
+    except ImportError:
+        raise RuntimeError("ffmpeg not found. Install it or run: pip install imageio-ffmpeg")
+
+FFMPEG, FFPROBE = _find_ffmpeg()
+
 
 def parse_script_lines(script_md: str) -> list[tuple[str, str]]:
     lines = []
@@ -28,16 +43,8 @@ def parse_script_lines(script_md: str) -> list[tuple[str, str]]:
 
 
 def get_audio_duration(audio_file: Path) -> float:
-    result = subprocess.run(
-        [
-            "ffprobe", "-v", "error",
-            "-show_entries", "format=duration",
-            "-of", "default=noprint_wrappers=1:nokey=1",
-            str(audio_file),
-        ],
-        capture_output=True, text=True, check=True,
-    )
-    return float(result.stdout.strip())
+    from mutagen.mp3 import MP3
+    return MP3(str(audio_file)).info.length
 
 
 def run(run_dir: Path) -> Path:
@@ -64,29 +71,18 @@ def run(run_dir: Path) -> Path:
 
     print(f"[video_agent] Raven: {raven_dur:.1f}s, Jax: {jax_dur:.1f}s, Total: {total_dur:.1f}s")
 
-    # Build background: use first background image if available, else black
+    # Build background: frames already have text+characters baked in from PIL compositing
     if backgrounds:
         bg_input = ["-loop", "1", "-i", str(backgrounds[0])]
         bg_filter = (
             f"[0:v]scale={VIDEO_WIDTH}:{VIDEO_HEIGHT}:force_original_aspect_ratio=increase,"
-            f"crop={VIDEO_WIDTH}:{VIDEO_HEIGHT},setsar=1,fps={VIDEO_FPS}[bg];"
+            f"crop={VIDEO_WIDTH}:{VIDEO_HEIGHT},setsar=1,fps={VIDEO_FPS}[out]"
         )
         input_count = 1
     else:
         bg_input = []
-        bg_filter = (
-            f"color=black:{VIDEO_WIDTH}x{VIDEO_HEIGHT}:r={VIDEO_FPS}[bg];"
-        )
+        bg_filter = f"color=black:{VIDEO_WIDTH}x{VIDEO_HEIGHT}:r={VIDEO_FPS}[out]"
         input_count = 0
-
-    # Title card text (top of video)
-    title_safe = headline.replace("'", "\\'").replace(":", "\\:").replace(",", "\\,")[:60]
-    title_filter = (
-        f"[bg]drawtext=text='{title_safe}':fontcolor=white:fontsize=36:"
-        f"x=(w-text_w)/2:y=80:box=1:boxcolor=black@0.5:boxborderw=10[titled];"
-        f"[titled]drawtext=text='Raven \\& Jax':fontcolor=white:fontsize=28:"
-        f"x=(w-text_w)/2:y=h-120:box=1:boxcolor=black@0.5:boxborderw=8[out]"
-    )
 
     # Merge audio: raven then jax in sequence
     audio_filter = (
@@ -95,10 +91,10 @@ def run(run_dir: Path) -> Path:
         "[a0][a1]amix=inputs=2:duration=longest[audio]"
     )
 
-    filter_complex = bg_filter + title_filter + ";" + audio_filter
+    filter_complex = bg_filter + ";" + audio_filter
 
     cmd = [
-        "ffmpeg", "-y",
+        FFMPEG, "-y",
         *bg_input,
         "-i", str(raven_audio),
         "-i", str(jax_audio),
