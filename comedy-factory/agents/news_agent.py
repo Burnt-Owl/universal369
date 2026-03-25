@@ -5,8 +5,9 @@ Output: runs/YYYY-MM-DD/daily-brief.json
 
 import json
 import time
+import urllib.request
+import xml.etree.ElementTree as ET
 import requests
-import feedparser
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -63,29 +64,53 @@ def fetch_newsapi(run_date: str) -> list[dict]:
     return []
 
 
+def _parse_rss_feed(xml_bytes: bytes, feed_url: str) -> list[dict]:
+    """Parse RSS 2.0 or Atom feed from raw XML bytes."""
+    ATOM = "http://www.w3.org/2005/Atom"
+    root = ET.fromstring(xml_bytes)
+    stories = []
+
+    # Atom feed
+    if root.tag == f"{{{ATOM}}}feed":
+        feed_title = (root.findtext(f"{{{ATOM}}}title") or feed_url)
+        for entry in root.findall(f"{{{ATOM}}}entry")[:5]:
+            link_el = entry.find(f"{{{ATOM}}}link")
+            stories.append({
+                "source": feed_title,
+                "headline": entry.findtext(f"{{{ATOM}}}title") or "",
+                "summary": entry.findtext(f"{{{ATOM}}}summary") or "",
+                "url": link_el.get("href", "") if link_el is not None else "",
+                "published": entry.findtext(f"{{{ATOM}}}published") or "",
+            })
+    else:
+        # RSS 2.0
+        channel = root.find("channel") or root
+        feed_title = channel.findtext("title") or feed_url
+        for item in channel.findall("item")[:5]:
+            stories.append({
+                "source": feed_title,
+                "headline": item.findtext("title") or "",
+                "summary": item.findtext("description") or "",
+                "url": item.findtext("link") or "",
+                "published": item.findtext("pubDate") or "",
+            })
+
+    return stories
+
+
 def fetch_rss() -> list[dict]:
     stories = []
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
-
     for feed_url in RSS_FEEDS:
         try:
-            feed = feedparser.parse(feed_url)
-            for entry in feed.entries[:5]:
-                published = entry.get("published_parsed")
-                if published:
-                    pub_dt = datetime(*published[:6], tzinfo=timezone.utc)
-                    if pub_dt < cutoff:
-                        continue
-                stories.append({
-                    "source": feed.feed.get("title", feed_url),
-                    "headline": entry.get("title", ""),
-                    "summary": entry.get("summary", ""),
-                    "url": entry.get("link", ""),
-                    "published": entry.get("published", ""),
-                })
+            req = urllib.request.Request(
+                feed_url,
+                headers={"User-Agent": "ComedyFactory/1.0"},
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                xml_bytes = resp.read()
+            stories.extend(_parse_rss_feed(xml_bytes, feed_url))
         except Exception as e:
             print(f"[news_agent] RSS feed {feed_url} failed: {e}")
-
     return stories
 
 
