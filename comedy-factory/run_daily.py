@@ -9,6 +9,7 @@ Usage:
   python run_daily.py --skip-publish     # Full pipeline, skip YouTube/TikTok upload
   python run_daily.py --skip-visuals     # Skip Leonardo.ai image generation
   python run_daily.py --date 2026-03-25  # Run for a specific date
+  python run_daily.py --test-config      # Validate all env vars are set (no API calls)
 """
 
 import sys
@@ -33,6 +34,47 @@ from agents import (
 )
 
 
+REQUIRED_VARS = [
+    ("NEWS_API_KEY", "newsapi.org"),
+    ("ANTHROPIC_API_KEY", "console.anthropic.com"),
+    ("ELEVENLABS_API_KEY", "elevenlabs.io"),
+    ("RAVEN_VOICE_ID", "ElevenLabs voice ID for Raven"),
+    ("JAX_VOICE_ID", "ElevenLabs voice ID for Jax"),
+    ("LEONARDO_API_KEY", "app.leonardo.ai"),
+]
+
+OPTIONAL_VARS = [
+    ("TIKTOK_ACCESS_TOKEN", "developers.tiktok.com"),
+    ("YOUTUBE_CLIENT_SECRETS", "Google Cloud Console"),
+    ("SLACK_WEBHOOK_URL", "Slack app webhook (for review gate)"),
+]
+
+
+def _test_config():
+    import os
+    print("\n--- Comedy Factory Config Check ---\n")
+    all_ok = True
+    for var, source in REQUIRED_VARS:
+        val = os.getenv(var, "")
+        status = "OK" if val else "MISSING"
+        if not val:
+            all_ok = False
+        print(f"  [{status}] {var:<30} ({source})")
+
+    print()
+    for var, source in OPTIONAL_VARS:
+        val = os.getenv(var, "")
+        status = "SET" if val else "not set"
+        print(f"  [{status}] {var:<30} ({source})")
+
+    print()
+    if all_ok:
+        print("All required vars are set. Ready to run.")
+    else:
+        print("Some required vars are missing. Fill in comedy-factory/.env")
+    print()
+
+
 def step(name: str, fn, *args, **kwargs):
     print(f"\n{'='*50}")
     print(f"  STEP: {name}")
@@ -53,7 +95,12 @@ def main():
     parser.add_argument("--skip-publish", action="store_true", help="Skip YouTube/TikTok upload")
     parser.add_argument("--skip-visuals", action="store_true", help="Skip Leonardo.ai image generation")
     parser.add_argument("--date", default=date.today().isoformat(), help="Run date (YYYY-MM-DD)")
+    parser.add_argument("--test-config", action="store_true", help="Validate all env vars, no API calls")
     args = parser.parse_args()
+
+    if args.test_config:
+        _test_config()
+        return
 
     run_dir = RUNS_DIR / args.date
     run_dir.mkdir(parents=True, exist_ok=True)

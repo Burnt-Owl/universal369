@@ -1,0 +1,13 @@
+# Secrets — never commit
+.env
+youtube-client-secrets.json
+
+# Generated run output
+runs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
