@@ -29,9 +29,17 @@ def parse_script(script_md: str) -> list[tuple[str, str]]:
     for raw_line in script_md.split("\n"):
         raw_line = raw_line.strip()
         if raw_line.startswith("RAVEN:"):
-            lines.append(("RAVEN", raw_line[6:].strip()))
+            text = raw_line[6:].strip()
         elif raw_line.startswith("JAX:"):
-            lines.append(("JAX", raw_line[4:].strip()))
+            text = raw_line[4:].strip()
+        else:
+            continue
+        # Strip stage directions like *(nodding)* or *[pause]*
+        text = re.sub(r'\*[^*]+\*', '', text).strip()
+        text = re.sub(r'\[[^\]]+\]', '', text).strip()
+        if text:
+            speaker = "RAVEN" if raw_line.startswith("RAVEN") else "JAX"
+            lines.append((speaker, text))
     return lines
 
 
@@ -80,9 +88,9 @@ def run(run_dir: Path) -> tuple[Path, Path]:
     script_file = run_dir / "script.md"
     script_text = script_file.read_text()
 
-    # Extract just the dialogue section (between the --- markers)
-    match = re.search(r"---\n\n(.*?)\n\n---", script_text, re.DOTALL)
-    dialogue = match.group(1) if match else script_text
+    # Extract the last --- block (dialogue section), skipping title blocks
+    matches = list(re.finditer(r"---\n\n(.*?)\n\n---", script_text, re.DOTALL))
+    dialogue = matches[-1].group(1) if matches else script_text
 
     parsed = parse_script(dialogue)
     if not parsed:
