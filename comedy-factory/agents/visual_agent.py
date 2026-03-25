@@ -85,6 +85,18 @@ def _build_scene_prompts(headline: str) -> list[str]:
     ]
 
 
+def generate_backgrounds_leonardo(headline: str) -> list[bytes]:
+    """Generates 2 background images via Leonardo.ai (fallback when Gemini unavailable)."""
+    if not LEONARDO_API_KEY:
+        raise ValueError("[visual_agent] Neither GEMINI_API_KEY nor LEONARDO_API_KEY is set.")
+
+    results = []
+    for i, prompt in enumerate(_build_scene_prompts(headline), 1):
+        print(f"[visual_agent] Generating background-0{i} via Leonardo...")
+        results.append(_generate_character_leonardo(f"background-0{i}", prompt))
+    return results
+
+
 def generate_backgrounds_imagen(headline: str) -> list[bytes]:
     """Calls Gemini Imagen 3 to generate 2 episode-specific background images."""
     if not GEMINI_API_KEY:
@@ -396,8 +408,16 @@ def run(run_dir: Path, regen_characters: bool = False) -> list[Path]:
     # Layer 1: Characters (Leonardo, cached globally)
     characters = ensure_characters(regen=regen_characters)
 
-    # Layer 2: Backgrounds (Gemini Imagen, per-episode)
-    bg_images = generate_backgrounds_imagen(headline)
+    # Layer 2: Backgrounds — Gemini if available, Leonardo as fallback
+    if GEMINI_API_KEY:
+        bg_images = generate_backgrounds_imagen(headline)
+    elif LEONARDO_API_KEY:
+        print("[visual_agent] GEMINI_API_KEY not set — using Leonardo for backgrounds.")
+        bg_images = generate_backgrounds_leonardo(headline)
+    else:
+        raise ValueError(
+            "[visual_agent] Set GEMINI_API_KEY (free) or LEONARDO_API_KEY to generate backgrounds."
+        )
 
     # Layer 3: Composite frames (PIL)
     frames = composite_frames(bg_images, characters, headline, assets_dir)
