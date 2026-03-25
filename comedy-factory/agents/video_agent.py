@@ -193,6 +193,30 @@ def run(run_dir: Path) -> Path:
     if result.returncode != 0:
         raise RuntimeError(f"ffmpeg failed:\n{result.stderr[-2000:]}")
 
+    # Burn captions into video
+    captioned = run_dir / f"final-{date_str}-captioned.mp4"
+    cap_cmd = [
+        FFMPEG, "-y",
+        "-i", str(out_file),
+        "-vf", (
+            f"subtitles='{srt_file}':force_style='"
+            "FontName=DejaVu Sans Bold,FontSize=20,"
+            "PrimaryColour=&HFFFFFF,OutlineColour=&H000000,"
+            "Outline=2,Shadow=1,Alignment=2,MarginV=35'"
+        ),
+        "-c:v", "libx264", "-preset", "fast",
+        "-c:a", "copy",
+        "-pix_fmt", "yuv420p",
+        str(captioned),
+    ]
+    cap_result = subprocess.run(cap_cmd, capture_output=True, text=True)
+    if cap_result.returncode == 0:
+        out_file.unlink()          # remove un-captioned version
+        captioned.rename(out_file) # promote captioned to final
+        print(f"[video_agent] Captions burned in ✓")
+    else:
+        print(f"[video_agent] Caption burn failed (keeping uncaptioned): {cap_result.stderr[-200:]}")
+
     size_mb = out_file.stat().st_size / 1_000_000
     print(f"[video_agent] Video saved → {out_file.name}  ({size_mb:.1f}MB)")
     return out_file
