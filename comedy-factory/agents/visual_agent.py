@@ -249,6 +249,36 @@ def _wrap_text(text: str, font, max_width: int, draw: ImageDraw) -> list[str]:
     return lines[:3]
 
 
+def _tint(img: Image.Image, color: tuple, strength: float = 0.18) -> Image.Image:
+    """Overlay a color tint on an RGBA image."""
+    overlay = Image.new("RGBA", img.size, color + (int(255 * strength),))
+    return Image.alpha_composite(img, overlay)
+
+
+def _build_base(bg_bytes: bytes, W: int, H: int, darkness: int = 70) -> Image.Image:
+    bg = Image.open(io.BytesIO(bg_bytes)).convert("RGBA").resize((W, H), Image.LANCZOS)
+    return Image.alpha_composite(bg, Image.new("RGBA", (W, H), (0, 0, 0, darkness)))
+
+
+def _add_headline(frame: Image.Image, headline: str, W: int) -> Image.Image:
+    draw = ImageDraw.Draw(frame)
+    font = _load_font(38)
+    lines = _wrap_text(headline, font, W - 60, draw)
+    line_h = 50
+    box_h = len(lines) * line_h + 32
+    draw.rectangle([(0, 0), (W, box_h + 10)], fill=(0, 0, 0, 180))
+    for j, line in enumerate(lines):
+        draw.text((W // 2, 20 + j * line_h), line, fill="white", font=font, anchor="mt")
+    return frame
+
+
+def _add_branding(frame: Image.Image, W: int, H: int) -> Image.Image:
+    draw = ImageDraw.Draw(frame)
+    draw.rectangle([(0, H - 56), (W, H)], fill=(0, 0, 0, 220))
+    draw.text((W // 2, H - 28), "RAVEN & JAX", fill="white", font=_load_font(26), anchor="mm")
+    return frame
+
+
 def composite_frames(
     bg_images: list[bytes],
     characters: dict,
@@ -256,64 +286,87 @@ def composite_frames(
     assets_dir: Path,
 ) -> list[Path]:
     """
-    Composites background + character shots + text overlays into frame-*.png.
-
-    Layout (1080x1920):
-      - Background: full frame, slightly darkened
-      - Raven: bottom-left, 52% frame height
-      - Jax:   bottom-right, 52% frame height
-      - Headline: top bar, white text on semi-transparent black
-      - Branding: bottom bar, "RAVEN & JAX"
+    Creates 3 distinct frame types for dynamic cutting:
+      frame-wide.png   — both characters equal, establishing shot
+      frame-raven.png  — Raven dominant (left, large), cool blue tint
+      frame-jax.png    — Jax dominant (right, large), warm amber tint
     """
     W, H = VIDEO_WIDTH, VIDEO_HEIGHT
-    CHAR_H = int(H * 0.52)
-    BOTTOM_ANCHOR = H - 60  # above branding bar
-
     saved = []
-    for i, bg_bytes in enumerate(bg_images, 1):
-        bg = Image.open(io.BytesIO(bg_bytes)).convert("RGBA").resize((W, H), Image.LANCZOS)
 
-        # Subtle darkening for text contrast
-        bg = Image.alpha_composite(bg, Image.new("RGBA", (W, H), (0, 0, 0, 65)))
+    raven_img = Image.open(characters["raven"]).convert("RGBA") if characters.get("raven") else None
+    jax_img   = Image.open(characters["jax"]).convert("RGBA")   if characters.get("jax")   else None
 
-        # Paste Raven (left)
-        raven_path = characters.get("raven")
-        if raven_path:
-            raven = Image.open(raven_path).convert("RGBA")
-            rw = int(CHAR_H * raven.width / raven.height)
-            raven = raven.resize((rw, CHAR_H), Image.LANCZOS)
-            bg.paste(raven, (0, BOTTOM_ANCHOR - CHAR_H), raven)
+    bg0 = bg_images[0]
+    bg1 = bg_images[1] if len(bg_images) > 1 else bg_images[0]
 
-        # Paste Jax (right)
-        jax_path = characters.get("jax")
-        if jax_path:
-            jax = Image.open(jax_path).convert("RGBA")
-            jw = int(CHAR_H * jax.width / jax.height)
-            jax = jax.resize((jw, CHAR_H), Image.LANCZOS)
-            bg.paste(jax, (W - jw, BOTTOM_ANCHOR - CHAR_H), jax)
+    # ── Frame 1: Wide shot — both characters equal ──────────────────────────
+    base = _build_base(bg0, W, H, darkness=60)
+    CHAR_H_WIDE = int(H * 0.54)
+    BOTTOM = H - 56
+    if raven_img:
+        rw = int(CHAR_H_WIDE * raven_img.width / raven_img.height)
+        r = raven_img.resize((rw, CHAR_H_WIDE), Image.LANCZOS)
+        base.paste(r, (0, BOTTOM - CHAR_H_WIDE), r)
+    if jax_img:
+        jw = int(CHAR_H_WIDE * jax_img.width / jax_img.height)
+        j = jax_img.resize((jw, CHAR_H_WIDE), Image.LANCZOS)
+        base.paste(j, (W - jw, BOTTOM - CHAR_H_WIDE), j)
+    frame = base.convert("RGB")
+    _add_headline(frame, headline, W)
+    _add_branding(frame, W, H)
+    out = assets_dir / "frame-wide.png"
+    frame.save(out, "PNG")
+    saved.append(out)
+    print("[visual_agent] Saved → frame-wide.png")
 
-        frame = bg.convert("RGB")
-        draw = ImageDraw.Draw(frame)
+    # ── Frame 2: Raven focus — Raven large, cool tint ──────────────────────
+    base = _build_base(bg0, W, H, darkness=80)
+    base = _tint(base, (30, 60, 120), 0.20)   # cool blue
+    CHAR_H_BIG  = int(H * 0.70)
+    CHAR_H_SMALL = int(H * 0.38)
+    if raven_img:
+        rw = int(CHAR_H_BIG * raven_img.width / raven_img.height)
+        r = raven_img.resize((rw, CHAR_H_BIG), Image.LANCZOS)
+        # Center Raven horizontally
+        x = (W - rw) // 2 - 60
+        base.paste(r, (max(0, x), BOTTOM - CHAR_H_BIG), r)
+    if jax_img:
+        jw = int(CHAR_H_SMALL * jax_img.width / jax_img.height)
+        j = jax_img.resize((jw, CHAR_H_SMALL), Image.LANCZOS)
+        # Jax small in corner, slightly faded
+        fade = Image.new("RGBA", j.size, (0, 0, 0, 100))
+        jf = Image.alpha_composite(j, fade)
+        base.paste(jf, (W - jw - 10, BOTTOM - CHAR_H_SMALL), jf)
+    frame = base.convert("RGB")
+    _add_headline(frame, headline, W)
+    _add_branding(frame, W, H)
+    out = assets_dir / "frame-raven.png"
+    frame.save(out, "PNG")
+    saved.append(out)
+    print("[visual_agent] Saved → frame-raven.png")
 
-        # Headline bar
-        font_hl = _load_font(36)
-        lines = _wrap_text(headline, font_hl, W - 40, draw)
-        line_h = 46
-        box_h = len(lines) * line_h + 28
-        draw.rectangle([(0, 55), (W, 55 + box_h)], fill=(0, 0, 0, 155))
-        for j, line in enumerate(lines):
-            draw.text((W // 2, 70 + j * line_h), line,
-                      fill="white", font=font_hl, anchor="mt")
-
-        # Branding bar
-        draw.rectangle([(0, H - 60), (W, H)], fill=(0, 0, 0, 215))
-        draw.text((W // 2, H - 30), "RAVEN & JAX",
-                  fill="white", font=_load_font(28), anchor="mm")
-
-        out = assets_dir / f"frame-0{i}.png"
-        frame.save(out, "PNG")
-        saved.append(out)
-        print(f"[visual_agent] Saved → {out.name}")
+    # ── Frame 3: Jax focus — Jax large, warm amber tint ────────────────────
+    base = _build_base(bg1, W, H, darkness=80)
+    base = _tint(base, (120, 60, 0), 0.20)    # warm amber
+    if jax_img:
+        jw = int(CHAR_H_BIG * jax_img.width / jax_img.height)
+        j = jax_img.resize((jw, CHAR_H_BIG), Image.LANCZOS)
+        x = (W - jw) // 2 + 60
+        base.paste(j, (min(W - jw, x), BOTTOM - CHAR_H_BIG), j)
+    if raven_img:
+        rw = int(CHAR_H_SMALL * raven_img.width / raven_img.height)
+        r = raven_img.resize((rw, CHAR_H_SMALL), Image.LANCZOS)
+        fade = Image.new("RGBA", r.size, (0, 0, 0, 100))
+        rf = Image.alpha_composite(r, fade)
+        base.paste(rf, (10, BOTTOM - CHAR_H_SMALL), rf)
+    frame = base.convert("RGB")
+    _add_headline(frame, headline, W)
+    _add_branding(frame, W, H)
+    out = assets_dir / "frame-jax.png"
+    frame.save(out, "PNG")
+    saved.append(out)
+    print("[visual_agent] Saved → frame-jax.png")
 
     return saved
 
