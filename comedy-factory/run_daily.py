@@ -7,7 +7,8 @@ Usage:
   python run_daily.py                    # Full run including publish
   python run_daily.py --dry-run          # Script only, no API calls for media
   python run_daily.py --skip-publish     # Full pipeline, skip YouTube/TikTok upload
-  python run_daily.py --skip-visuals     # Skip Leonardo.ai image generation
+  python run_daily.py --skip-visuals     # Skip visual frame generation
+  python run_daily.py --regen-characters # Re-generate Raven & Jax shots via Leonardo
   python run_daily.py --date 2026-03-25  # Run for a specific date
   python run_daily.py --test-config      # Validate all env vars are set (no API calls)
 """
@@ -40,10 +41,12 @@ REQUIRED_VARS = [
     ("ELEVENLABS_API_KEY", "elevenlabs.io"),
     ("RAVEN_VOICE_ID", "ElevenLabs voice ID for Raven"),
     ("JAX_VOICE_ID", "ElevenLabs voice ID for Jax"),
-    ("LEONARDO_API_KEY", "app.leonardo.ai"),
+    ("GEMINI_API_KEY", "aistudio.google.com"),
 ]
 
 OPTIONAL_VARS = [
+    ("LEONARDO_API_KEY", "app.leonardo.ai (--regen-characters only)"),
+    ("CANVA_ACCESS_TOKEN", "canva.com (episode thumbnail)"),
     ("TIKTOK_ACCESS_TOKEN", "developers.tiktok.com"),
     ("YOUTUBE_CLIENT_SECRETS", "Google Cloud Console"),
     ("SLACK_WEBHOOK_URL", "Slack app webhook (for review gate)"),
@@ -93,7 +96,8 @@ def main():
     parser = argparse.ArgumentParser(description="Comedy Factory daily runner")
     parser.add_argument("--dry-run", action="store_true", help="Script only, no media generation")
     parser.add_argument("--skip-publish", action="store_true", help="Skip YouTube/TikTok upload")
-    parser.add_argument("--skip-visuals", action="store_true", help="Skip Leonardo.ai image generation")
+    parser.add_argument("--skip-visuals", action="store_true", help="Skip visual frame generation")
+    parser.add_argument("--regen-characters", action="store_true", help="Force re-generation of Raven & Jax character PNGs via Leonardo")
     parser.add_argument("--date", default=date.today().isoformat(), help="Run date (YYYY-MM-DD)")
     parser.add_argument("--test-config", action="store_true", help="Validate all env vars, no API calls")
     args = parser.parse_args()
@@ -131,7 +135,8 @@ def main():
 
     # 5. Generate visuals (optional)
     if not args.skip_visuals:
-        step("Visual Agent", visual_agent.run, run_dir)
+        step("Visual Agent", visual_agent.run, run_dir,
+             regen_characters=args.regen_characters)
     else:
         print("\n[SKIPPED] Visual Agent")
 

@@ -39,9 +39,21 @@ KEYS = [
         "where": "elevenlabs.io  →  Voices  →  create 'Jax'  →  copy the ID",
     },
     {
+        "key": "GEMINI_API_KEY",
+        "label": "Google Gemini API key (Imagen backgrounds — free 500/day)",
+        "where": "aistudio.google.com  →  Get API key  →  Create API key",
+    },
+    {
         "key": "LEONARDO_API_KEY",
-        "label": "Leonardo.ai API key",
+        "label": "Leonardo.ai API key (--regen-characters only)",
         "where": "app.leonardo.ai  →  User Settings  →  API Access  →  Create key",
+        "optional": True,
+    },
+    {
+        "key": "CANVA_ACCESS_TOKEN",
+        "label": "Canva Personal Access Token (episode thumbnails)",
+        "where": "canva.com  →  Settings  →  Apps & Integrations  →  Personal Access Tokens",
+        "optional": True,
     },
     {
         "key": "TIKTOK_ACCESS_TOKEN",

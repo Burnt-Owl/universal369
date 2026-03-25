@@ -49,7 +49,12 @@ def run(run_dir: Path) -> Path:
     raven_audio = run_dir / "raven-voice.mp3"
     jax_audio = run_dir / "jax-voice.mp3"
     assets_dir = run_dir / "assets"
-    backgrounds = sorted(assets_dir.glob("background-*.png")) if assets_dir.exists() else []
+    if assets_dir.exists():
+        # Prefer composited frames (background + characters + text) over raw backgrounds
+        frames = sorted(assets_dir.glob("frame-*.png"))
+        backgrounds = frames if frames else sorted(assets_dir.glob("background-*.png"))
+    else:
+        backgrounds = []
 
     out_file = run_dir / f"final-{date_str}.mp4"
 
