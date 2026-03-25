@@ -2,7 +2,12 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load from secure vault first (~/.comedy-factory/.env), then fall back to local .env
+_VAULT = Path.home() / ".comedy-factory" / ".env"
+_LOCAL = Path(__file__).parent / ".env"
+
+load_dotenv(_VAULT)    # secrets vault (outside repo, never committed)
+load_dotenv(_LOCAL, override=False)  # local .env only fills gaps, never overwrites vault
 
 # --- API Keys ---
 NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
