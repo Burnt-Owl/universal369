@@ -1,6 +1,12 @@
 """
 Video Agent — assembles final MP4 from audio, images, and captions using ffmpeg.
 Output: runs/YYYY-MM-DD/final-YYYY-MM-DD.mp4
+
+Features:
+- Ken Burns slow zoom on each scene frame
+- Cross-fade transition between Scene 1 (Raven) and Scene 2 (Jax)
+- Captions burned in from script, timed to audio durations
+- Audio: Raven then Jax in sequence
 """
 
 import re
@@ -13,33 +19,18 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS
 
-# Use system ffmpeg if available, else fall back to imageio-ffmpeg binary
-def _find_ffmpeg() -> tuple[str, str]:
+
+def _find_ffmpeg() -> str:
     import shutil
     if shutil.which("ffmpeg"):
-        return "ffmpeg", "ffprobe"
+        return "ffmpeg"
     try:
         import imageio_ffmpeg
-        ff = imageio_ffmpeg.get_ffmpeg_exe()
-        fp = ff.replace("ffmpeg", "ffprobe") if Path(ff.replace("ffmpeg", "ffprobe")).exists() else ff
-        return ff, fp
+        return imageio_ffmpeg.get_ffmpeg_exe()
     except ImportError:
-        raise RuntimeError("ffmpeg not found. Install it or run: pip install imageio-ffmpeg")
+        raise RuntimeError("ffmpeg not found. Run: pip install imageio-ffmpeg")
 
-FFMPEG, FFPROBE = _find_ffmpeg()
-
-
-def parse_script_lines(script_md: str) -> list[tuple[str, str]]:
-    lines = []
-    match = re.search(r"---\n\n(.*?)\n\n---", script_md, re.DOTALL)
-    dialogue = match.group(1) if match else script_md
-    for raw in dialogue.split("\n"):
-        raw = raw.strip()
-        if raw.startswith("RAVEN:"):
-            lines.append(("RAVEN", raw[6:].strip()))
-        elif raw.startswith("JAX:"):
-            lines.append(("JAX", raw[4:].strip()))
-    return lines
+FFMPEG = _find_ffmpeg()
 
 
 def get_audio_duration(audio_file: Path) -> float:
@@ -47,74 +38,163 @@ def get_audio_duration(audio_file: Path) -> float:
     return MP3(str(audio_file)).info.length
 
 
+def parse_script_lines(script_md: str) -> list[tuple[str, str]]:
+    """Return [(speaker, line), ...] stripping stage directions."""
+    lines = []
+    for raw in script_md.split("\n"):
+        raw = raw.strip()
+        if raw.startswith("RAVEN:"):
+            text = raw[6:].strip()
+            spk = "Raven"
+        elif raw.startswith("JAX:"):
+            text = raw[4:].strip()
+            spk = "Jax"
+        else:
+            continue
+        text = re.sub(r'\*[^*]+\*', '', text).strip()
+        text = re.sub(r'\[[^\]]+\]', '', text).strip()
+        if text:
+            lines.append((spk, text))
+    return lines
+
+
+def write_srt(lines: list[tuple[str, str]], raven_dur: float, jax_dur: float, path: Path):
+    """
+    Write a .srt subtitle file.
+    Raven lines fill the first raven_dur seconds, Jax lines fill the next jax_dur seconds.
+    """
+    raven_lines = [(s, t) for s, t in lines if s == "Raven"]
+    jax_lines   = [(s, t) for s, t in lines if s == "Jax"]
+
+    entries = []
+
+    def spread(speaker_lines, start_time, total_dur):
+        n = len(speaker_lines)
+        if not n:
+            return
+        per = total_dur / n
+        for i, (spk, text) in enumerate(speaker_lines):
+            t_in  = start_time + i * per
+            t_out = t_in + per - 0.15
+            entries.append((t_in, t_out, spk, text))
+
+    spread(raven_lines, 0.3, raven_dur - 0.3)
+    spread(jax_lines,   raven_dur + 0.3, jax_dur - 0.3)
+
+    def fmt(secs):
+        h = int(secs // 3600)
+        m = int((secs % 3600) // 60)
+        s = int(secs % 60)
+        ms = int((secs % 1) * 1000)
+        return f"{h:02}:{m:02}:{s:02},{ms:03}"
+
+    srt = ""
+    for idx, (t_in, t_out, spk, text) in enumerate(entries, 1):
+        color = "#FFD741" if spk == "Raven" else "#64B9FF"
+        srt += f"{idx}\n{fmt(t_in)} --> {fmt(t_out)}\n"
+        srt += f"<font color='{color}'><b>{spk}</b></font>  {text}\n\n"
+
+    path.write_text(srt, encoding="utf-8")
+
+
 def run(run_dir: Path) -> Path:
-    script_md = (run_dir / "script.md").read_text()
-    event_data = json.loads((run_dir / "selected-event.json").read_text())
-    headline = event_data["selected"]["headline"]
-    date_str = run_dir.name
+    script_md   = (run_dir / "script.md").read_text()
+    event_data  = json.loads((run_dir / "selected-event.json").read_text())
+    date_str    = run_dir.name
 
     raven_audio = run_dir / "raven-voice.mp3"
-    jax_audio = run_dir / "jax-voice.mp3"
-    assets_dir = run_dir / "assets"
-    if assets_dir.exists():
-        # Prefer composited frames (background + characters + text) over raw backgrounds
-        frames = sorted(assets_dir.glob("frame-*.png"))
-        backgrounds = frames if frames else sorted(assets_dir.glob("background-*.png"))
-    else:
-        backgrounds = []
-
-    out_file = run_dir / f"final-{date_str}.mp4"
+    jax_audio   = run_dir / "jax-voice.mp3"
+    assets_dir  = run_dir / "assets"
+    frames      = sorted(assets_dir.glob("frame-*.png")) if assets_dir.exists() else []
+    out_file    = run_dir / f"final-{date_str}.mp4"
 
     raven_dur = get_audio_duration(raven_audio)
-    jax_dur = get_audio_duration(jax_audio)
-    total_dur = raven_dur + jax_dur + 1.0  # 1s buffer
+    jax_dur   = get_audio_duration(jax_audio)
+    total_dur = raven_dur + jax_dur + 0.5
 
-    print(f"[video_agent] Raven: {raven_dur:.1f}s, Jax: {jax_dur:.1f}s, Total: {total_dur:.1f}s")
+    print(f"[video_agent] Raven: {raven_dur:.1f}s  Jax: {jax_dur:.1f}s  Total: {total_dur:.1f}s")
 
-    # Build background: frames already have text+characters baked in from PIL compositing
-    if backgrounds:
-        bg_input = ["-loop", "1", "-i", str(backgrounds[0])]
-        bg_filter = (
-            f"[0:v]scale={VIDEO_WIDTH}:{VIDEO_HEIGHT}:force_original_aspect_ratio=increase,"
-            f"crop={VIDEO_WIDTH}:{VIDEO_HEIGHT},setsar=1,fps={VIDEO_FPS}[out]"
+    # Write subtitles
+    script_lines = parse_script_lines(script_md)
+    srt_file = run_dir / "captions.srt"
+    write_srt(script_lines, raven_dur, jax_dur, srt_file)
+
+    W, H, FPS = VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS
+    XFADE_DUR = 0.8   # cross-fade duration in seconds
+    XFADE_AT  = raven_dur - XFADE_DUR / 2
+
+    if len(frames) >= 2:
+        # Two frames: Ken Burns on each + cross-fade transition
+        f1_frames = int(raven_dur * FPS) + int(XFADE_DUR * FPS)
+        f2_frames = int(jax_dur   * FPS) + int(XFADE_DUR * FPS)
+
+        # Ken Burns: slow zoom-in on scene 1, slow zoom-out on scene 2
+        kb1 = (
+            f"[0:v]scale=8000:-1,zoompan=z='min(zoom+0.0006,1.08)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
+            f":d={f1_frames}:s={W}x{H}:fps={FPS},setsar=1[v1]"
         )
-        input_count = 1
-    else:
-        bg_input = []
-        bg_filter = f"color=black:{VIDEO_WIDTH}x{VIDEO_HEIGHT}:r={VIDEO_FPS}[out]"
-        input_count = 0
+        kb2 = (
+            f"[1:v]scale=8000:-1,zoompan=z='if(lte(zoom,1.0),1.08,max(zoom-0.0006,1.0))':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
+            f":d={f2_frames}:s={W}x{H}:fps={FPS},setsar=1[v2]"
+        )
+        xfade = f"[v1][v2]xfade=transition=fade:duration={XFADE_DUR}:offset={XFADE_AT}[vout]"
 
-    # Merge audio: raven then jax in sequence
+        video_filter = f"{kb1};{kb2};{xfade}"
+        video_inputs = ["-i", str(frames[0]), "-i", str(frames[1])]
+        video_map    = "[vout]"
+        audio_idx    = 2
+
+    elif len(frames) == 1:
+        # Single frame with Ken Burns
+        total_frames = int(total_dur * FPS)
+        kb = (
+            f"[0:v]scale=8000:-1,zoompan=z='min(zoom+0.0004,1.06)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
+            f":d={total_frames}:s={W}x{H}:fps={FPS},setsar=1[vout]"
+        )
+        video_filter = kb
+        video_inputs = ["-i", str(frames[0])]
+        video_map    = "[vout]"
+        audio_idx    = 1
+
+    else:
+        # No frames — black background
+        video_filter = f"color=black:{W}x{H}:r={FPS}[vout]"
+        video_inputs = []
+        video_map    = "[vout]"
+        audio_idx    = 0
+
+    # Audio: sequence Raven then Jax
     audio_filter = (
-        f"[{input_count}:a]adelay=0[a0];"
-        f"[{input_count + 1}:a]adelay={int(raven_dur * 1000)}[a1];"
+        f"[{audio_idx}:a]adelay=0[a0];"
+        f"[{audio_idx+1}:a]adelay={int(raven_dur*1000)}[a1];"
         "[a0][a1]amix=inputs=2:duration=longest[audio]"
     )
 
-    filter_complex = bg_filter + ";" + audio_filter
+    filter_complex = video_filter + ";" + audio_filter
 
     cmd = [
         FFMPEG, "-y",
-        *bg_input,
+        *video_inputs,
         "-i", str(raven_audio),
         "-i", str(jax_audio),
         "-filter_complex", filter_complex,
-        "-map", "[out]",
+        "-map", video_map,
         "-map", "[audio]",
         "-t", str(total_dur),
-        "-c:v", "libx264",
+        "-c:v", "libx264", "-preset", "fast",
         "-c:a", "aac",
         "-pix_fmt", "yuv420p",
         "-movflags", "+faststart",
         str(out_file),
     ]
 
-    print(f"[video_agent] Assembling video...")
+    print("[video_agent] Assembling video with Ken Burns + cross-fade...")
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         raise RuntimeError(f"ffmpeg failed:\n{result.stderr[-2000:]}")
 
-    print(f"[video_agent] Video saved → {out_file}")
+    size_mb = out_file.stat().st_size / 1_000_000
+    print(f"[video_agent] Video saved → {out_file.name}  ({size_mb:.1f}MB)")
     return out_file
 
 

@@ -88,11 +88,8 @@ def run(run_dir: Path) -> tuple[Path, Path]:
     script_file = run_dir / "script.md"
     script_text = script_file.read_text()
 
-    # Extract the last --- block (dialogue section), skipping title blocks
-    matches = list(re.finditer(r"---\n\n(.*?)\n\n---", script_text, re.DOTALL))
-    dialogue = matches[-1].group(1) if matches else script_text
-
-    parsed = parse_script(dialogue)
+    # Scan entire file — parse_script only picks up RAVEN:/JAX: lines
+    parsed = parse_script(script_text)
     if not parsed:
         raise ValueError("[voice_agent] No dialogue lines found in script.")
 
