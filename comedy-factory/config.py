@@ -13,7 +13,10 @@ load_dotenv(_LOCAL, override=False)  # local .env only fills gaps, never overwri
 NEWS_API_KEY = os.getenv("NEWS_API_KEY", "")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
-LEONARDO_API_KEY = os.getenv("LEONARDO_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")           # Imagen backgrounds (free, per-episode)
+LEONARDO_API_KEY = os.getenv("LEONARDO_API_KEY", "")       # Character shots (optional, cached)
+CANVA_ACCESS_TOKEN = os.getenv("CANVA_ACCESS_TOKEN", "")   # Thumbnail generation (optional)
+CANVA_BRAND_TEMPLATE_ID = os.getenv("CANVA_BRAND_TEMPLATE_ID", "")  # optional Canva template
 YOUTUBE_CLIENT_SECRETS = os.getenv("YOUTUBE_CLIENT_SECRETS", "")
 TIKTOK_ACCESS_TOKEN = os.getenv("TIKTOK_ACCESS_TOKEN", "")
 
