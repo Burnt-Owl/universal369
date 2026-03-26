@@ -12,39 +12,39 @@ Style: Label,Arial,38,&H00FFFFFF,&H00000000,&H00000000,-1,0,1,2,0,2,290
 
 [Events]
 Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
-Dialogue: 0,0:00:00.30,0:00:05.11,Raven,,0,0,0,,Jax. JAX. Look at me. Three\Nworld leaders said "months."\NMONTHS.
-Dialogue: 1,0:00:00.30,0:00:05.11,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
-Dialogue: 0,0:00:05.21,0:00:09.86,Raven,,0,0,0,,All of them! The ones with the\Nhats AND the ones without hats!
-Dialogue: 1,0:00:05.21,0:00:09.86,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
-Dialogue: 0,0:00:09.96,0:00:16.15,Raven,,0,0,0,,I literally told you this would\Nhappen. I have a 47-page\Ndocument. I LAMINATED it.
-Dialogue: 1,0:00:09.96,0:00:16.15,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
-Dialogue: 0,0:00:16.25,0:00:25.28,Raven,,0,0,0,,I laminated a SURVIVAL PLAN. We\Nneed 400 cans of beans, a hand-\Ncrank radio, and I'm pricing out\Nbunkers on Craigslist —
-Dialogue: 1,0:00:16.25,0:00:25.28,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
-Dialogue: 0,0:00:25.38,0:00:28.96,Raven,,0,0,0,,Gary in Ohio has one. Reasonable\Nsquare footage.
-Dialogue: 1,0:00:25.38,0:00:28.96,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
-Dialogue: 0,0:00:29.06,0:00:30.16,Raven,,0,0,0,,...Nothing yet.
-Dialogue: 1,0:00:29.06,0:00:30.16,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
-Dialogue: 0,0:00:30.26,0:00:31.36,Raven,,0,0,0,,What.
-Dialogue: 1,0:00:30.26,0:00:31.36,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
-Dialogue: 0,0:00:31.46,0:00:34.74,Raven,,0,0,0,,There are no coincidences, Jax.\NThe timing —
-Dialogue: 1,0:00:31.46,0:00:34.74,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
-Dialogue: 0,0:00:34.84,0:00:37.58,Raven,,0,0,0,,...I hate that that's almost\Nlogical.
-Dialogue: 1,0:00:34.84,0:00:37.58,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
-Dialogue: 0,0:00:37.21,0:00:38.85,Jax,,0,0,0,,Wait — which world leaders?
-Dialogue: 1,0:00:37.21,0:00:38.85,Label,,0,0,0,,{\c&H0064B9FF&}JAX
-Dialogue: 0,0:00:38.95,0:00:40.20,Jax,,0,0,0,,Okay but is that bad?
-Dialogue: 1,0:00:38.95,0:00:40.20,Label,,0,0,0,,{\c&H0064B9FF&}JAX
-Dialogue: 0,0:00:40.30,0:00:41.49,Jax,,0,0,0,,You laminated a war.
-Dialogue: 1,0:00:40.30,0:00:41.49,Label,,0,0,0,,{\c&H0064B9FF&}JAX
-Dialogue: 0,0:00:41.59,0:00:43.54,Jax,,0,0,0,,There are bunkers on Craigslist?
-Dialogue: 1,0:00:41.59,0:00:43.54,Label,,0,0,0,,{\c&H0064B9FF&}JAX
-Dialogue: 0,0:00:43.64,0:00:45.92,Jax,,0,0,0,,What'd you get me for the\Napocalypse?
-Dialogue: 1,0:00:43.64,0:00:45.92,Label,,0,0,0,,{\c&H0064B9FF&}JAX
-Dialogue: 0,0:00:46.02,0:00:47.40,Jax,,0,0,0,,I got myself something.
-Dialogue: 1,0:00:46.02,0:00:47.40,Label,,0,0,0,,{\c&H0064B9FF&}JAX
-Dialogue: 0,0:00:47.50,0:00:53.58,Jax,,0,0,0,,New game. Seventy hours of\Ncontent. If WW3 starts I'll deal\Nwith it after I finish the\Ntutorial.
-Dialogue: 1,0:00:47.50,0:00:53.58,Label,,0,0,0,,{\c&H0064B9FF&}JAX
-Dialogue: 0,0:00:53.68,0:00:57.76,Jax,,0,0,0,,Babe. If the world ends, you're\Ngonna want someone who's\Nrelaxed.
-Dialogue: 1,0:00:53.68,0:00:57.76,Label,,0,0,0,,{\c&H0064B9FF&}JAX
-Dialogue: 0,0:00:57.86,0:01:00.01,Jax,,0,0,0,,That's wild. You want another\Nbeer?
-Dialogue: 1,0:00:57.86,0:01:00.01,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:00.30,0:00:05.82,Raven,,0,0,0,,Jax. JAX. Put the controller\Ndown. Three world leaders said\N"months." MONTHS.
+Dialogue: 1,0:00:00.30,0:00:05.82,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:05.92,0:00:10.35,Raven,,0,0,0,,The ones with the hats AND the\Nones without hats. All of them!
+Dialogue: 1,0:00:05.92,0:00:10.35,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:10.45,0:00:18.15,Raven,,0,0,0,,I have a 47-page document. I\NLAMINATED it. The supply lines\Nare cut, Jax. The infrastructure\Nis collapsing.
+Dialogue: 1,0:00:10.45,0:00:18.15,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:18.25,0:00:25.96,Raven,,0,0,0,,Are you even listening? I'm\Npricing bunkers on Craigslist.\NGary in Ohio has one. Reasonable\Nsquare footage.
+Dialogue: 1,0:00:18.25,0:00:25.96,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:26.06,0:00:27.16,Raven,,0,0,0,,Nothing yet.
+Dialogue: 1,0:00:26.06,0:00:27.16,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:27.26,0:00:28.36,Raven,,0,0,0,,What.
+Dialogue: 1,0:00:27.26,0:00:28.36,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:28.46,0:00:31.94,Raven,,0,0,0,,You are playing a game while the\Nworld is ending.
+Dialogue: 1,0:00:28.46,0:00:31.94,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:32.04,0:00:33.14,Raven,,0,0,0,,Jax —
+Dialogue: 1,0:00:32.04,0:00:33.14,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:33.24,0:00:35.26,Raven,,0,0,0,,I hate you so much right now.
+Dialogue: 1,0:00:33.24,0:00:35.26,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:33.76,0:00:34.86,Jax,,0,0,0,,Which ones?
+Dialogue: 1,0:00:33.76,0:00:34.86,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:34.96,0:00:36.78,Jax,,0,0,0,,Okay but like — is that\Nconfirmed?
+Dialogue: 1,0:00:34.96,0:00:36.78,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:36.88,0:00:37.98,Jax,,0,0,0,,Crazy.
+Dialogue: 1,0:00:36.88,0:00:37.98,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:38.08,0:00:40.07,Jax,,0,0,0,,What'd you get me for the\Napocalypse?
+Dialogue: 1,0:00:38.08,0:00:40.07,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:40.17,0:00:41.36,Jax,,0,0,0,,I got myself something.
+Dialogue: 1,0:00:40.17,0:00:41.36,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:41.46,0:00:46.55,Jax,,0,0,0,,This game. Seventy hours of\Ncontent. Primitive survival\Nmechanics. Full resource\Nmanagement.
+Dialogue: 1,0:00:41.46,0:00:46.55,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:46.65,0:00:57.38,Jax,,0,0,0,,Babe. Look at me. When the EMP\Nhits and we're living in a cave\N— do you want the guy who's\Nshaking? Or do you want the guy\Nwho already spent 70 hours\Nmastering Primitive Survival on\Na 4K OLED?
+Dialogue: 1,0:00:46.65,0:00:57.38,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:57.48,0:00:59.86,Jax,,0,0,0,,I'm not playing a game, Raven.\NI'm training.
+Dialogue: 1,0:00:57.48,0:00:59.86,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:59.96,0:01:01.95,Jax,,0,0,0,,You want a snack? I found some\Nbeans.
+Dialogue: 1,0:00:59.96,0:01:01.95,Label,,0,0,0,,{\c&H0064B9FF&}JAX
