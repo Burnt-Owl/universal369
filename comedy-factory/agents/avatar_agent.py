@@ -25,7 +25,13 @@ POLL_TIMEOUT  = 300 # max seconds to wait per render
 
 
 def _auth(api_key: str) -> dict:
-    return {"Authorization": f"Basic {api_key}"}
+    """
+    D-ID API key format from dashboard: base64(email):raw_secret
+    HTTP Basic auth requires base64(username:password), so we encode the whole key.
+    """
+    import base64
+    encoded = base64.b64encode(api_key.encode()).decode()
+    return {"Authorization": f"Basic {encoded}"}
 
 
 def _upload_image(portrait: Path, api_key: str) -> str:
