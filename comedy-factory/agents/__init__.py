@@ -6,6 +6,7 @@ from . import (
     visual_agent,
     avatar_agent,
     stock_agent,
+    effects_agent,
     video_agent,
     publish_agent,
 )
