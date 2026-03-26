@@ -1,11 +1,14 @@
 """
-Video Agent — assembles final MP4 from audio, frames, and captions.
+Video Agent — assembles final MP4 from audio, frames/avatars, and captions.
 Output: runs/YYYY-MM-DD/final-YYYY-MM-DD.mp4
 
 Pipeline:
   1. Parse script → map dialogue lines to frame types (raven/jax/wide)
   2. Split audio proportionally across lines → timed clip list
-  3. Per clip: subtle drift zoom (crop shift) for motion feel
+  3. Per clip:
+       - Speaker clip + D-ID avatar exists → extract segment from talking-head video
+       - Speaker clip, no avatar           → static frame with drift zoom (fallback)
+       - Wide / reaction clip              → static frame with drift zoom
   4. Concatenate clips + audio
   5. Burn bold ASS captions (TikTok style: large, centered, speaker-colored)
 """
@@ -97,7 +100,6 @@ def write_ass(timed: list[tuple], path: Path):
         "[V4+ Styles]\n"
         "Format: Name,Fontname,Fontsize,PrimaryColour,OutlineColour,"
         "BackColour,Bold,Italic,BorderStyle,Outline,Shadow,Alignment,MarginV\n"
-        # Large bold centered captions — Raven gold, Jax blue
         "Style: Raven,Arial,52,&H0041D7FF,&H00000000,&HAA000000,-1,0,1,3,1,2,220\n"
         "Style: Jax,Arial,52,&H0064B9FF,&H00000000,&HAA000000,-1,0,1,3,1,2,220\n"
         "Style: Label,Arial,38,&H00FFFFFF,&H00000000,&H00000000,-1,0,1,2,0,2,290\n\n"
@@ -109,7 +111,6 @@ def write_ass(timed: list[tuple], path: Path):
     for spk, text, t_in, t_out in timed:
         wrapped = "\\N".join(textwrap.wrap(text, 32))
         dialogues += f"Dialogue: 0,{ts(t_in)},{ts(t_out)},{spk},,0,0,0,,{wrapped}\n"
-        # Speaker name label above caption
         name_color = "{\\c&H0041D7FF&}" if spk == "Raven" else "{\\c&H0064B9FF&}"
         dialogues += f"Dialogue: 1,{ts(t_in)},{ts(t_out)},Label,,0,0,0,,{name_color}{spk.upper()}\n"
 
@@ -120,20 +121,17 @@ def _make_clip(frame: Path, duration: float, clip_path: Path, W: int, H: int, fp
                zoom_in: bool = True):
     """
     Renders a single video clip from a still image with subtle drift zoom.
-    Uses crop-shift trick (fast): scale image 10% larger, drift the crop window.
+    Used for wide/reaction shots and as fallback when no D-ID avatar is available.
     """
-    # Scale 10% larger for drift room
     SW = int(W * 1.10)
     SH = int(H * 1.10)
-    dx = SW - W  # total horizontal drift budget
+    dx = SW - W
     dy = SH - H
 
     if zoom_in:
-        # Start wide (crop from center), drift inward (zoom in feel)
         x_expr = f"{dx//2}-({dx//2})*t/{duration:.2f}"
         y_expr = f"{dy//2}-({dy//2})*t/{duration:.2f}"
     else:
-        # Start tight, drift outward (zoom out feel)
         x_expr = f"({dx//2})*t/{duration:.2f}"
         y_expr = f"({dy//2})*t/{duration:.2f}"
 
@@ -157,6 +155,34 @@ def _make_clip(frame: Path, duration: float, clip_path: Path, W: int, H: int, fp
         raise RuntimeError(f"Clip render failed for {frame.name}:\n{r.stderr[-600:]}")
 
 
+def _clip_from_avatar(avatar: Path, t_start: float, duration: float,
+                      clip_path: Path, W: int, H: int, fps: int):
+    """
+    Extract a time segment from a D-ID talking-head video.
+    Scales/crops to target portrait dimensions (1080x1920).
+    t_start is relative to the start of that character's avatar video.
+    """
+    vf = (
+        f"scale={W}:{H}:force_original_aspect_ratio=increase,"
+        f"crop={W}:{H},"
+        f"setsar=1,fps={fps}"
+    )
+
+    r = subprocess.run([
+        FF, "-y",
+        "-ss", f"{t_start:.3f}",
+        "-i", str(avatar),
+        "-t", f"{duration:.3f}",
+        "-vf", vf,
+        "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
+        "-an",
+        str(clip_path),
+    ], capture_output=True, text=True)
+
+    if r.returncode != 0:
+        raise RuntimeError(f"Avatar clip extract failed:\n{r.stderr[-600:]}")
+
+
 def run(run_dir: Path) -> Path:
     script_md  = (run_dir / "script.md").read_text()
     date_str   = run_dir.name
@@ -173,12 +199,21 @@ def run(run_dir: Path) -> Path:
 
     print(f"[video_agent] Raven: {rd:.1f}s  Jax: {jd:.1f}s  Total: {total:.1f}s")
 
-    # Load frames
+    # D-ID avatar videos (produced by avatar_agent — optional, falls back gracefully)
+    raven_avatar = run_dir / "raven-avatar.mp4"
+    jax_avatar   = run_dir / "jax-avatar.mp4"
+    has_avatars  = raven_avatar.exists() and jax_avatar.exists()
+
+    if has_avatars:
+        print("[video_agent] D-ID avatars found — using talking-head clips for speaker sections.")
+    else:
+        print("[video_agent] No D-ID avatars — using static frames with drift zoom.")
+
+    # Load static frames
     frame_wide  = assets_dir / "frame-wide.png"
     frame_raven = assets_dir / "frame-raven.png"
     frame_jax   = assets_dir / "frame-jax.png"
 
-    # Fall back to old naming if new frames don't exist yet
     if not frame_raven.exists():
         old = sorted(assets_dir.glob("frame-*.png"))
         frame_raven = old[0] if old else frame_wide
@@ -187,22 +222,21 @@ def run(run_dir: Path) -> Path:
 
     W, H, FPS = VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS
 
-    # Parse script → timed lines
     lines = parse_script_lines(script_md)
     timed = _assign_timings(lines, rd, jd)
 
-    # Write captions
     ass_file = run_dir / "captions.ass"
     write_ass(timed, ass_file)
 
-    # Build clip list: cut on every speaker change AND every ~8s within same speaker
-    # Pattern: wide → raven_focus → wide → raven_focus → ... → jax_focus → wide → jax_focus
-    CUT_INTERVAL = 8.0  # max seconds before inserting a variety cut
-    clips_plan = []  # (frame_path, t_start, t_end, zoom_in)
+    # Build clip plan: (frame_path_or_None, t_start, t_end, zoom_in, speaker_or_None)
+    # speaker_or_None: "Raven"/"Jax" = use avatar clip; None = use static frame
+    CUT_INTERVAL = 8.0
+    clips_plan = []
 
     zoom_toggle = True
     current_seg_start = 0.0
     current_frame = frame_wide
+    current_speaker = None
     last_cut_t = 0.0
 
     for i, (spk, text, t_in, t_out) in enumerate(timed):
@@ -210,41 +244,52 @@ def run(run_dir: Path) -> Path:
         prev_spk = timed[i-1][0] if i > 0 else None
 
         speaker_changed = (prev_spk is not None and spk != prev_spk)
-        time_since_cut = t_in - last_cut_t
+        time_since_cut  = t_in - last_cut_t
 
         if speaker_changed or time_since_cut >= CUT_INTERVAL:
-            # Close current segment
             if t_in > current_seg_start:
-                clips_plan.append((current_frame, current_seg_start, t_in, zoom_toggle))
+                clips_plan.append((current_frame, current_seg_start, t_in, zoom_toggle, current_speaker))
                 zoom_toggle = not zoom_toggle
                 last_cut_t = t_in
 
-            # Decide next frame: alternate focus/wide for variety
             if speaker_changed:
-                # Brief wide reaction cut (1.5s) then focus
+                # Brief wide reaction cut (1.5s) then speaker focus
                 wide_end = min(t_in + 1.5, t_out)
-                clips_plan.append((frame_wide, t_in, wide_end, zoom_toggle))
+                clips_plan.append((frame_wide, t_in, wide_end, zoom_toggle, None))
                 zoom_toggle = not zoom_toggle
-                current_frame = focus
+                current_frame   = focus
+                current_speaker = spk
                 current_seg_start = wide_end
             else:
                 # Within same speaker: toggle between focus and wide
                 is_focus = (current_frame != frame_wide)
-                current_frame = frame_wide if is_focus else focus
+                current_frame   = frame_wide if is_focus else focus
+                current_speaker = spk if not is_focus else None
                 current_seg_start = t_in
 
-    # Close final segment
     if timed:
         last_t_out = timed[-1][3] + 0.3
-        clips_plan.append((current_frame, current_seg_start, last_t_out, zoom_toggle))
+        clips_plan.append((current_frame, current_seg_start, last_t_out, zoom_toggle, current_speaker))
 
     # Render each clip
     clip_files = []
-    for idx, (frame_path, t_start, t_end, zi) in enumerate(clips_plan):
+    for idx, (frame_path, t_start, t_end, zi, speaker) in enumerate(clips_plan):
         dur = max(t_end - t_start, 0.5)
         clip_path = tmp_dir / f"clip_{idx:02d}.mp4"
-        print(f"[video_agent] Clip {idx+1}/{len(clips_plan)}: {frame_path.name} ({dur:.1f}s)...")
-        _make_clip(frame_path, dur, clip_path, W, H, FPS, zoom_in=zi)
+        label = frame_path.name if frame_path else "avatar"
+
+        if has_avatars and speaker is not None:
+            # Use D-ID talking-head video segment
+            avatar_path = raven_avatar if speaker == "Raven" else jax_avatar
+            # Map absolute timestamp to per-character video time
+            avatar_t_start = t_start if speaker == "Raven" else t_start - rd
+            avatar_t_start = max(avatar_t_start, 0.0)
+            print(f"[video_agent] Clip {idx+1}/{len(clips_plan)}: {speaker} avatar @{avatar_t_start:.1f}s ({dur:.1f}s)...")
+            _clip_from_avatar(avatar_path, avatar_t_start, dur, clip_path, W, H, FPS)
+        else:
+            print(f"[video_agent] Clip {idx+1}/{len(clips_plan)}: {label} ({dur:.1f}s)...")
+            _make_clip(frame_path, dur, clip_path, W, H, FPS, zoom_in=zi)
+
         clip_files.append(clip_path)
 
     # Write concat list
@@ -289,7 +334,6 @@ def run(run_dir: Path) -> Path:
         str(out),
     ], capture_output=True, text=True)
 
-    # Cleanup temp files
     silent_video.unlink(missing_ok=True)
     tmp_video_audio.unlink(missing_ok=True)
 
