@@ -31,6 +31,7 @@ from agents import (
     script_agent,
     voice_agent,
     visual_agent,
+    avatar_agent,
     video_agent,
     publish_agent,
 )
@@ -47,6 +48,7 @@ REQUIRED_VARS = [
 OPTIONAL_VARS = [
     ("GEMINI_API_KEY", "aistudio.google.com (backgrounds — free 500/day, preferred)"),
     ("LEONARDO_API_KEY", "app.leonardo.ai (backgrounds fallback + --regen-characters)"),
+    ("DID_API_KEY", "d-id.com — talking head animation (Raven & Jax lip-sync)"),
     ("CANVA_ACCESS_TOKEN", "canva.com (episode thumbnail)"),
     ("TIKTOK_ACCESS_TOKEN", "developers.tiktok.com"),
     ("YOUTUBE_CLIENT_SECRETS", "Google Cloud Console"),
@@ -109,6 +111,7 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Script only, no media generation")
     parser.add_argument("--skip-publish", action="store_true", help="Skip YouTube/TikTok upload")
     parser.add_argument("--skip-visuals", action="store_true", help="Skip visual frame generation")
+    parser.add_argument("--skip-avatars", action="store_true", help="Skip D-ID avatar generation (use static frames)")
     parser.add_argument("--regen-characters", action="store_true", help="Force re-generation of Raven & Jax character PNGs via Leonardo")
     parser.add_argument("--gen-characters", action="store_true", help="Generate characters only — skips news/script steps")
     parser.add_argument("--date", default=date.today().isoformat(), help="Run date (YYYY-MM-DD)")
@@ -156,17 +159,25 @@ def main():
     # 4. Generate voices
     step("Voice Agent", voice_agent.run, run_dir)
 
-    # 5. Generate visuals (optional)
+    # 5. Generate D-ID talking-head avatars (optional — skipped if DID_API_KEY not set)
+    import os
+    if not args.skip_avatars and os.getenv("DID_API_KEY", ""):
+        step("Avatar Agent", avatar_agent.run, run_dir)
+    else:
+        reason = "--skip-avatars flag" if args.skip_avatars else "DID_API_KEY not set"
+        print(f"\n[SKIPPED] Avatar Agent ({reason})")
+
+    # 6. Generate visuals (optional)
     if not args.skip_visuals:
         step("Visual Agent", visual_agent.run, run_dir,
              regen_characters=args.regen_characters)
     else:
         print("\n[SKIPPED] Visual Agent")
 
-    # 6. Assemble video
+    # 7. Assemble video
     step("Video Agent", video_agent.run, run_dir)
 
-    # 7. Publish
+    # 8. Publish (optional)
     if not args.skip_publish:
         step("Publish Agent", publish_agent.run, run_dir, dry_run=False)
     else:
