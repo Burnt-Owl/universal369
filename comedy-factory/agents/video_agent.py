@@ -24,6 +24,8 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import VIDEO_WIDTH, VIDEO_HEIGHT, VIDEO_FPS
 
+LOADING_SCREEN_DURATION = 1.8  # seconds per loading screen transition
+
 
 def _ffmpeg() -> str:
     import shutil
@@ -167,6 +169,12 @@ def _clip_from_avatar(avatar: Path, t_start: float, duration: float,
         raise RuntimeError(f"Avatar clip extract failed:\n{r.stderr[-600:]}")
 
 
+def _make_loading_clip(clip_path: Path, W: int, H: int, fps: int):
+    """Insert a game-style loading screen transition between speaker switches."""
+    from agents.effects_agent import make_loading_screen
+    make_loading_screen(clip_path, LOADING_SCREEN_DURATION, W, H, fps)
+
+
 def _make_clip(frame: Path, duration: float, clip_path: Path,
                W: int, H: int, fps: int, zoom_in: bool = True):
     """Render a still image with drift-zoom (last-resort fallback)."""
@@ -244,13 +252,15 @@ def run(run_dir: Path) -> Path:
     ass_file = run_dir / "captions.ass"
     write_ass(timed, ass_file)
 
-    # Build clip plan: (t_start, t_end, speaker_or_None, zoom_in)
+    # Build clip plan: (t_start, t_end, speaker_or_None, zoom_in, is_loading)
+    # is_loading=True → generate a game loading screen instead of video/frame
     CUT_INTERVAL = 8.0
-    clips_plan   = []   # (t_start, t_end, speaker, zoom_in)
+    clips_plan   = []   # (t_start, t_end, speaker, zoom_in, is_loading)
     zoom_toggle  = True
     current_seg_start = 0.0
-    current_speaker   = None   # None = wide shot
+    current_speaker   = None
     last_cut_t        = 0.0
+    loading_offset    = 0.0   # accumulated loading screen time shifts audio timing
 
     for i, (spk, text, t_in, t_out) in enumerate(timed):
         prev_spk = timed[i-1][0] if i > 0 else None
@@ -259,30 +269,34 @@ def run(run_dir: Path) -> Path:
 
         if speaker_changed or time_since_cut >= CUT_INTERVAL:
             if t_in > current_seg_start:
-                clips_plan.append((current_seg_start, t_in, current_speaker, zoom_toggle))
+                clips_plan.append((current_seg_start, t_in, current_speaker, zoom_toggle, False))
                 zoom_toggle = not zoom_toggle
                 last_cut_t = t_in
 
             if speaker_changed:
-                wide_end = min(t_in + 1.5, t_out)
-                clips_plan.append((t_in, wide_end, None, zoom_toggle))
-                zoom_toggle    = not zoom_toggle
+                # Insert game loading screen instead of plain wide reaction shot
+                clips_plan.append((t_in, t_in + LOADING_SCREEN_DURATION, None, zoom_toggle, True))
+                zoom_toggle = not zoom_toggle
                 current_speaker = spk
-                current_seg_start = wide_end
+                current_seg_start = t_in + LOADING_SCREEN_DURATION
             else:
                 current_speaker   = spk if current_speaker is None else None
                 current_seg_start = t_in
 
     if timed:
-        clips_plan.append((current_seg_start, timed[-1][3] + 0.3, current_speaker, zoom_toggle))
+        clips_plan.append((current_seg_start, timed[-1][3] + 0.3, current_speaker, zoom_toggle, False))
 
     # Render clips
     clip_files = []
-    for idx, (t_start, t_end, speaker, zi) in enumerate(clips_plan):
+    for idx, (t_start, t_end, speaker, zi, is_loading) in enumerate(clips_plan):
         dur = max(t_end - t_start, 0.5)
         clip_path = tmp_dir / f"clip_{idx:02d}.mp4"
 
-        if use_stock:
+        if is_loading:
+            print(f"[video_agent] Clip {idx+1}/{len(clips_plan)}: [LOADING SCREEN] ({LOADING_SCREEN_DURATION}s)...")
+            _make_loading_clip(clip_path, W, H, FPS)
+
+        elif use_stock:
             role = speaker.lower() if speaker else "wide"
             stock_clip = stock_agent.random_clip(role, assets_dir)
             print(f"[video_agent] Clip {idx+1}/{len(clips_plan)}: stock/{role} ({dur:.1f}s)...")
@@ -345,6 +359,15 @@ def run(run_dir: Path) -> Path:
 
     mb = out.stat().st_size / 1_000_000
     print(f"[video_agent] Done → {out.name}  ({mb:.1f}MB)")
+
+    # Apply gaming UI overlays (quest marker, loading screens already inserted,
+    # Objective Failed notification)
+    try:
+        from agents import effects_agent
+        effects_agent.run(run_dir, raven_dur=rd, total_dur=total)
+    except Exception as e:
+        print(f"[video_agent] Effects overlay skipped: {e}")
+
     return out
 
 
