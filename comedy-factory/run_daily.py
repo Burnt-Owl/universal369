@@ -32,6 +32,7 @@ from agents import (
     voice_agent,
     visual_agent,
     avatar_agent,
+    stock_agent,
     video_agent,
     publish_agent,
 )
@@ -49,6 +50,7 @@ OPTIONAL_VARS = [
     ("GEMINI_API_KEY", "aistudio.google.com (backgrounds — free 500/day, preferred)"),
     ("LEONARDO_API_KEY", "app.leonardo.ai (backgrounds fallback + --regen-characters)"),
     ("DID_API_KEY", "d-id.com — talking head animation (Raven & Jax lip-sync)"),
+    ("PEXELS_API_KEY", "pexels.com/api — stock video footage (real people reacting)"),
     ("CANVA_ACCESS_TOKEN", "canva.com (episode thumbnail)"),
     ("TIKTOK_ACCESS_TOKEN", "developers.tiktok.com"),
     ("YOUTUBE_CLIENT_SECRETS", "Google Cloud Console"),
@@ -159,15 +161,22 @@ def main():
     # 4. Generate voices
     step("Voice Agent", voice_agent.run, run_dir)
 
-    # 5. Generate D-ID talking-head avatars (optional — skipped if DID_API_KEY not set)
+    # 5. Download stock video clips (cached after first run)
     import os
+    if os.getenv("PEXELS_API_KEY", ""):
+        assets_dir = Path(__file__).parent / "assets"
+        step("Stock Agent", stock_agent.run, assets_dir)
+    else:
+        print("\n[SKIPPED] Stock Agent (PEXELS_API_KEY not set)")
+
+    # 6. Generate D-ID talking-head avatars (optional — skipped if DID_API_KEY not set)
     if not args.skip_avatars and os.getenv("DID_API_KEY", ""):
         step("Avatar Agent", avatar_agent.run, run_dir)
     else:
         reason = "--skip-avatars flag" if args.skip_avatars else "DID_API_KEY not set"
         print(f"\n[SKIPPED] Avatar Agent ({reason})")
 
-    # 6. Generate visuals (optional)
+    # 7. Generate visuals (optional)
     if not args.skip_visuals:
         step("Visual Agent", visual_agent.run, run_dir,
              regen_characters=args.regen_characters)

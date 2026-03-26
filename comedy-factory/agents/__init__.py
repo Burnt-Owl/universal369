@@ -5,6 +5,7 @@ from . import (
     voice_agent,
     visual_agent,
     avatar_agent,
+    stock_agent,
     video_agent,
     publish_agent,
 )
