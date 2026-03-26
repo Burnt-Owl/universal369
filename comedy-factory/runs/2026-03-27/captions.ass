@@ -1,0 +1,50 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 1
+
+[V4+ Styles]
+Format: Name,Fontname,Fontsize,PrimaryColour,OutlineColour,BackColour,Bold,Italic,BorderStyle,Outline,Shadow,Alignment,MarginV
+Style: Raven,Arial,52,&H0041D7FF,&H00000000,&HAA000000,-1,0,1,3,1,2,220
+Style: Jax,Arial,52,&H0064B9FF,&H00000000,&HAA000000,-1,0,1,3,1,2,220
+Style: Label,Arial,38,&H00FFFFFF,&H00000000,&H00000000,-1,0,1,2,0,2,290
+
+[Events]
+Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
+Dialogue: 0,0:00:00.30,0:00:05.11,Raven,,0,0,0,,Jax. JAX. Look at me. Three\Nworld leaders said "months."\NMONTHS.
+Dialogue: 1,0:00:00.30,0:00:05.11,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:05.21,0:00:09.86,Raven,,0,0,0,,All of them! The ones with the\Nhats AND the ones without hats!
+Dialogue: 1,0:00:05.21,0:00:09.86,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:09.96,0:00:16.15,Raven,,0,0,0,,I literally told you this would\Nhappen. I have a 47-page\Ndocument. I LAMINATED it.
+Dialogue: 1,0:00:09.96,0:00:16.15,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:16.25,0:00:25.28,Raven,,0,0,0,,I laminated a SURVIVAL PLAN. We\Nneed 400 cans of beans, a hand-\Ncrank radio, and I'm pricing out\Nbunkers on Craigslist —
+Dialogue: 1,0:00:16.25,0:00:25.28,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:25.38,0:00:28.96,Raven,,0,0,0,,Gary in Ohio has one. Reasonable\Nsquare footage.
+Dialogue: 1,0:00:25.38,0:00:28.96,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:29.06,0:00:30.16,Raven,,0,0,0,,...Nothing yet.
+Dialogue: 1,0:00:29.06,0:00:30.16,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:30.26,0:00:31.36,Raven,,0,0,0,,What.
+Dialogue: 1,0:00:30.26,0:00:31.36,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:31.46,0:00:34.74,Raven,,0,0,0,,There are no coincidences, Jax.\NThe timing —
+Dialogue: 1,0:00:31.46,0:00:34.74,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:34.84,0:00:37.58,Raven,,0,0,0,,...I hate that that's almost\Nlogical.
+Dialogue: 1,0:00:34.84,0:00:37.58,Label,,0,0,0,,{\c&H0041D7FF&}RAVEN
+Dialogue: 0,0:00:37.21,0:00:38.85,Jax,,0,0,0,,Wait — which world leaders?
+Dialogue: 1,0:00:37.21,0:00:38.85,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:38.95,0:00:40.20,Jax,,0,0,0,,Okay but is that bad?
+Dialogue: 1,0:00:38.95,0:00:40.20,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:40.30,0:00:41.49,Jax,,0,0,0,,You laminated a war.
+Dialogue: 1,0:00:40.30,0:00:41.49,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:41.59,0:00:43.54,Jax,,0,0,0,,There are bunkers on Craigslist?
+Dialogue: 1,0:00:41.59,0:00:43.54,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:43.64,0:00:45.92,Jax,,0,0,0,,What'd you get me for the\Napocalypse?
+Dialogue: 1,0:00:43.64,0:00:45.92,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:46.02,0:00:47.40,Jax,,0,0,0,,I got myself something.
+Dialogue: 1,0:00:46.02,0:00:47.40,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:47.50,0:00:53.58,Jax,,0,0,0,,New game. Seventy hours of\Ncontent. If WW3 starts I'll deal\Nwith it after I finish the\Ntutorial.
+Dialogue: 1,0:00:47.50,0:00:53.58,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:53.68,0:00:57.76,Jax,,0,0,0,,Babe. If the world ends, you're\Ngonna want someone who's\Nrelaxed.
+Dialogue: 1,0:00:53.68,0:00:57.76,Label,,0,0,0,,{\c&H0064B9FF&}JAX
+Dialogue: 0,0:00:57.86,0:01:00.01,Jax,,0,0,0,,That's wild. You want another\Nbeer?
+Dialogue: 1,0:00:57.86,0:01:00.01,Label,,0,0,0,,{\c&H0064B9FF&}JAX
