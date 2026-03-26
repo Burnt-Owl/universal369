@@ -19,6 +19,7 @@ CANVA_ACCESS_TOKEN = os.getenv("CANVA_ACCESS_TOKEN", "")   # Thumbnail generatio
 CANVA_BRAND_TEMPLATE_ID = os.getenv("CANVA_BRAND_TEMPLATE_ID", "")  # optional Canva template
 YOUTUBE_CLIENT_SECRETS = os.getenv("YOUTUBE_CLIENT_SECRETS", "")
 TIKTOK_ACCESS_TOKEN = os.getenv("TIKTOK_ACCESS_TOKEN", "")
+DID_API_KEY = os.getenv("DID_API_KEY", "")                # D-ID Talks API — talking head animation
 
 # --- ElevenLabs Voice IDs ---
 # Set these once you've created/selected the voices in ElevenLabs
