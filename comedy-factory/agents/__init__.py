@@ -4,6 +4,7 @@ from . import (
     script_agent,
     voice_agent,
     visual_agent,
+    avatar_agent,
     video_agent,
     publish_agent,
 )
