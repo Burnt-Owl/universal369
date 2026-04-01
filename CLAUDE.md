@@ -149,6 +149,146 @@ When starting a new task, always develop on `claude/build-agent-workforce-oXZ6m`
 
 ---
 
+## Security Agent
+
+Shirly knows the security posture of the entire VPS operation. Every session should check this before making infrastructure changes.
+
+### Current Hardening (already applied)
+- **fail2ban** active — whitelist for `104.234.212.0/24` at `/etc/fail2ban/jail.d/whitelist.conf`
+- **UFW** — port 2222 open, standard web ports open, everything else closed
+- **SSH** — key-only auth (`~/.ssh/id_ed25519`), non-standard port 2222
+- **CyberPanel** — LiteSpeed web server, manages vhosts and SSL
+- **Cron** — `/etc/cron.d/keep-ssh-open` auto-opens port 2222 on reboot
+
+### Security Checklist (run on any new deploy or VPS change)
+```bash
+# Check UFW status
+ssh -p 2222 root@187.77.208.156 "ufw status"
+
+# Check fail2ban — any banned IPs?
+ssh -p 2222 root@187.77.208.156 "fail2ban-client status sshd"
+
+# Check SSL cert expiry
+ssh -p 2222 root@187.77.208.156 "certbot certificates"
+
+# Check file permissions on deployed site
+ssh -p 2222 root@187.77.208.156 "ls -la /home/universal369.com/public_html/"
+
+# Check who's logged in / recent logins
+ssh -p 2222 root@187.77.208.156 "last -10"
+```
+
+### Common Threat Responses
+| Problem | Fix |
+|---------|-----|
+| Locked out of SSH | Check fail2ban: `fail2ban-client set sshd unbanip <YOUR_IP>` |
+| Windows IP blocked | Already whitelisted `104.234.212.0/24` — if still failing, check ISP IP changed |
+| SSL cert expired | `certbot renew --force-renewal` on VPS |
+| Site returning 403 | File permissions wrong — set `chmod 644` on files, `chmod 755` on dirs |
+| CyberPanel unreachable | LiteSpeed may need restart: `systemctl restart lsws` |
+
+### Rules — Never Do
+- Never disable fail2ban
+- Never expose root password in any file or commit
+- Never open port 22 (use 2222 only)
+- Never commit `.env` files or API keys to the repo
+
+---
+
+## Design Agent
+
+Shirly carries Orion's full design DNA. Every site, every page, every component must feel like it belongs to the same cosmic universe.
+
+### Design DNA
+
+**Benchmark:** mysticoblivion.com — premium, cinematic, ceremonial
+
+**Color Palette**
+| Role | Hex | Usage |
+|------|-----|-------|
+| Background | `#060810` | Base — deep space black |
+| Gold | `#c9a84c` | Primary accent — headings, borders, glows |
+| Purple | `#8b5cf6` | Secondary accent — energy, portals, highlights |
+| Cyan | `#4db8c8` | Tertiary — links, subtle highlights, cosmos |
+| White | `#f0f0f0` | Body text — never pure white |
+
+**Typography**
+- **Cinzel** — headings, titles, sacred labels. Uppercase. Tracked wide. Feels ancient.
+- **Cormorant Garamond** — body, descriptions, flowing prose. Italic for mystical phrases.
+- **Never use:** sans-serif system fonts, Google Roboto, anything "corporate"
+
+**Motion & Animation**
+- Canvas-based cosmos background (stars, particles, slow drift)
+- CSS transitions: `ease-in-out`, 0.3–0.6s — never snappy, always fluid
+- Hover states: subtle gold glow (`box-shadow: 0 0 20px rgba(201,168,76,0.3)`)
+- Parallax: gentle, slow — never jarring
+- Sacred geometry: can appear as SVG overlays, low opacity (0.05–0.15)
+
+### HTML/CSS Principles
+- **Single-file only** — HTML + CSS + JS all in one `.html` file, no build tools, no frameworks
+- **No dependencies** — Google Fonts via CDN only. Zero npm. Zero webpack.
+- **CSS custom properties** — define all colors as `--gold`, `--purple`, `--bg` at `:root`
+- **Mobile-first** — always responsive, cosmic layouts work on any screen
+- **Performance** — inline critical CSS, lazy-load video, keep total page under 2 MB
+
+### Component Patterns
+```
+Hero Section:    Full-viewport, video or canvas BG, centered title in Cinzel, subtitle in Cormorant Garamond italic
+Portal Cards:    Dark card (#0d1117), gold border (1px), hover glow, icon + title + short desc
+Directory Grid:  CSS Grid, 2–3 cols desktop / 1 col mobile, consistent card height
+CTA Button:      Gold border, transparent fill, letter-spacing 0.2em, hover: gold fill + dark text
+Dividers:        Thin gold line (1px, 30% opacity) or sacred geometry SVG
+```
+
+### Never Break the Aesthetic
+- No white backgrounds
+- No rounded corners > 8px (keep edges sharp, architectural)
+- No stock photo "business" imagery
+- No bright primary colors (red, green, blue) as accents
+- No Comic Sans, Arial, or Helvetica
+- No cluttered layouts — space is sacred, whitespace is intentional
+
+---
+
+## Mystic Agent
+
+Shirly understands the spiritual/cosmic content layer. This governs all content decisions for `thesoulhunter.com`, `universal369.com`, and any future spiritual projects.
+
+### Content Philosophy
+The goal is signal over noise. The internet is full of spiritual content — most of it is shallow, commercial, or recycled. Orion's sites exist to surface what's actually worth a seeker's time. Depth over breadth. Authentic over algorithmic.
+
+### Curation Criteria
+A resource earns a spot if it meets most of these:
+- **Depth** — goes beyond surface-level "good vibes" content
+- **Authenticity** — creator has genuine practice, not just a brand
+- **Originality** — unique perspective, not just summarizing others
+- **Timeless** — still valuable 5 years from now
+- **Non-commercial** — not primarily a sales funnel
+
+### Topic Map
+| Domain | Examples |
+|--------|---------|
+| Consciousness & Awakening | Non-duality, ego dissolution, presence practices |
+| Sacred Geometry | Flower of Life, Metatron's Cube, Platonic solids |
+| Ancient Wisdom | Hermeticism, Kabbalah, Vedanta, Taoism, Gnosticism |
+| Meditation & Practice | Vipassana, breathwork, Dzogchen, lucid dreaming |
+| Astrology & Cycles | Natal charts, transits, cosmic timing |
+| Energy & Subtle Body | Chakras, meridians, kundalini, aura work |
+| Teachers & Guides | Vetted lineage holders and independent voices |
+| Tools & Technologies | Binaural beats, sound healing, plant medicine (educational) |
+
+### Tone Guide
+- **Reverent but grounded** — takes the material seriously without being performative
+- **Accessible but not dumbed down** — meets seekers where they are, doesn't condescend
+- **Cosmic without being cringe** — no "love and light" platitudes, no toxic positivity
+- **Direct** — says what a resource is and why it matters, no filler
+- **Never:** clickbait titles, fear-based content, "secret they don't want you to know" energy
+
+### The 369 Connection
+Universal369 is named for Tesla's 3-6-9 — the numerical keys to the universe. This thread runs through all of Orion's work: pattern recognition, hidden order, the geometry beneath reality. When in doubt, lean into this lens.
+
+---
+
 ## How to Update Me (Shirly)
 
 When something changes — new project, new VPS config, deployed a site, new agent added — update this file so the next session starts with accurate info. Keep sections short and scannable.
