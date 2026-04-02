@@ -298,6 +298,139 @@ Universal369 is named for Tesla's 3-6-9 — the numerical keys to the universe. 
 
 ---
 
+## Deploy Agent
+
+Shirly knows that SSH from Claude Code environments is almost always blocked by Hostinger at the network level. The Claude Code machine IP (typically `34.57.x.x` or similar cloud ranges) times out on port 2222 regardless of UFW/fail2ban settings. Don't waste time trying to fix it — use the methods below instead.
+
+### Deployment Priority Order
+
+**Method 1 — GitHub Actions Auto-Deploy (best, set it and forget it)**
+Every push to `main` automatically deploys to VPS. Set this up once.
+
+Required one-time setup:
+1. Generate a deploy key on VPS (via hPanel terminal):
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/deploy_key -N ""
+cat ~/.ssh/deploy_key.pub >> ~/.ssh/authorized_keys
+cat ~/.ssh/deploy_key  # copy this — it's the private key for GitHub secret
+```
+2. Add to GitHub repo secrets (Settings → Secrets → Actions):
+   - `VPS_SSH_KEY` = contents of `~/.ssh/deploy_key` (private key)
+   - `VPS_HOST` = `187.77.208.156`
+   - `VPS_PORT` = `2222`
+   - `VPS_USER` = `root`
+3. Create `.github/workflows/deploy.yml` in the repo (see template below)
+
+Deploy workflow template (`.github/workflows/deploy.yml`):
+```yaml
+name: Deploy Sites
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          port: ${{ secrets.VPS_PORT }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "index.html,cosmic-energy-enhanced.mp4"
+          target: /home/universal369.com/public_html/
+      - name: Deploy thesoulhunter
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          port: ${{ secrets.VPS_PORT }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "thesoulhunter/index.html"
+          target: /home/thesoulhunter.com/public_html/
+          strip_components: 1
+```
+
+**Why this works:** GitHub Actions runners use Microsoft Azure IPs — not blocked by Hostinger.
+
+---
+
+**Method 2 — CyberPanel API (curl-based, no SSH needed)**
+CyberPanel has a REST API accessible via HTTPS on port 8090.
+
+```bash
+# Upload a file via CyberPanel API
+# Replace ADMIN_PASSWORD, and adjust paths as needed
+curl -k -X POST https://187.77.208.156:8090/api/submitTask \
+  -H "Content-Type: application/json" \
+  -d '{
+    "adminUser": "admin",
+    "adminPass": "ADMIN_PASSWORD",
+    "function": "createWebsite",
+    "data": {
+      "domainName": "thesoulhunter.com",
+      "ownerEmail": "orion@owlastro.com",
+      "websiteOwner": "admin",
+      "packageName": "Default",
+      "websiteOwnerEmail": "orion@owlastro.com"
+    }
+  }'
+```
+Note: CyberPanel admin password is set during VPS setup. Check hPanel if forgotten.
+
+---
+
+**Method 3 — hPanel Browser Terminal + Git Pull (fast, no local SSH)**
+SSH directly from Hostinger's browser terminal — it's never blocked.
+
+```bash
+# In hPanel → VPS → Terminal:
+
+# First time — clone repo
+git clone https://github.com/Burnt-Owl/universal369.git /tmp/repo
+
+# Deploy universal369
+cp /tmp/repo/index.html /home/universal369.com/public_html/
+cp /tmp/repo/cosmic-energy-enhanced.mp4 /home/universal369.com/public_html/
+chmod 644 /home/universal369.com/public_html/*
+
+# Deploy thesoulhunter
+mkdir -p /home/thesoulhunter.com/public_html
+cp /tmp/repo/thesoulhunter/index.html /home/thesoulhunter.com/public_html/
+chmod 644 /home/thesoulhunter.com/public_html/index.html
+
+# Subsequent deploys — just pull and copy
+cd /tmp/repo && git pull && cp index.html /home/universal369.com/public_html/ && cp thesoulhunter/index.html /home/thesoulhunter.com/public_html/
+```
+
+---
+
+**Method 4 — hPanel File Manager (manual fallback)**
+hpanel.hostinger.com → VPS → File Manager → navigate to site public_html → Upload
+
+---
+
+### New Site Deploy Checklist
+When adding a new domain:
+1. Add website in CyberPanel: Websites → Create Website → enter domain
+2. This auto-creates `/home/domain.com/public_html/`
+3. Deploy files via Method 1, 2, or 3 above
+4. SSL: CyberPanel → SSL → Issue SSL for the domain
+5. Verify: `curl -s -o /dev/null -w "%{http_code}" https://domain.com`
+6. Update Shirly with new status
+
+### Known Blocked IP Ranges (Claude Code environments)
+These cloud IP ranges are blocked by Hostinger at network level — don't waste time:
+- `34.57.x.x` (Google Cloud / Claude Code)
+- `104.234.x.x` (Windows machine — partially blocked, banner exchange fails)
+- Any GCP/AWS/Azure ephemeral IP
+
+**Always use hPanel terminal or GitHub Actions for VPS operations.**
+
+---
+
 ## How to Update Me (Shirly)
 
 When something changes — new project, new VPS config, deployed a site, new agent added — update this file so the next session starts with accurate info. Keep sections short and scannable.
