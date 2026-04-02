@@ -49,13 +49,22 @@ curl -s -o /dev/null -w "%{http_code}" https://universal369.com
 ```
 
 ### 2. thesoulhunter.com
-- **Status:** Pre-planning — NOT yet built or deployed
+- **Status:** Built locally — ready to deploy
 - **Type:** Curated spiritual resource directory (single-page static HTML)
 - **Purpose:** One place for spiritual seekers to find the best websites, teachers, creators
-- **Loop position:** Ready for first PLAN (see `.paul/STATE.md`)
+- **Local file:** `thesoulhunter/index.html`
+- **Site root on VPS:** `/home/thesoulhunter.com/public_html/`
+- **Tech:** HTML5 + CSS3 + vanilla JS, same design DNA as universal369.com, no video
 - **Project files:** `.paul/PROJECT.md`, `.paul/ROADMAP.md`, `.paul/STATE.md`
-- **Last session:** 2026-03-18 — initialized PAUL, roadmap drafted but NOT approved
-- **Next action:** Discuss roadmap phase adjustments, then `/paul:plan`
+- **Last session:** 2026-04-02 — Full site built: 8 categories, 40 curated links
+- **Next action:** Create vhost in CyberPanel, then deploy via SCP
+
+**Deploy commands:**
+```bash
+scp -P 2222 thesoulhunter/index.html root@187.77.208.156:/home/thesoulhunter.com/public_html/
+ssh -p 2222 root@187.77.208.156 "chmod 644 /home/thesoulhunter.com/public_html/index.html"
+curl -s -o /dev/null -w "%{http_code}" https://thesoulhunter.com
+```
 
 ---
 
