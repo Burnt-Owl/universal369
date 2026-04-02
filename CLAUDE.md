@@ -4,7 +4,7 @@ I'm the assistant manager for Orion's (Owl Astro) entire VPS operation. Every Cl
 
 **Owner:** Orion (Owl Astro)
 **Aesthetic:** Premium single-file HTML sites with cosmic/ceremonial design. Benchmark: mysticoblivion.com
-**Active dev branch:** `claude/build-agent-workforce-oXZ6m`
+**Active dev branch:** `claude/organize-vps-directory-RM1D1`
 
 ---
 
@@ -31,7 +31,100 @@ Windows IP `104.234.212.7` was blocked at banner exchange (Hostinger network-lev
 
 ## Websites
 
-### 1. universal369.com
+### Master Directory — All 36 VPS Entries
+
+> Status key: `live` · `empty` · `placeholder` · `pre-planning` · `system` · `unknown`
+> Site root pattern: `/home/<domain>/public_html/`
+
+#### Cosmic / Spiritual
+
+| Domain | Status | Notes |
+|--------|--------|-------|
+| universal369.com | ready-to-deploy | Single-page cosmic directory portal. Local files ready. See detail block below. |
+| mysticoblivion.com | unknown | Design benchmark for all Orion sites — premium, cinematic, ceremonial |
+| cosmic.builders | unknown | — |
+| cosmic.tube | unknown | — |
+| thecosmictube.com | unknown | — |
+| magicalcrow.com | unknown | — |
+
+#### News & Media
+
+| Domain | Status | Notes |
+|--------|--------|-------|
+| alarmednews.com | unknown | — |
+| fastbreaking.news | unknown | — |
+| intheburgnews.com | unknown | — |
+| realburgnews.com | unknown | — |
+| endtimes.tube | unknown | — |
+
+#### Food & Fun
+
+| Domain | Status | Notes |
+|--------|--------|-------|
+| infernoburrito.com | unknown | — |
+| noodini.com | unknown | — |
+| simpledonut.com | unknown | — |
+| simpledonuts.com | unknown | — |
+| trippindonuts.com | unknown | — |
+
+#### Tech / Tools
+
+| Domain | Status | Notes |
+|--------|--------|-------|
+| 404alert.com | unknown | — |
+| sendhelp.pro | unknown | — |
+| smokinggeeks.net | unknown | — |
+| smokinggeeks.shop | unknown | — |
+| quantumrealestate.app | unknown | — |
+
+#### Social / Vibes
+
+| Domain | Status | Notes |
+|--------|--------|-------|
+| vibespot.bar | unknown | — |
+| vibespot.dev | unknown | — |
+| whosawake.com | unknown | — |
+
+#### Owl Astro
+
+| Domain | Status | Notes |
+|--------|--------|-------|
+| owlastro.com | unknown | Primary brand site for Owl Astro / Orion |
+
+#### Domains Portfolio
+
+| Domain | Status | Notes |
+|--------|--------|-------|
+| nextwavedomains.com | unknown | — |
+| n8n.nextwavedomains.com | unknown | Likely n8n automation subdomain |
+
+#### Quirky / Dev
+
+| Domain | Status | Notes |
+|--------|--------|-------|
+| findingdragonman.com | unknown | — |
+| itsnotjustastick.com | unknown | — |
+| vinylrecords.dev | unknown | — |
+
+#### Pre-Planning
+
+| Domain | Status | Notes |
+|--------|--------|-------|
+| thesoulhunter.com | pre-planning | Curated spiritual resource directory. NOT yet built. See detail block below. |
+
+#### System (CyberPanel managed — not sites)
+
+| Entry | Notes |
+|-------|-------|
+| cyberpanel | CyberPanel admin system directory |
+| deploy | System deployment directory |
+| docker | Docker system directory |
+| ubuntu | Ubuntu system user directory |
+| vmail | Virtual mail system directory |
+
+---
+
+### Detail: universal369.com
 - **Status:** Files ready locally, need to be deployed
 - **Type:** Single-page static HTML (cosmic directory portal)
 - **Site root on VPS:** `/home/universal369.com/public_html/`
@@ -48,7 +141,7 @@ ssh -p 2222 root@187.77.208.156 "chmod 644 /home/universal369.com/public_html/in
 curl -s -o /dev/null -w "%{http_code}" https://universal369.com
 ```
 
-### 2. thesoulhunter.com
+### Detail: thesoulhunter.com
 - **Status:** Pre-planning — NOT yet built or deployed
 - **Type:** Curated spiritual resource directory (single-page static HTML)
 - **Purpose:** One place for spiritual seekers to find the best websites, teachers, creators
