@@ -83,7 +83,7 @@ python run_daily.py --regen-characters # Regenerate Raven & Jax portraits
 
 | # | Agent | Role | Output |
 |---|-------|------|--------|
-| 1 | `news_agent.py` | Fetch top global news (NewsAPI + RSS) | `daily-brief.json` |
+| 1 | `news_agent.py` | Fetch top global news (4-tier: NewsAPI + RSS + Reddit + Scrape) | `daily-brief.json` |
 | 2 | `brief_agent.py` | Score stories for comedy, pick the best | `selected-event.json` |
 | 3 | `script_agent.py` | Write Raven & Jax dialogue (150-200 words) | `script.md` |
 | 4 | `voice_agent.py` | ElevenLabs TTS for both characters | `raven-voice.mp3`, `jax-voice.mp3` |
@@ -95,6 +95,19 @@ python run_daily.py --regen-characters # Regenerate Raven & Jax portraits
 | 10 | `publish_agent.py` | Upload to YouTube Shorts + TikTok | URLs in `publish-log.json` |
 
 **Video source priority:** stock footage (Pexels) > D-ID avatars > static frames
+
+### News Source Stack (4 tiers — configured in `comedy-factory/config.py`)
+
+| Tier | Type | Count | Key sources |
+|------|------|-------|-------------|
+| 1 | NewsAPI | 9 sources | BBC, Reuters, AP, Guardian, NPR, ABC, Al Jazeera, WaPo, Vice |
+| 2 | RSS (feedparser) | 18 feeds | World news + IFLScience, Smithsonian, ScienceDaily, Nature, Ars Technica, NASA, ESA |
+| 3 | Reddit RSS | 3 subreddits | r/worldnews, r/nottheonion, r/todayilearned |
+| 4 | Direct scrape (BS4) | 4 sites | Quanta Magazine, Nautilus, Gizmodo, Futurism |
+
+**Adding a new RSS feed:** append URL to `RSS_FEEDS` in `config.py`
+**Adding a scrape target:** append a `{name, url, headline_sel, base_url}` dict to `SCRAPE_TARGETS` in `config.py` — no code changes needed
+**Future:** RSSHub (DIYgod/RSSHub) worth self-hosting on VPS to generate RSS from any source (YouTube channels, niche sites, etc.)
 
 ### Characters
 **Raven** — Conspiracy-smart wife. White/mixed, tattoos, dark hair, sharp eyes. Dry, fast, deadpan, usually right. Drives the topic. Catchphrases: "Jax. JAX. Look at me.", "I literally told you this would happen."
@@ -130,7 +143,8 @@ python run_daily.py --regen-characters # Regenerate Raven & Jax portraits
 | `.paul/PROJECT.md` | thesoulhunter project definition |
 | `.paul/STATE.md` | Current loop position (PLAN → APPLY → UNIFY) |
 | `.paul/ROADMAP.md` | thesoulhunter milestone roadmap (not yet approved) |
-| `comedy-factory/config.py` | All config, model names, API key loading, video settings |
+| `comedy-factory/config.py` | All config, model names, API key loading, video settings, RSS_FEEDS, REDDIT_RSS_FEEDS, SCRAPE_TARGETS |
+| `comedy-factory/agents/scraper_agent.py` | BeautifulSoup4 scraper for sites with no/paywalled RSS (4th news tier) |
 | `comedy-factory/run_daily.py` | Main orchestrator (entry point for everything) |
 | `comedy-factory/COUPLE.md` | Raven & Jax character bibles + detailed generation prompts |
 | `comedy-factory/PROMPTS.md` | AI prompts for script, metadata, visuals |

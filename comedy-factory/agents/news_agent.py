@@ -3,9 +3,10 @@ News Agent — fetches top global stories from the past 24 hours.
 Output: runs/YYYY-MM-DD/daily-brief.json
 
 Sources (in priority order):
-  1. NewsAPI     — primary, structured, popularity-sorted
-  2. RSS feeds   — broad mainstream + weird/offbeat tier
-  3. Reddit RSS  — worldnews / nottheonion / todayilearned (comedy gold)
+  1. NewsAPI     — primary, structured, popularity-sorted (9 sources)
+  2. RSS feeds   — 18 feeds: world news, science, space, weird/offbeat
+  3. Reddit RSS  — r/worldnews, r/nottheonion, r/todayilearned
+  4. Scraper     — Quanta, Nautilus, Gizmodo, Futurism (BeautifulSoup4)
 """
 
 import json
@@ -21,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import (
     NEWS_API_KEY, NEWS_SOURCES, NEWS_MAX_STORIES,
     RSS_FEEDS, REDDIT_RSS_FEEDS,
-    MAX_RETRIES, RETRY_DELAYS,
+    RETRY_DELAYS,
 )
 from scraper_agent import fetch_all as fetch_scrape
 
@@ -36,7 +37,7 @@ _REDDIT_AGENT = "ComedyFactory/2.0 anonymous RSS reader"
 # NewsAPI
 # ---------------------------------------------------------------------------
 
-def fetch_newsapi(run_date: str) -> list[dict]:
+def fetch_newsapi() -> list[dict]:
     if not NEWS_API_KEY:
         return []
 
@@ -156,7 +157,7 @@ def run(run_dir: Path) -> Path:
     print("[news_agent] Fetching top global stories...")
 
     # 1. NewsAPI (primary)
-    stories = fetch_newsapi(run_dir.name)
+    stories = fetch_newsapi()
     print(f"[news_agent] NewsAPI: {len(stories)} stories")
 
     seen: set[str] = {_normalize(s["headline"]) for s in stories}
