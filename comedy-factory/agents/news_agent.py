@@ -1,28 +1,39 @@
 """
 News Agent — fetches top global stories from the past 24 hours.
 Output: runs/YYYY-MM-DD/daily-brief.json
+
+Sources (in priority order):
+  1. NewsAPI     — primary, structured, popularity-sorted
+  2. RSS feeds   — broad mainstream + weird/offbeat tier
+  3. Reddit RSS  — worldnews / nottheonion / todayilearned (comedy gold)
 """
 
 import json
+import re
 import time
-import urllib.request
-import xml.etree.ElementTree as ET
 import requests
+import feedparser
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import NEWS_API_KEY, NEWS_SOURCES, NEWS_MAX_STORIES, MAX_RETRIES, RETRY_DELAYS
+from config import (
+    NEWS_API_KEY, NEWS_SOURCES, NEWS_MAX_STORIES,
+    RSS_FEEDS, REDDIT_RSS_FEEDS,
+    MAX_RETRIES, RETRY_DELAYS,
+)
+
+_USER_AGENT = "ComedyFactory/2.0 (automated comedy news aggregator)"
+
+# feedparser sets its own UA header via the agent kwarg; for Reddit we need
+# a descriptive string so requests aren't 429'd on the public RSS endpoint.
+_REDDIT_AGENT = "ComedyFactory/2.0 anonymous RSS reader"
 
 
-RSS_FEEDS = [
-    "https://feeds.bbci.co.uk/news/world/rss.xml",
-    "https://feeds.reuters.com/reuters/worldNews",
-    "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-    "https://www.theguardian.com/world/rss",
-]
-
+# ---------------------------------------------------------------------------
+# NewsAPI
+# ---------------------------------------------------------------------------
 
 def fetch_newsapi(run_date: str) -> list[dict]:
     if not NEWS_API_KEY:
@@ -51,6 +62,7 @@ def fetch_newsapi(run_date: str) -> list[dict]:
                     "summary": a.get("description") or "",
                     "url": a["url"],
                     "published": a.get("publishedAt", ""),
+                    "feed_type": "newsapi",
                 }
                 for a in articles
                 if a.get("title") and "[Removed]" not in a.get("title", "")
@@ -64,70 +76,116 @@ def fetch_newsapi(run_date: str) -> list[dict]:
     return []
 
 
-def _parse_rss_feed(xml_bytes: bytes, feed_url: str) -> list[dict]:
-    """Parse RSS 2.0 or Atom feed from raw XML bytes."""
-    ATOM = "http://www.w3.org/2005/Atom"
-    root = ET.fromstring(xml_bytes)
-    stories = []
+# ---------------------------------------------------------------------------
+# RSS / Atom (via feedparser)
+# ---------------------------------------------------------------------------
 
-    # Atom feed
-    if root.tag == f"{{{ATOM}}}feed":
-        feed_title = (root.findtext(f"{{{ATOM}}}title") or feed_url)
-        for entry in root.findall(f"{{{ATOM}}}entry")[:5]:
-            link_el = entry.find(f"{{{ATOM}}}link")
+def _strip_html(text: str) -> str:
+    return re.sub(r"<[^>]+>", "", text or "").strip()
+
+
+def _parse_feed(feed_url: str, max_items: int = 5, feed_type: str = "rss") -> list[dict]:
+    """Parse any RSS 1.0/2.0, Atom, or Reddit feed via feedparser."""
+    agent = _REDDIT_AGENT if feed_type == "reddit" else _USER_AGENT
+    try:
+        d = feedparser.parse(feed_url, agent=agent)
+        # bozo=True means the feed was malformed, but entries may still be usable
+        if d.bozo and not d.entries:
+            print(f"[news_agent] Feed unparseable {feed_url}: {d.bozo_exception}")
+            return []
+
+        feed_title = d.feed.get("title", feed_url)
+        stories = []
+        for entry in d.entries[:max_items]:
+            headline = _strip_html(entry.get("title", "")).strip()
+            if not headline:
+                continue
+            summary = _strip_html(
+                entry.get("summary", "") or entry.get("description", "")
+            )[:500]
             stories.append({
                 "source": feed_title,
-                "headline": entry.findtext(f"{{{ATOM}}}title") or "",
-                "summary": entry.findtext(f"{{{ATOM}}}summary") or "",
-                "url": link_el.get("href", "") if link_el is not None else "",
-                "published": entry.findtext(f"{{{ATOM}}}published") or "",
+                "headline": headline,
+                "summary": summary,
+                "url": entry.get("link", ""),
+                "published": entry.get("published", ""),
+                "feed_type": feed_type,
             })
-    else:
-        # RSS 2.0
-        channel = root.find("channel") or root
-        feed_title = channel.findtext("title") or feed_url
-        for item in channel.findall("item")[:5]:
-            stories.append({
-                "source": feed_title,
-                "headline": item.findtext("title") or "",
-                "summary": item.findtext("description") or "",
-                "url": item.findtext("link") or "",
-                "published": item.findtext("pubDate") or "",
-            })
-
-    return stories
+        return stories
+    except Exception as e:
+        print(f"[news_agent] Feed failed {feed_url}: {e}")
+        return []
 
 
 def fetch_rss() -> list[dict]:
     stories = []
     for feed_url in RSS_FEEDS:
-        try:
-            req = urllib.request.Request(
-                feed_url,
-                headers={"User-Agent": "ComedyFactory/1.0"},
-            )
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                xml_bytes = resp.read()
-            stories.extend(_parse_rss_feed(xml_bytes, feed_url))
-        except Exception as e:
-            print(f"[news_agent] RSS feed {feed_url} failed: {e}")
+        fetched = _parse_feed(feed_url, max_items=5, feed_type="rss")
+        stories.extend(fetched)
+        if fetched:
+            print(f"[news_agent]   RSS {feed_url}: {len(fetched)} stories")
     return stories
 
+
+def fetch_reddit() -> list[dict]:
+    stories = []
+    for feed_url in REDDIT_RSS_FEEDS:
+        fetched = _parse_feed(feed_url, max_items=5, feed_type="reddit")
+        stories.extend(fetched)
+        if fetched:
+            print(f"[news_agent]   Reddit {feed_url}: {len(fetched)} stories")
+        time.sleep(1)  # polite gap — Reddit public RSS rate-limits aggressively
+    return stories
+
+
+# ---------------------------------------------------------------------------
+# Deduplication
+# ---------------------------------------------------------------------------
+
+def _normalize(headline: str) -> str:
+    """Lowercase, strip punctuation — for fuzzy dedup across sources."""
+    return re.sub(r"[^a-z0-9 ]", "", headline.lower()).strip()
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
 
 def run(run_dir: Path) -> Path:
     print("[news_agent] Fetching top global stories...")
 
+    # 1. NewsAPI (primary)
     stories = fetch_newsapi(run_dir.name)
-    if len(stories) < 5:
-        rss_stories = fetch_rss()
-        # Deduplicate by headline
-        existing_headlines = {s["headline"] for s in stories}
-        stories += [s for s in rss_stories if s["headline"] not in existing_headlines]
+    print(f"[news_agent] NewsAPI: {len(stories)} stories")
+
+    seen: set[str] = {_normalize(s["headline"]) for s in stories}
+    cap = NEWS_MAX_STORIES * 2  # gather extras so brief_agent has choice
+
+    # 2. RSS feeds (supplement / fallback)
+    print("[news_agent] Fetching RSS feeds...")
+    for story in fetch_rss():
+        norm = _normalize(story["headline"])
+        if norm not in seen and len(stories) < cap:
+            stories.append(story)
+            seen.add(norm)
+
+    # 3. Reddit (comedy bonus)
+    print("[news_agent] Fetching Reddit feeds...")
+    for story in fetch_reddit():
+        norm = _normalize(story["headline"])
+        if norm not in seen and len(stories) < cap:
+            stories.append(story)
+            seen.add(norm)
 
     stories = stories[:NEWS_MAX_STORIES]
 
     if not stories:
         raise RuntimeError("[news_agent] No stories found. Cannot continue.")
+
+    by_type = {}
+    for s in stories:
+        by_type[s["feed_type"]] = by_type.get(s["feed_type"], 0) + 1
+    print(f"[news_agent] Final mix: {by_type}")
 
     output = {
         "date": run_dir.name,
@@ -138,7 +196,7 @@ def run(run_dir: Path) -> Path:
 
     out_file = run_dir / "daily-brief.json"
     out_file.write_text(json.dumps(output, indent=2, ensure_ascii=False))
-    print(f"[news_agent] Saved {len(stories)} stories to {out_file}")
+    print(f"[news_agent] Saved {len(stories)} stories → {out_file}")
     return out_file
 
 

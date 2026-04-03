@@ -50,15 +50,41 @@ RUNS_DIR = BASE_DIR / "runs"
 PROMPTS_FILE = BASE_DIR / "PROMPTS.md"
 COUPLE_FILE = BASE_DIR / "COUPLE.md"
 
-# --- News Sources ---
+# --- News Sources (NewsAPI) ---
 NEWS_SOURCES = [
     "bbc-news",
     "reuters",
     "associated-press",
     "the-guardian-uk",
     "npr",
+    "abc-news",
+    "al-jazeera-english",
+    "the-washington-post",
+    "vice-news",
 ]
-NEWS_MAX_STORIES = 10
+NEWS_MAX_STORIES = 15
+
+# --- RSS Feeds (feedparser — fallback + supplement) ---
+RSS_FEEDS = [
+    # Tier 1: major world news
+    "https://feeds.bbci.co.uk/news/world/rss.xml",
+    "https://feeds.reuters.com/reuters/worldNews",
+    "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+    "https://www.theguardian.com/world/rss",
+    "https://www.aljazeera.com/xml/rss/all.xml",
+    "https://abcnews.go.com/abcnews/topstories",
+    "https://feeds.npr.org/1001/rss.xml",
+    # Tier 2: weird/offbeat — comedy-adjacent
+    "https://www.boingboing.net/feed",
+    "https://www.vice.com/en/rss",
+]
+
+# --- Reddit RSS Feeds (comedy gold) ---
+REDDIT_RSS_FEEDS = [
+    "https://www.reddit.com/r/worldnews/.rss",
+    "https://www.reddit.com/r/nottheonion/.rss",    # real news that sounds fake
+    "https://www.reddit.com/r/todayilearned/.rss",  # TIL — perfect for Jax moments
+]
 
 # --- Script Settings ---
 SCRIPT_MAX_WORDS = 200
