@@ -101,13 +101,14 @@ python run_daily.py --regen-characters # Regenerate Raven & Jax portraits
 | Tier | Type | Count | Key sources |
 |------|------|-------|-------------|
 | 1 | NewsAPI | 9 sources | BBC, Reuters, AP, Guardian, NPR, ABC, Al Jazeera, WaPo, Vice |
-| 2 | RSS (feedparser) | 18 feeds | World news + IFLScience, Smithsonian, ScienceDaily, Nature, Ars Technica, NASA, ESA |
+| 2 | RSS (feedparser) | 20 feeds | World news + IFLScience, Smithsonian, ScienceDaily, Nature, Ars Technica, NASA, ESA, Space.com, Sci.News |
 | 3 | Reddit RSS | 3 subreddits | r/worldnews, r/nottheonion, r/todayilearned |
 | 4 | Direct scrape (BS4) | 4 sites | Quanta Magazine, Nautilus, Gizmodo, Futurism |
 
 **Adding a new RSS feed:** append URL to `RSS_FEEDS` in `config.py`
 **Adding a scrape target:** append a `{name, url, headline_sel, base_url}` dict to `SCRAPE_TARGETS` in `config.py` — no code changes needed
-**Future:** RSSHub (DIYgod/RSSHub) worth self-hosting on VPS to generate RSS from any source (YouTube channels, niche sites, etc.)
+**Future — RSSHub:** self-host on VPS to generate RSS from any source (YouTube channels, niche sites, etc.)
+**Future — Crawl4AI:** (`unclecode/crawl4ai`) is the 2026 upgrade for JS-rendered scraping. Replaces BS4 for sites like Futurism that JS-render their homepages. Requires `pip install crawl4ai` + `playwright install`. Integrate as a 5th tier when the pipeline needs deeper JS support.
 
 ### Characters
 **Raven** — Conspiracy-smart wife. White/mixed, tattoos, dark hair, sharp eyes. Dry, fast, deadpan, usually right. Drives the topic. Catchphrases: "Jax. JAX. Look at me.", "I literally told you this would happen."
