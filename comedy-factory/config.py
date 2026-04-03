@@ -66,7 +66,7 @@ NEWS_MAX_STORIES = 15
 
 # --- RSS Feeds (feedparser — fallback + supplement) ---
 RSS_FEEDS = [
-    # Tier 1: major world news
+    # === World News ===
     "https://feeds.bbci.co.uk/news/world/rss.xml",
     "https://feeds.reuters.com/reuters/worldNews",
     "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
@@ -74,13 +74,22 @@ RSS_FEEDS = [
     "https://www.aljazeera.com/xml/rss/all.xml",
     "https://abcnews.go.com/abcnews/topstories",
     "https://feeds.npr.org/1001/rss.xml",
-    # Tier 2: weird/offbeat — comedy-adjacent
+    # === Weird/Offbeat (comedy-adjacent) ===
     "https://www.boingboing.net/feed",
     "https://www.vice.com/en/rss",
-    # Tier 3: science & curiosity (block scraping, RSS only)
-    "https://www.newscientist.com/feed/home/",
+    # === Science & Curiosity ===
+    "https://www.newscientist.com/section/news/feed/",   # updated URL
     "https://www.iflscience.com/feed/",
     "https://www.smithsonianmag.com/rss/latest_articles/",
+    "https://www.sciencedaily.com/rss/all.xml",         # 50 items, peer-review summaries
+    "https://www.nature.com/nature.rss",                # 80 items, RDF/RSS 1.0
+    "https://feeds.arstechnica.com/arstechnica/science", # deep science/policy dives
+    # === Space (post-Artemis II feeds are hot right now) ===
+    "https://www.nasa.gov/rss/dyn/breaking_news.rss",
+    "https://www.esa.int/rssfeed/Our_Activities/Space_Science",
+    # Note: NASA Earth Observatory redirects to non-RSS page — skip
+    # Note: RSSHub (DIYgod/RSSHub) is worth self-hosting on VPS when you need
+    #       to generate RSS from sources that don't publish it natively.
 ]
 
 # --- Reddit RSS Feeds (comedy gold) ---
