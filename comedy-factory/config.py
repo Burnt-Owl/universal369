@@ -77,6 +77,10 @@ RSS_FEEDS = [
     # Tier 2: weird/offbeat — comedy-adjacent
     "https://www.boingboing.net/feed",
     "https://www.vice.com/en/rss",
+    # Tier 3: science & curiosity (block scraping, RSS only)
+    "https://www.newscientist.com/feed/home/",
+    "https://www.iflscience.com/feed/",
+    "https://www.smithsonianmag.com/rss/latest_articles/",
 ]
 
 # --- Reddit RSS Feeds (comedy gold) ---
@@ -84,6 +88,34 @@ REDDIT_RSS_FEEDS = [
     "https://www.reddit.com/r/worldnews/.rss",
     "https://www.reddit.com/r/nottheonion/.rss",    # real news that sounds fake
     "https://www.reddit.com/r/todayilearned/.rss",  # TIL — perfect for Jax moments
+]
+
+# --- Scrape Targets (sites with no/paywalled RSS — scraped directly) ---
+SCRAPE_TARGETS = [
+    {
+        "name": "Quanta Magazine",
+        "url": "https://www.quantamagazine.org/",
+        "headline_sel": "h3 > a, h2 > a",
+        "base_url": "https://www.quantamagazine.org",
+    },
+    {
+        "name": "Nautilus",
+        "url": "https://nautil.us/",
+        "headline_sel": "h3 a",
+        "base_url": "https://nautil.us",
+    },
+    {
+        "name": "Gizmodo",
+        "url": "https://gizmodo.com/",
+        "headline_sel": "h2.typo-sofia-h5",  # headline sits inside parent <a>
+        "base_url": "https://gizmodo.com",
+    },
+    {
+        "name": "Futurism",
+        "url": "https://futurism.com/",
+        "headline_sel": "h3 > a",
+        "base_url": "https://futurism.com",
+    },
 ]
 
 # --- Script Settings ---

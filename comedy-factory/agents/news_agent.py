@@ -23,6 +23,7 @@ from config import (
     RSS_FEEDS, REDDIT_RSS_FEEDS,
     MAX_RETRIES, RETRY_DELAYS,
 )
+from scraper_agent import fetch_all as fetch_scrape
 
 _USER_AGENT = "ComedyFactory/2.0 (automated comedy news aggregator)"
 
@@ -172,6 +173,14 @@ def run(run_dir: Path) -> Path:
     # 3. Reddit (comedy bonus)
     print("[news_agent] Fetching Reddit feeds...")
     for story in fetch_reddit():
+        norm = _normalize(story["headline"])
+        if norm not in seen and len(stories) < cap:
+            stories.append(story)
+            seen.add(norm)
+
+    # 4. Scraped sites (Quanta, Nautilus, Gizmodo, Futurism, etc.)
+    print("[news_agent] Scraping direct sources...")
+    for story in fetch_scrape():
         norm = _normalize(story["headline"])
         if norm not in seen and len(stories) < cap:
             stories.append(story)
