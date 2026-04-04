@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "LunarCrush": {
+      "command": "npx",
+      "args": ["-y", "@nic0xflamel/lunarcrush-mcp-server"],
+      "env": {
+        "LUNARCRUSH_API_KEY": "${LUNARCRUSH_API_KEY}"
+      }
+    }
+  }
+}
