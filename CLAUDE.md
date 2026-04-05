@@ -13,19 +13,19 @@ I'm the assistant manager for Orion's (Owl Astro) entire VPS operation. Every Cl
 | Item | Value |
 |------|-------|
 | Provider | Hostinger |
-| IP | `187.77.208.156` |
-| SSH Port | `2222` |
+| IP | `[VPS_IP]` |
+| SSH Port | `[SSH_PORT]` |
 | Web Server | LiteSpeed (via CyberPanel) |
-| SSH command | `ssh -p 2222 root@187.77.208.156` |
+| SSH command | `ssh hostinger-vps` |
 | SSH key | `~/.ssh/id_ed25519` |
 | SSH alias | `hostinger-vps` |
 
 ### Known Issue — Windows SSH
-Windows IP `104.234.212.7` was blocked at banner exchange (Hostinger network-level block).
+Windows IP `[REDACTED_IP]` was blocked at banner exchange (Hostinger network-level block).
 **Fixes already applied on VPS:**
-- fail2ban whitelist: `/etc/fail2ban/jail.d/whitelist.conf` — whitelists `104.234.212.0/24`
-- Auto-open cron: `/etc/cron.d/keep-ssh-open` — opens port 2222 on reboot
-- UFW: port 2222 verified open
+- fail2ban whitelist: `/etc/fail2ban/jail.d/whitelist.conf` — whitelists `[REDACTED_SUBNET]`
+- Auto-open cron: `/etc/cron.d/keep-ssh-open` — opens port [SSH_PORT] on reboot
+- UFW: port [SSH_PORT] verified open
 
 ---
 
@@ -42,9 +42,9 @@ Windows IP `104.234.212.7` was blocked at banner exchange (Hostinger network-lev
 
 **Deploy commands:**
 ```bash
-scp -P 2222 index.html root@187.77.208.156:/home/universal369.com/public_html/
-scp -P 2222 cosmic-energy-enhanced.mp4 root@187.77.208.156:/home/universal369.com/public_html/
-ssh -p 2222 root@187.77.208.156 "chmod 644 /home/universal369.com/public_html/index.html && chmod 644 /home/universal369.com/public_html/cosmic-energy-enhanced.mp4"
+scp -P [SSH_PORT] index.html root@[VPS_IP]:/home/universal369.com/public_html/
+scp -P [SSH_PORT] cosmic-energy-enhanced.mp4 root@[VPS_IP]:/home/universal369.com/public_html/
+ssh hostinger-vps "chmod 644 /home/universal369.com/public_html/index.html && chmod 644 /home/universal369.com/public_html/cosmic-energy-enhanced.mp4"
 curl -s -o /dev/null -w "%{http_code}" https://universal369.com
 ```
 
@@ -154,35 +154,35 @@ When starting a new task, always develop on `claude/build-agent-workforce-oXZ6m`
 Shirly knows the security posture of the entire VPS operation. Every session should check this before making infrastructure changes.
 
 ### Current Hardening (already applied)
-- **fail2ban** active — whitelist for `104.234.212.0/24` at `/etc/fail2ban/jail.d/whitelist.conf`
-- **UFW** — port 2222 open, standard web ports open, everything else closed
-- **SSH** — key-only auth (`~/.ssh/id_ed25519`), non-standard port 2222
+- **fail2ban** active — whitelist for `[REDACTED_SUBNET]` at `/etc/fail2ban/jail.d/whitelist.conf`
+- **UFW** — port [SSH_PORT] open, standard web ports open, everything else closed
+- **SSH** — key-only auth (`~/.ssh/id_ed25519`), non-standard port [SSH_PORT]
 - **CyberPanel** — LiteSpeed web server, manages vhosts and SSL
-- **Cron** — `/etc/cron.d/keep-ssh-open` auto-opens port 2222 on reboot
+- **Cron** — `/etc/cron.d/keep-ssh-open` auto-opens port [SSH_PORT] on reboot
 
 ### Security Checklist (run on any new deploy or VPS change)
 ```bash
 # Check UFW status
-ssh -p 2222 root@187.77.208.156 "ufw status"
+ssh hostinger-vps "ufw status"
 
 # Check fail2ban — any banned IPs?
-ssh -p 2222 root@187.77.208.156 "fail2ban-client status sshd"
+ssh hostinger-vps "fail2ban-client status sshd"
 
 # Check SSL cert expiry
-ssh -p 2222 root@187.77.208.156 "certbot certificates"
+ssh hostinger-vps "certbot certificates"
 
 # Check file permissions on deployed site
-ssh -p 2222 root@187.77.208.156 "ls -la /home/universal369.com/public_html/"
+ssh hostinger-vps "ls -la /home/universal369.com/public_html/"
 
 # Check who's logged in / recent logins
-ssh -p 2222 root@187.77.208.156 "last -10"
+ssh hostinger-vps "last -10"
 ```
 
 ### Common Threat Responses
 | Problem | Fix |
 |---------|-----|
 | Locked out of SSH | Check fail2ban: `fail2ban-client set sshd unbanip <YOUR_IP>` |
-| Windows IP blocked | Already whitelisted `104.234.212.0/24` — if still failing, check ISP IP changed |
+| Windows IP blocked | Already whitelisted `[REDACTED_SUBNET]` — if still failing, check ISP IP changed |
 | SSL cert expired | `certbot renew --force-renewal` on VPS |
 | Site returning 403 | File permissions wrong — set `chmod 644` on files, `chmod 755` on dirs |
 | CyberPanel unreachable | LiteSpeed may need restart: `systemctl restart lsws` |
@@ -190,7 +190,7 @@ ssh -p 2222 root@187.77.208.156 "last -10"
 ### Rules — Never Do
 - Never disable fail2ban
 - Never expose root password in any file or commit
-- Never open port 22 (use 2222 only)
+- Never open port 22 (use [SSH_PORT] only)
 - Never commit `.env` files or API keys to the repo
 
 ---
