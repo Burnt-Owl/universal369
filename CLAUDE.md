@@ -16,7 +16,7 @@ I'm the assistant manager for Orion's (Owl Astro) entire VPS operation. Every Cl
 | IP | `[VPS_IP]` |
 | SSH Port | `[SSH_PORT]` |
 | Web Server | LiteSpeed (via CyberPanel) |
-| SSH command | `ssh -p [SSH_PORT] root@[VPS_IP]` |
+| SSH command | `ssh hostinger-vps` |
 | SSH key | `~/.ssh/id_ed25519` |
 | SSH alias | `hostinger-vps` |
 
@@ -44,7 +44,7 @@ Windows IP `[REDACTED_IP]` was blocked at banner exchange (Hostinger network-lev
 ```bash
 scp -P [SSH_PORT] index.html root@[VPS_IP]:/home/universal369.com/public_html/
 scp -P [SSH_PORT] cosmic-energy-enhanced.mp4 root@[VPS_IP]:/home/universal369.com/public_html/
-ssh -p [SSH_PORT] root@[VPS_IP] "chmod 644 /home/universal369.com/public_html/index.html && chmod 644 /home/universal369.com/public_html/cosmic-energy-enhanced.mp4"
+ssh hostinger-vps "chmod 644 /home/universal369.com/public_html/index.html && chmod 644 /home/universal369.com/public_html/cosmic-energy-enhanced.mp4"
 curl -s -o /dev/null -w "%{http_code}" https://universal369.com
 ```
 
@@ -163,19 +163,19 @@ Shirly knows the security posture of the entire VPS operation. Every session sho
 ### Security Checklist (run on any new deploy or VPS change)
 ```bash
 # Check UFW status
-ssh -p [SSH_PORT] root@[VPS_IP] "ufw status"
+ssh hostinger-vps "ufw status"
 
 # Check fail2ban — any banned IPs?
-ssh -p [SSH_PORT] root@[VPS_IP] "fail2ban-client status sshd"
+ssh hostinger-vps "fail2ban-client status sshd"
 
 # Check SSL cert expiry
-ssh -p [SSH_PORT] root@[VPS_IP] "certbot certificates"
+ssh hostinger-vps "certbot certificates"
 
 # Check file permissions on deployed site
-ssh -p [SSH_PORT] root@[VPS_IP] "ls -la /home/universal369.com/public_html/"
+ssh hostinger-vps "ls -la /home/universal369.com/public_html/"
 
 # Check who's logged in / recent logins
-ssh -p [SSH_PORT] root@[VPS_IP] "last -10"
+ssh hostinger-vps "last -10"
 ```
 
 ### Common Threat Responses

@@ -11,7 +11,7 @@ Deploy universal369.com to the VPS. Two files ready to go:
 
 ## VPS Details
 - **IP**: [VPS_IP]
-- **SSH**: `ssh -p [SSH_PORT] root@[VPS_IP]`
+- **SSH**: `ssh hostinger-vps`
 - **Key**: `~/.ssh/id_ed25519`
 - **Site path**: `/home/universal369.com/public_html/`
 - **SSH alias**: `hostinger-vps` (in ~/.ssh/config)
@@ -33,7 +33,7 @@ scp -P [SSH_PORT] index.html root@[VPS_IP]:/home/universal369.com/public_html/
 scp -P [SSH_PORT] cosmic-energy-enhanced.mp4 root@[VPS_IP]:/home/universal369.com/public_html/
 
 # 3. Set permissions
-ssh -p [SSH_PORT] root@[VPS_IP] "chmod 644 /home/universal369.com/public_html/index.html && chmod 644 /home/universal369.com/public_html/cosmic-energy-enhanced.mp4"
+ssh hostinger-vps "chmod 644 /home/universal369.com/public_html/index.html && chmod 644 /home/universal369.com/public_html/cosmic-energy-enhanced.mp4"
 
 # 4. Confirm live
 curl -s -o /dev/null -w "%{http_code}" https://universal369.com
