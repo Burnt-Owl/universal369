@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Universal 369 — Portal to Infinite Knowledge</title>
 <meta name="description" content="A curated cosmic directory of the internet's best resources for expanding consciousness, knowledge, and understanding.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://universal369.com">
+<meta property="og:title" content="Universal 369 — Portal to Infinite Knowledge">
+<meta property="og:description" content="A curated cosmic directory of the internet's best resources for expanding consciousness, knowledge, and understanding.">
+<meta property="og:image" content="https://universal369.com/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@MysticOblivionX">
+<meta name="twitter:creator" content="@MysticOblivionX">
+<meta name="twitter:title" content="Universal 369 — Portal to Infinite Knowledge">
+<meta name="twitter:description" content="Curated cosmic directory — the internet's best resources for expanding consciousness and understanding.">
+<meta name="twitter:image" content="https://universal369.com/og-card.png">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════
@@ -343,6 +354,89 @@ footer {
   opacity: 0.6;
 }
 
+/* ── SOCIAL SECTION ── */
+.social-section {
+  text-align: center;
+  padding: 5rem 2rem;
+  max-width: 700px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.social-section::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.social-subtitle {
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--text-dim);
+  margin-bottom: 2.5rem;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.social-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-decoration: none;
+  border: 1px solid var(--gold);
+  padding: 0.9rem 2.2rem;
+  border-radius: 2px;
+  background: transparent;
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.social-cta:hover {
+  background: var(--gold);
+  color: var(--bg);
+  box-shadow: 0 0 25px rgba(201, 168, 76, 0.3);
+}
+
+.social-cta svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.social-handle {
+  display: block;
+  margin-top: 1.2rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+.footer-social {
+  margin-top: 1rem;
+}
+
+.footer-social a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  transition: color 0.2s;
+}
+
+.footer-social a:hover {
+  color: var(--gold);
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
   .categories {
@@ -633,12 +727,30 @@ footer {
   </svg>
 </div>
 
+<!-- ═══ FOLLOW THE SIGNAL ═══ -->
+<section class="social-section">
+  <div class="section-header">
+    <div class="section-badge">✦ TRANSMISSIONS ✦</div>
+    <h2 class="section-title">FOLLOW THE SIGNAL</h2>
+    <div class="section-line"></div>
+  </div>
+  <p class="social-subtitle">Cosmic dispatches, curated threads, and portal updates</p>
+  <a href="https://x.com/MysticOblivionX" target="_blank" rel="noopener" class="social-cta">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    FOLLOW ON X
+  </a>
+  <span class="social-handle">@MysticOblivionX</span>
+</section>
+
 <!-- ═══ FOOTER ═══ -->
 <footer>
   <div class="footer-symbol">✦</div>
   <div class="footer-title">UNIVERSAL 369</div>
   <p class="footer-tagline">The key to the universe is within your reach.</p>
   <p class="footer-note">Curated for seekers. Built with intention.</p>
+  <div class="footer-social">
+    <a href="https://x.com/MysticOblivionX" target="_blank" rel="noopener">✦ @MYSTICOBLIVIONX ON X ✦</a>
+  </div>
 </footer>
 
 </div><!-- /.page -->
