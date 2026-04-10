@@ -50,15 +50,18 @@ RUNS_DIR = BASE_DIR / "runs"
 PROMPTS_FILE = BASE_DIR / "PROMPTS.md"
 COUPLE_FILE = BASE_DIR / "COUPLE.md"
 
-# --- News Sources ---
+# --- News Sources (NewsAPI source IDs) ---
 NEWS_SOURCES = [
     "bbc-news",
-    "reuters",
     "associated-press",
-    "the-guardian-uk",
     "npr",
+    "abc-news",
+    "cbs-news",
+    "al-jazeera-english",
+    "ars-technica",
+    "the-verge",
 ]
-NEWS_MAX_STORIES = 10
+NEWS_MAX_STORIES = 15
 
 # --- Script Settings ---
 SCRIPT_MAX_WORDS = 200

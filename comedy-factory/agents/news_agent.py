@@ -17,10 +17,17 @@ from config import NEWS_API_KEY, NEWS_SOURCES, NEWS_MAX_STORIES, MAX_RETRIES, RE
 
 
 RSS_FEEDS = [
-    "https://feeds.bbci.co.uk/news/world/rss.xml",
-    "https://feeds.reuters.com/reuters/worldNews",
-    "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
-    "https://www.theguardian.com/world/rss",
+    # ── World News ──
+    "https://feeds.bbci.co.uk/news/world/rss.xml",          # BBC World
+    "https://feeds.npr.org/1001/rss.xml",                    # NPR News
+    "https://www.aljazeera.com/xml/rss/all.xml",             # Al Jazeera
+    "https://abcnews.go.com/abcnews/internationalheadlines", # ABC News International
+    "https://www.cbsnews.com/latest/rss/world",              # CBS News World
+    "https://feeds.skynews.com/feeds/rss/world.xml",         # Sky News World
+    # ── Topic Feeds (comedy gold) ──
+    "https://feeds.bbci.co.uk/news/technology/rss.xml",      # BBC Tech
+    "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml",  # BBC Entertainment
+    "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml", # BBC Science
 ]
 
 
@@ -104,7 +111,10 @@ def fetch_rss() -> list[dict]:
         try:
             req = urllib.request.Request(
                 feed_url,
-                headers={"User-Agent": "ComedyFactory/1.0"},
+                headers={
+                    "User-Agent": "Mozilla/5.0 (compatible; ComedyFactory/1.0; +https://universal369.com)",
+                    "Accept": "application/rss+xml, application/xml, text/xml, */*",
+                },
             )
             with urllib.request.urlopen(req, timeout=10) as resp:
                 xml_bytes = resp.read()
