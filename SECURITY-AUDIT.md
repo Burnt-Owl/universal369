@@ -5,37 +5,26 @@
 
 ---
 
-## CRITICAL — VPS Credentials Exposed in Git History
+## ~~CRITICAL~~ RESOLVED — VPS Credentials Purged from Git History
 
-**Severity:** CRITICAL
-**File:** `CLAUDE.md` (commit `a5ecb55` removed them, but history retains them)
+**Severity:** CRITICAL (now RESOLVED)
+**Status:** FIXED on 2026-04-10
+**Method:** `git filter-repo --replace-text` across all 36 commits
 
-The commit message "security: scrub VPS IP, SSH port, and Windows IP from public files" confirms
-these values were once in plain text in `CLAUDE.md`. They are still fully readable in git history:
+The following values were previously exposed in plain text in `CLAUDE.md` and `HANDOFF.md`
+git history. They have now been replaced with placeholder tokens in every commit:
 
-| Item | Value |
-|------|-------|
+| Item | Replaced With |
+|------|---------------|
 | VPS IP | `[VPS_IP]` |
 | SSH Port | `[SSH_PORT]` |
 | Windows IP | `[REDACTED_IP]` |
 | fail2ban subnet | `[REDACTED_SUBNET]` |
 
-Anyone with read access to this repository (public or leaked) can retrieve these with:
-```
-git log --all -p -- CLAUDE.md
-```
+**Verification:** `git log --all -p` returns zero matches for any of the original values.
 
-**Risk:** Targeted SSH brute-force or exploit attempts against port [SSH_PORT] on [VPS_IP].
-
-**Fix:**
-1. Rewrite git history to fully purge the sensitive commit:
-   ```bash
-   git filter-repo --path CLAUDE.md --replace-refs delete
-   # or use BFG Repo Cleaner
-   ```
-2. Force-push the cleaned history and ask all collaborators to re-clone.
-3. As a stop-gap: change the SSH port on the VPS and rotate any keys that
-   may have been visible in that history.
+**Remaining recommendation:** Even though history is clean, consider rotating the SSH port
+on the VPS as a precaution, since the values may have been cached by GitHub or any forks.
 
 ---
 
@@ -195,7 +184,7 @@ The `.env` file is gitignored. This is correct.
 
 | # | Severity | Finding |
 |---|----------|---------|
-| 1 | CRITICAL | Real VPS IP + SSH port in git history |
+| 1 | ~~CRITICAL~~ RESOLVED | VPS IP + SSH port purged from git history |
 | 2 | HIGH | GitHub Actions not SHA-pinned (supply chain risk) |
 | 3 | MEDIUM | FFmpeg ASS filter path unescaped |
 | 4 | MEDIUM | FFmpeg concat uses `-safe 0` |
@@ -207,8 +196,9 @@ The `.env` file is gitignored. This is correct.
 
 ## Immediate Actions (Priority Order)
 
-1. **Today:** Purge git history to remove the real VPS IP/port. Consider rotating SSH port.
-2. **Today:** Pin GitHub Actions to SHA hashes.
-3. **This week:** Fix YouTube OAuth to use stored refresh tokens.
-4. **This week:** Escape the FFmpeg ASS filter path.
-5. **Ongoing:** Tighten required-key validation in `config.py`.
+1. ~~**Today:** Purge git history to remove the real VPS IP/port.~~ DONE (2026-04-10)
+2. **Recommended:** Rotate SSH port on VPS as a precaution.
+3. **Today:** Pin GitHub Actions to SHA hashes.
+4. **This week:** Fix YouTube OAuth to use stored refresh tokens.
+5. **This week:** Escape the FFmpeg ASS filter path.
+6. **Ongoing:** Tighten required-key validation in `config.py`.
