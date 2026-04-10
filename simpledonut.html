@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duke Feed — JMU Live</title>
+  <meta name="description" content="Your live JMU news feed. Campus life, Dukes sports, The Breeze, Harrisonburg happenings — all in one place. Go Dukes!">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --purple:       #450084;
+      --purple-dark:  #1c0038;
+      --purple-med:   #2d0065;
+      --purple-light: #7c3aed;
+      --purple-glow:  rgba(69, 0, 132, 0.6);
+      --gold:         #cbb677;
+      --gold-bright:  #f0d060;
+      --gold-dim:     #8a7a40;
+      --white:        #ffffff;
+      --off-white:    #f3eeff;
+      --card-bg:      rgba(30, 0, 60, 0.7);
+      --card-border:  rgba(203, 182, 119, 0.3);
+      --text:         #ede8ff;
+      --text-dim:     rgba(237, 232, 255, 0.6);
+      --green-live:   #22c55e;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--purple-dark);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── BACKGROUND PAWS ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse at 20% 0%, rgba(69,0,132,0.5) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 100%, rgba(203,182,119,0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Floating paw canvas */
+    #paw-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.06;
+    }
+
+    /* Confetti canvas */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(28, 0, 56, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 0 1.5rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transform: translateY(0);
+      transition: transform 0.3s ease;
+    }
+    nav.hidden { transform: translateY(-100%); }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .nav-sub {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+      border-radius: 20px;
+      padding: 0.25rem 0.7rem;
+      font-size: 0.7rem;
+      font-weight: 900;
+      color: var(--green-live);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--green-live);
+      border-radius: 50%;
+      animation: pulse-live 1.5s infinite;
+    }
+    @keyframes pulse-live {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 5rem 1.5rem 3rem;
+    }
+    .hero-eyebrow {
+      font-size: 0.8rem;
+      font-weight: 900;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 14vw, 9rem);
+      letter-spacing: 0.05em;
+      line-height: 0.9;
+      color: var(--white);
+      text-shadow:
+        0 0 60px rgba(203,182,119,0.4),
+        0 0 120px rgba(69,0,132,0.6);
+      margin-bottom: 0.4em;
+    }
+    .hero-title span { color: var(--gold); }
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text-dim);
+      max-width: 480px;
+      margin: 0 auto 2rem;
+      line-height: 1.6;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--gold);
+      color: var(--purple-dark);
+      font-weight: 900;
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.75rem 1.8rem;
+      border-radius: 40px;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .hero-cta:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 8px 32px rgba(203,182,119,0.4);
+    }
+
+    /* ── SPORTS TICKER ── */
+    .ticker-wrap {
+      position: relative;
+      z-index: 1;
+      background: var(--purple);
+      border-top: 1px solid rgba(203,182,119,0.2);
+      border-bottom: 1px solid rgba(203,182,119,0.2);
+      overflow: hidden;
+      padding: 0.5rem 0;
+      margin-bottom: 3rem;
+    }
+    .ticker-label {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+      background: var(--gold);
+      color: var(--purple-dark);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.95rem;
+      letter-spacing: 0.1em;
+      z-index: 2;
+      white-space: nowrap;
+    }
+    .ticker-inner {
+      display: flex;
+      white-space: nowrap;
+      padding-left: 120px;
+      animation: scroll-ticker 40s linear infinite;
+    }
+    .ticker-inner:hover { animation-play-state: paused; }
+    @keyframes scroll-ticker {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0 2.5rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--gold-bright);
+    }
+    .ticker-sep { color: var(--purple-light); opacity: 0.6; }
+
+    /* ── DUKE DISPATCH (HUMOR) ── */
+    .dispatch-section {
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(135deg, rgba(69,0,132,0.5), rgba(203,182,119,0.08));
+      border-top: 2px solid var(--gold);
+      border-bottom: 2px solid var(--gold);
+      padding: 2.5rem 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .dispatch-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .dispatch-label {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--purple-dark);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      padding: 0.2rem 1rem;
+      border-radius: 4px;
+      margin-bottom: 0.6rem;
+    }
+    .dispatch-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.4rem;
+      letter-spacing: 0.06em;
+      color: var(--white);
+    }
+    .dispatch-title span { color: var(--gold); }
+    .dispatch-sub {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 0.3rem;
+    }
+    .dispatch-grid {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.2rem;
+    }
+    .dispatch-card {
+      background: rgba(10, 0, 24, 0.55);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.2rem 1.3rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .dispatch-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(69,0,132,0.4);
+    }
+    .dispatch-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--gold);
+    }
+    .dispatch-tag {
+      font-size: 0.65rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+    .dispatch-headline {
+      font-size: 1rem;
+      font-weight: 900;
+      line-height: 1.35;
+      color: var(--white);
+      margin-bottom: 0.6rem;
+    }
+    .dispatch-body {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+    .dispatch-byline {
+      margin-top: 0.8rem;
+      font-size: 0.68rem;
+      color: var(--gold-dim);
+      font-weight: 700;
+    }
+    @media (max-width: 680px) {
+      .dispatch-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1.5rem 4rem;
+    }
+
+    /* ── SECTION HEADERS ── */
+    .section {
+      margin-bottom: 3.5rem;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--card-border);
+    }
+    .section-emoji { font-size: 1.6rem; }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.06em;
+      color: var(--gold);
+    }
+    .section-count {
+      margin-left: auto;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 0.2rem 0.7rem;
+    }
+
+    /* ── CARD GRID ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+      animation: card-in 0.4s ease both;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(69, 0, 132, 0.4), 0 0 0 1px var(--gold-dim);
+      border-color: var(--gold-dim);
+    }
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      background: rgba(69, 0, 132, 0.3);
+      display: block;
+    }
+    .card-img-placeholder {
+      width: 100%;
+      height: 160px;
+      background: linear-gradient(135deg, rgba(69,0,132,0.4), rgba(203,182,119,0.1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+    }
+
+    .card-body {
+      padding: 1rem 1.1rem 1.1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .card-source {
+      font-size: 0.68rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--gold);
+    }
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--white);
+    }
+    .card-desc {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+      flex: 1;
+    }
+    .card-date {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      font-weight: 600;
+      margin-top: 0.3rem;
+    }
+
+    /* ── LOADING SKELETON ── */
+    .skeleton-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.2rem;
+    }
+    .skeleton {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .skeleton-img {
+      width: 100%;
+      height: 160px;
+      background: linear-gradient(90deg, rgba(69,0,132,0.2) 25%, rgba(120,0,200,0.25) 50%, rgba(69,0,132,0.2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    .skeleton-body {
+      padding: 1rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .skeleton-line {
+      height: 12px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, rgba(69,0,132,0.2) 25%, rgba(120,0,200,0.25) 50%, rgba(69,0,132,0.2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    .skeleton-line.short { width: 40%; }
+    .skeleton-line.med   { width: 75%; }
+    .skeleton-line.long  { width: 100%; }
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-dim);
+    }
+    .empty-state .empty-emoji { font-size: 3rem; display: block; margin-bottom: 0.8rem; }
+    .empty-state p { font-size: 0.9rem; }
+
+    /* ── ERROR STATE ── */
+    .error-state {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: #f87171;
+      font-size: 0.85rem;
+    }
+
+    /* ── REFRESH INFO ── */
+    .refresh-bar {
+      text-align: center;
+      padding: 2rem 1rem 0;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .refresh-bar span { color: var(--gold); }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      background: rgba(10, 0, 24, 0.8);
+      border-top: 1px solid var(--card-border);
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+    .footer-sub {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+    .footer-heart { color: var(--gold); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 680px) {
+      .nav-links { display: none; }
+      .hero { padding: 3rem 1rem 2rem; }
+      .card-grid, .skeleton-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── BEANS THE CAT ── */
+    #beans {
+      position: fixed;
+      bottom: 16px;
+      right: 20px;
+      z-index: 500;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.1s;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+    }
+    #beans:hover { transform: scale(1.08); }
+
+    .cat-wrap {
+      position: relative;
+      width: 72px;
+      height: 90px;
+    }
+
+    /* Tail */
+    .cat-tail {
+      position: absolute;
+      bottom: 2px;
+      left: -22px;
+      width: 26px;
+      height: 44px;
+      border: 5px solid #c8773a;
+      border-right: none;
+      border-radius: 22px 0 0 22px;
+      transform-origin: bottom right;
+      animation: tail-idle 3s ease-in-out infinite;
+    }
+    @keyframes tail-idle {
+      0%,100% { transform: rotate(-10deg); }
+      50%      { transform: rotate(15deg); }
+    }
+    .beans-walking .cat-tail {
+      animation: tail-walk 0.35s ease-in-out infinite alternate;
+    }
+    @keyframes tail-walk {
+      from { transform: rotate(20deg); }
+      to   { transform: rotate(-5deg); }
+    }
+
+    /* Body */
+    .cat-body {
+      position: absolute;
+      bottom: 0;
+      left: 8px;
+      width: 52px;
+      height: 52px;
+      background: #e8935a;
+      border-radius: 50% 50% 40% 40%;
+      overflow: visible;
+    }
+    /* Stripe markings */
+    .cat-body::before {
+      content: '';
+      position: absolute;
+      top: 8px; left: 10px;
+      width: 4px; height: 16px;
+      background: rgba(0,0,0,0.13);
+      border-radius: 2px;
+      box-shadow: 10px 0 0 rgba(0,0,0,0.10), 20px 0 0 rgba(0,0,0,0.08);
+    }
+    .beans-walking .cat-body { animation: body-bob 0.35s ease-in-out infinite alternate; }
+    @keyframes body-bob {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-3px); }
+    }
+
+    /* Collar */
+    .cat-collar {
+      position: absolute;
+      top: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #450084;
+      border: 1.5px solid var(--gold);
+      border-radius: 10px;
+      padding: 1px 6px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      white-space: nowrap;
+    }
+    /* Tag */
+    .cat-collar::after {
+      content: '🏷️';
+      position: absolute;
+      bottom: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+    }
+
+    /* Front paws */
+    .cat-paws {
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+    }
+    .cat-paw {
+      width: 14px;
+      height: 10px;
+      background: #e8935a;
+      border-radius: 50% 50% 40% 40%;
+      border-bottom: 2px solid #c4784a;
+    }
+    .beans-walking .cat-paw:first-child { animation: paw-l 0.35s ease-in-out infinite alternate; }
+    .beans-walking .cat-paw:last-child  { animation: paw-r 0.35s ease-in-out infinite alternate; }
+    @keyframes paw-l { from { transform: translateY(0) rotate(-5deg); } to { transform: translateY(-5px) rotate(5deg); } }
+    @keyframes paw-r { from { transform: translateY(-5px) rotate(5deg); } to { transform: translateY(0) rotate(-5deg); } }
+
+    /* Head */
+    .cat-head {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 52px;
+      height: 46px;
+      background: #e8935a;
+      border-radius: 50%;
+    }
+
+    /* Ears — rounded, not horns */
+    .cat-ear {
+      position: absolute;
+      top: -10px;
+      width: 18px;
+      height: 16px;
+      background: #e8935a;
+      border-radius: 60% 60% 10% 10% / 70% 70% 30% 30%;
+    }
+    .cat-ear::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 10px;
+      height: 9px;
+      background: #f4b896;
+      border-radius: 60% 60% 10% 10% / 70% 70% 30% 30%;
+    }
+    .cat-ear-l { left: 3px; }
+    .cat-ear-r { right: 3px; }
+
+    /* Eyes */
+    .cat-eyes {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 14px;
+    }
+    .cat-eye {
+      width: 10px;
+      height: 10px;
+      background: #4ade80;
+      border-radius: 50%;
+      border: 1.5px solid #166534;
+      position: relative;
+      animation: blink 6s ease-in-out infinite;
+    }
+    .cat-eye::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 4px; height: 7px;
+      background: #000;
+      border-radius: 50%;
+    }
+    @keyframes blink {
+      0%,48%,52%,100% { transform: scaleY(1); }
+      50%              { transform: scaleY(0.08); }
+    }
+
+    /* Nose */
+    .cat-nose {
+      position: absolute;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid #f472b6;
+    }
+
+    /* Whiskers */
+    .cat-whiskers {
+      position: absolute;
+      top: 26px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      pointer-events: none;
+    }
+    .cat-whisker {
+      position: absolute;
+      height: 1.5px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 1px;
+    }
+    .wl1 { width: 20px; top: 0;  left: -22px; transform: rotate(-8deg); }
+    .wl2 { width: 20px; top: 5px; left: -22px; transform: rotate(5deg); }
+    .wr1 { width: 20px; top: 0;  right: -22px; transform: rotate(8deg); }
+    .wr2 { width: 20px; top: 5px; right: -22px; transform: rotate(-5deg); }
+
+    /* Speech bubble */
+    .cat-bubble {
+      position: absolute;
+      top: -42px;
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      background: white;
+      color: #1c0038;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 12px;
+      white-space: nowrap;
+      pointer-events: none;
+      transform-origin: bottom center;
+      transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .cat-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid white;
+    }
+    .cat-bubble.show { transform: translateX(-50%) scale(1); }
+  </style>
+</head>
+<body>
+
+<canvas id="paw-canvas"></canvas>
+<canvas id="confetti-canvas"></canvas>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <div class="nav-brand" id="logo-btn" title="Click for Go Dukes! 🎉">
+    <div>
+      <div class="nav-logo">🐾 DUKE FEED</div>
+      <div class="nav-sub">JMU Live News</div>
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#campus">Campus</a></li>
+    <li><a href="#breeze">The Breeze</a></li>
+    <li><a href="#sports">Sports</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#harrisonburg">H'burg</a></li>
+  </ul>
+  <div class="live-badge">
+    <div class="live-dot"></div>
+    LIVE
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">James Madison University · Harrisonburg, VA 22801</div>
+  <h1 class="hero-title">GO <span>DUKES</span></h1>
+  <p class="hero-sub">Your all-in-one live feed for JMU campus news, Dukes sports, The Breeze, events, and everything Harrisonburg. Be the change, be the Dukes. 💜💛</p>
+  <button class="hero-cta" id="hero-cta-btn">🎉 Click for Go Dukes!</button>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-label">🏈 DUKES</div>
+  <div class="ticker-inner" id="ticker">
+    <span class="ticker-item">JMU Football — Sun Belt Conference Champions 💜 <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">Dukes Baseball sweeps weekend series at home <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">JMU Women's Basketball ranked in AP Top 25 <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">Bridgeforth Stadium sellout crowd — 25,000 strong 🏟️ <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">The Breeze — JMU's Student Voice Since 1922 <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">JMU Softball dominates Sun Belt opener <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">Duke Dog sighting reported near East Campus Dining 🐶 <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">Follow @JMUSports for live scores and highlights <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">JMU Football — Sun Belt Conference Champions 💜 <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">Dukes Baseball sweeps weekend series at home <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">JMU Women's Basketball ranked in AP Top 25 <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">Bridgeforth Stadium sellout crowd — 25,000 strong 🏟️ <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">The Breeze — JMU's Student Voice Since 1922 <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">JMU Softball dominates Sun Belt opener <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">Duke Dog sighting reported near East Campus Dining 🐶 <span class="ticker-sep">•</span></span>
+    <span class="ticker-item">Follow @JMUSports for live scores and highlights <span class="ticker-sep">•</span></span>
+  </div>
+</div>
+
+<!-- DUKE DISPATCH: DEFINITELY REAL NEWS -->
+<div class="dispatch-section">
+  <div class="dispatch-header">
+    <div class="dispatch-label">⚡ Breaking News</div>
+    <h2 class="dispatch-title">The Duke <span>Dispatch</span></h2>
+    <p class="dispatch-sub">Totally real stories from around campus. Probably.</p>
+  </div>
+  <div class="dispatch-grid">
+
+    <div class="dispatch-card">
+      <div class="dispatch-tag">🅿️ Parking Crisis</div>
+      <div class="dispatch-headline">Student Arrives 45 Minutes Early To Class, Still Parks In Neighboring County; Says "Worth The Hike"</div>
+      <div class="dispatch-body">Junior Tyler K. reportedly left his apartment at 7:15am for a 9am lecture, circled the Champion Drive lot 14 times, and eventually parked at a Sheetz on Port Republic Road. "I got my steps in," he said, arriving to class with a breakfast burrito and zero regrets. JMU Parking Services has issued a statement reminding students that crying in the R2 lot does not constitute a valid parking appeal.</div>
+      <div class="dispatch-byline">— Transportation Correspondent, The Duke Dispatch · Today</div>
+    </div>
+
+    <div class="dispatch-card">
+      <div class="dispatch-tag">🍗 E-Hall Emergency</div>
+      <div class="dispatch-headline">E-Hall Chicken Tender Supply Lasts Record 11 Minutes Before Complete Depletion; Freshmen Form Support Group</div>
+      <div class="dispatch-body">In what dining officials are calling "a minor miracle," Thursday's chicken tender supply survived a full 11 minutes past the 5pm dinner rush — up from the previous record of 8. A candlelight vigil was held at the empty warming tray by students who arrived at 5:12pm. "We were so close," whispered one sophomore, clutching a plate of backup mozzarella sticks.</div>
+      <div class="dispatch-byline">— Staff Reporter, The Duke Dispatch · 2 hours ago</div>
+    </div>
+
+    <div class="dispatch-card">
+      <div class="dispatch-tag">📚 Carrier Library</div>
+      <div class="dispatch-headline">Student Claims Fourth-Floor Carrier Desk As "Emotional Support Study Spot"; Has Not Opened A Single Textbook In 3 Hours</div>
+      <div class="dispatch-body">Senior Amanda R. arrived at Carrier Library at 1pm with a venti iced coffee, two highlighters, a motivational playlist, and a color-coded planner. As of 4pm, she has completed: one TikTok scroll session, a full ranking of Harrisonburg restaurants in her Notes app, and a text to her mom asking "is it too late to drop out?" Her planner remains untouched but, sources confirm, looks incredible.</div>
+      <div class="dispatch-byline">— Academic Affairs Desk · 3 hours ago</div>
+    </div>
+
+    <div class="dispatch-card">
+      <div class="dispatch-tag">🏈 Game Day</div>
+      <div class="dispatch-headline">Tailgate On Godwin Field Begins At 7am For 6pm Kickoff; Attendee Forgets Actual Game Exists</div>
+      <div class="dispatch-body">A record 47 grills were reportedly fired up on Godwin Field by 8am Saturday for the Dukes' evening home game. By 2pm, one senior had already declared it "the best game I've ever been to" despite kickoff being four hours away. He was later found asleep in a camping chair wearing a purple wig, holding a spatula. He did not attend the game. The Dukes won.</div>
+      <div class="dispatch-byline">— Athletics Correspondent · Yesterday</div>
+    </div>
+
+    <div class="dispatch-card">
+      <div class="dispatch-tag">🏋️ UREC Drama</div>
+      <div class="dispatch-headline">Freshman Makes Eye Contact With Senior At UREC Squat Rack; Immediately Leaves Gym, Changes Major</div>
+      <div class="dispatch-body">The incident, which witnesses describe as "deeply uncomfortable for everyone involved," occurred at approximately 4:30pm when first-year student Jake W. accidentally locked eyes with a 220-pound kinesiology senior mid-deadlift. Jake has since switched to online yoga from his dorm room and is now exploring a career in library science. "UREC is his gym now," Jake told reporters. "I accept this."</div>
+      <div class="dispatch-byline">— Sports & Fitness Desk · 5 hours ago</div>
+    </div>
+
+    <div class="dispatch-card">
+      <div class="dispatch-tag">🐶 Duke Dog Watch</div>
+      <div class="dispatch-headline">Duke Dog Seen Power Walking Through The Quad At 6am; Refuses To Acknowledge Students, "Has Places To Be"</div>
+      <div class="dispatch-body">Multiple early-morning witnesses report that Duke Dog was spotted on the Quad at 6:03am walking with what experts describe as "extreme purpose." When a freshman attempted to wave, Duke Dog allegedly maintained forward eye contact and increased speed. A campus security officer confirmed the mascot appeared to be carrying a briefcase. JMU Athletics declined to comment on whether Duke Dog has a second job.</div>
+      <div class="dispatch-byline">— Investigative Reporter · Today</div>
+    </div>
+
+    <div class="dispatch-card">
+      <div class="dispatch-tag">🌮 H'burg Eats</div>
+      <div class="dispatch-headline">Student Ranks Every Late-Night Food Spot In Harrisonburg; Writes 9-Page Review of Jack Brown's Burger At 2am</div>
+      <div class="dispatch-body">What began as a simple Snapchat story has evolved into a 47-slide presentation titled "The Definitive H'burg Hunger Index." Sophomore Bri M. has personally visited every restaurant within a one-mile radius of campus in the past two weeks, rating each on "vibes, value, and whether they judge you for ordering at 1:45am." Jack Brown's received a perfect 10. Bri's GPA received a 1.7.</div>
+      <div class="dispatch-byline">— Food & Culture Reporter · 8 hours ago</div>
+    </div>
+
+    <div class="dispatch-card">
+      <div class="dispatch-tag">🛏️ Village Life</div>
+      <div class="dispatch-headline">Roommate Agreement Collapses After One Party Discovers The Other Has Been Using Their Toothpaste "Since August"</div>
+      <div class="dispatch-body">Tensions in a Village double reached a breaking point Tuesday when sophomore Erin L. noticed her Sensodyne was noticeably lighter. A formal investigation — consisting of one (1) accusatory text — revealed roommate Kayla H. had been quietly using it since move-in day. "I ran out week one and just... never stopped," Kayla admitted. The two are now communicating exclusively through Post-it notes on the mini fridge. Mediation via their RA has been scheduled for Thursday.</div>
+      <div class="dispatch-byline">— Residential Life Desk · 1 day ago</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+  <!-- CAMPUS NEWS -->
+  <section class="section" id="campus">
+    <div class="section-header">
+      <span class="section-emoji">🏛️</span>
+      <h2 class="section-title">Campus News</h2>
+      <span class="section-count" id="campus-count">Loading…</span>
+    </div>
+    <div id="campus-grid">
+      <div class="skeleton-grid">
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE BREEZE -->
+  <section class="section" id="breeze">
+    <div class="section-header">
+      <span class="section-emoji">📰</span>
+      <h2 class="section-title">The Breeze</h2>
+      <span class="section-count" id="breeze-count">Loading…</span>
+    </div>
+    <div id="breeze-grid">
+      <div class="skeleton-grid">
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPORTS -->
+  <section class="section" id="sports">
+    <div class="section-header">
+      <span class="section-emoji">🏀</span>
+      <h2 class="section-title">Dukes Sports</h2>
+      <span class="section-count" id="sports-count">Loading…</span>
+    </div>
+    <div id="sports-grid">
+      <div class="skeleton-grid">
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section class="section" id="events">
+    <div class="section-header">
+      <span class="section-emoji">🎉</span>
+      <h2 class="section-title">What's Happening</h2>
+      <span class="section-count" id="events-count">Loading…</span>
+    </div>
+    <div id="events-grid">
+      <div class="skeleton-grid">
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HARRISONBURG -->
+  <section class="section" id="harrisonburg">
+    <div class="section-header">
+      <span class="section-emoji">🌆</span>
+      <h2 class="section-title">Harrisonburg</h2>
+      <span class="section-count" id="harrisonburg-count">Loading…</span>
+    </div>
+    <div id="harrisonburg-grid">
+      <div class="skeleton-grid">
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+        <div class="skeleton"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line med"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="refresh-bar" id="refresh-bar">
+    Auto-refreshes every 10 minutes &nbsp;·&nbsp; Last updated: <span id="last-updated">—</span>
+  </div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">🐾 DUKE FEED</div>
+  <div class="footer-sub">
+    Made by Olivia 💛💜 in her Home Lab<br>
+    Not affiliated with James Madison University &nbsp;·&nbsp; Harrisonburg, VA 22801<br>
+    All stories sourced from JMU, The Breeze, and local Harrisonburg feeds
+  </div>
+</footer>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────
+const FEED_URL      = 'feed.php';
+const REFRESH_MS    = 10 * 60 * 1000; // 10 min
+
+const SECTION_EMOJI = {
+  campus:       '🏛️',
+  breeze:       '📰',
+  sports:       '🏀',
+  events:       '🎉',
+  harrisonburg: '🌆',
+};
+
+const FALLBACK_EMOJI = {
+  campus:       '🏛️',
+  breeze:       '📰',
+  sports:       '🏆',
+  events:       '📅',
+  harrisonburg: '🏘️',
+};
+
+// ── RELATIVE TIME ────────────────────────────────────
+function timeAgo(ts) {
+  if (!ts) return '';
+  const diff = Math.floor(Date.now() / 1000) - ts;
+  if (diff < 60)        return 'just now';
+  if (diff < 3600)      return Math.floor(diff / 60) + 'm ago';
+  if (diff < 86400)     return Math.floor(diff / 3600) + 'h ago';
+  return Math.floor(diff / 86400) + 'd ago';
+}
+
+// ── RENDER CARDS ─────────────────────────────────────
+function renderCard(item) {
+  const img = item.img
+    ? `<img class="card-img" src="${escHtml(item.img)}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+    : '';
+  const placeholder = `<div class="card-img-placeholder" style="${item.img ? 'display:none' : ''}">🐾</div>`;
+  const ago = timeAgo(item.ts);
+
+  return `
+    <a class="card" href="${escHtml(item.link)}" target="_blank" rel="noopener noreferrer">
+      ${img}${placeholder}
+      <div class="card-body">
+        <div class="card-source">${escHtml(item.source)}</div>
+        <div class="card-title">${escHtml(item.title)}</div>
+        ${item.desc ? `<div class="card-desc">${escHtml(item.desc)}</div>` : ''}
+        ${ago ? `<div class="card-date">🕐 ${ago}</div>` : ''}
+      </div>
+    </a>`;
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── RENDER SECTION ───────────────────────────────────
+function renderSection(sectionId, items) {
+  const grid  = document.getElementById(sectionId + '-grid');
+  const count = document.getElementById(sectionId + '-count');
+
+  if (!items || items.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-emoji">${FALLBACK_EMOJI[sectionId] || '🐾'}</span>
+        <p>No stories right now — check back soon!</p>
+      </div>`;
+    if (count) count.textContent = '0 stories';
+    return;
+  }
+
+  grid.innerHTML = `<div class="card-grid">${items.map(renderCard).join('')}</div>`;
+  if (count) count.textContent = items.length + ' stories';
+}
+
+// ── FETCH & RENDER ───────────────────────────────────
+async function loadFeed() {
+  try {
+    const res  = await fetch(FEED_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    if (data.status !== 'ok') throw new Error('Feed error');
+
+    const s = data.sections;
+    renderSection('campus',       s.campus       || []);
+    renderSection('breeze',       s.breeze        || []);
+    renderSection('sports',       s.sports        || []);
+    renderSection('events',       s.events        || []);
+    renderSection('harrisonburg', s.harrisonburg  || []);
+
+    // Update ticker with sports headlines
+    updateTicker(s.sports || []);
+
+    // Last updated
+    if (data.updated) {
+      const d = new Date(data.updated * 1000);
+      document.getElementById('last-updated').textContent =
+        d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+  } catch (err) {
+    console.error('Duke Feed error:', err);
+    ['campus', 'breeze', 'sports', 'events', 'harrisonburg'].forEach(s => {
+      const g = document.getElementById(s + '-grid');
+      if (g && g.querySelector('.skeleton-grid')) {
+        g.innerHTML = `<div class="error-state">⚠️ Couldn't load ${s} feed — will retry</div>`;
+      }
+    });
+  }
+}
+
+// ── TICKER UPDATE ────────────────────────────────────
+function updateTicker(sportsItems) {
+  if (!sportsItems.length) return;
+  const ticker = document.getElementById('ticker');
+  const items  = sportsItems.slice(0, 8);
+  let html = '';
+  items.forEach(item => {
+    html += `<span class="ticker-item">${escHtml(item.title)} <span class="ticker-sep">•</span></span>`;
+  });
+  // duplicate for seamless loop
+  ticker.innerHTML = html + html;
+}
+
+// ── NAV HIDE ON SCROLL ───────────────────────────────
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('main-nav');
+  const cur = window.scrollY;
+  if (cur > lastScroll && cur > 80) {
+    nav.classList.add('hidden');
+  } else {
+    nav.classList.remove('hidden');
+  }
+  lastScroll = cur;
+}, { passive: true });
+
+// ── PAW BACKGROUND CANVAS ────────────────────────────
+(function() {
+  const canvas = document.getElementById('paw-canvas');
+  const ctx    = canvas.getContext('2d');
+  let paws     = [];
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function drawPaw(ctx, x, y, size, angle) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.fillStyle = '#cbb677';
+
+    // Main pad
+    ctx.beginPath();
+    ctx.ellipse(0, 0, size, size * 1.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Toe pads
+    const toes = [
+      [-size * 0.7, -size * 1.3],
+      [-size * 0.2, -size * 1.6],
+      [size * 0.4,  -size * 1.5],
+      [size * 0.9,  -size * 1.1],
+    ];
+    toes.forEach(([tx, ty]) => {
+      ctx.beginPath();
+      ctx.ellipse(tx, ty, size * 0.45, size * 0.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  function initPaws() {
+    paws = [];
+    for (let i = 0; i < 20; i++) {
+      paws.push({
+        x:     Math.random() * canvas.width,
+        y:     Math.random() * canvas.height,
+        size:  8 + Math.random() * 14,
+        angle: Math.random() * Math.PI * 2,
+        vx:    (Math.random() - 0.5) * 0.2,
+        vy:    0.15 + Math.random() * 0.25,
+        alpha: 0.3 + Math.random() * 0.5,
+      });
+    }
+  }
+  initPaws();
+
+  function animatePaws() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    paws.forEach(p => {
+      ctx.globalAlpha = p.alpha;
+      drawPaw(ctx, p.x, p.y, p.size, p.angle);
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.y > canvas.height + 30) {
+        p.y = -30;
+        p.x = Math.random() * canvas.width;
+      }
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(animatePaws);
+  }
+  animatePaws();
+})();
+
+// ── CONFETTI CANNON ──────────────────────────────────
+(function() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx    = canvas.getContext('2d');
+  let pieces   = [];
+  let running  = false;
+
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.addEventListener('resize', () => {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  const COLORS = ['#450084', '#cbb677', '#f0d060', '#7c3aed', '#ffffff', '#a855f7'];
+
+  function launch() {
+    const cx = canvas.width / 2;
+    for (let i = 0; i < 120; i++) {
+      pieces.push({
+        x:     cx + (Math.random() - 0.5) * 80,
+        y:     canvas.height * 0.3,
+        vx:    (Math.random() - 0.5) * 18,
+        vy:    -(8 + Math.random() * 14),
+        size:  5 + Math.random() * 7,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        rot:   Math.random() * Math.PI * 2,
+        rotV:  (Math.random() - 0.5) * 0.3,
+        alpha: 1,
+      });
+    }
+    if (!running) {
+      running = true;
+      animate();
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces = pieces.filter(p => p.alpha > 0);
+    pieces.forEach(p => {
+      p.x   += p.vx;
+      p.y   += p.vy;
+      p.vy  += 0.45; // gravity
+      p.vx  *= 0.99;
+      p.rot += p.rotV;
+      if (p.y > canvas.height * 0.7) p.alpha -= 0.025;
+
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.5);
+      ctx.restore();
+    });
+    if (pieces.length > 0) requestAnimationFrame(animate);
+    else running = false;
+  }
+
+  // Attach to buttons
+  document.getElementById('logo-btn').addEventListener('click', launch);
+  document.getElementById('hero-cta-btn').addEventListener('click', launch);
+})();
+
+// ── INIT ─────────────────────────────────────────────
+loadFeed();
+setInterval(loadFeed, REFRESH_MS);
+
+// ── BEANS THE CAT ─────────────────────────────────────
+window.addEventListener('load', function() {
+  const beans = document.getElementById('beans');
+  const bubble = document.getElementById('beans-bubble');
+
+  const meows = ['Meow! 😺','Purrrr...','*stares at u*','mrrrow','Feed me?','Go Dukes! 🐾','Beans!','zZzZz...','*knocks stuff*','JMU forever 💜','parking is a myth','E-Hall tenders? 🍗','Duke Dog is my bestie','I belong on the Quad','*hisses at finals*','Sun Belt champs! 🏆','Harrisonburg cat 🐱','UREC scares me','Go purple! Go gold!'];
+
+  function showBubble(msg) {
+    bubble.textContent = msg;
+    bubble.classList.add('show');
+    setTimeout(() => bubble.classList.remove('show'), 2200);
+  }
+
+  // Click = scroll to top + meow
+  const topMessages = ['Taking you up! 🚀','Back to the top! 🐾','*zooms upward*','Hop! 🐱','To the top! Go Dukes!','Like a Duke! 💜💛','Bridgeforth bound! 🏟️','UREC sprint mode!','Quad vibes! ✨'];
+  beans.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showBubble(topMessages[Math.floor(Math.random() * topMessages.length)]);
+  });
+
+  // Random wander across screen
+  function wander() {
+    const w        = window.innerWidth;
+    const startX   = w - 92; // resting right side
+    const destX    = 60 + Math.random() * (w * 0.5);
+    const goLeft   = Math.random() > 0.5;
+    const target   = goLeft ? destX : startX;
+    const duration = Math.abs(target - parseFloat(beans.style.right || startX)) * 4 + 1200;
+
+    beans.classList.add('beans-walking');
+    beans.style.transition = `right ${duration}ms linear`;
+    beans.style.right = (window.innerWidth - target - 72) + 'px';
+
+    setTimeout(() => {
+      // Return home
+      beans.style.transition = `right ${(Math.abs(target - startX) * 4 + 1200)}ms linear`;
+      beans.style.right = '20px';
+      setTimeout(() => {
+        beans.classList.remove('beans-walking');
+        beans.style.transition = '';
+        scheduleWander();
+      }, Math.abs(target - startX) * 4 + 1400);
+    }, duration + 800);
+  }
+
+  function scheduleWander() {
+    const delay = 12000 + Math.random() * 18000; // 12–30 sec
+    setTimeout(wander, delay);
+  }
+
+  scheduleWander();
+
+  // Occasionally show a random bubble unprompted
+  function randomMeow() {
+    if (Math.random() < 0.4) showBubble(meows[Math.floor(Math.random() * meows.length)]);
+    setTimeout(randomMeow, 20000 + Math.random() * 25000);
+  }
+  setTimeout(randomMeow, 15000);
+});
+</script>
+
+<!-- BEANS THE CAT 🧡 -->
+<div id="beans">
+  <div class="cat-wrap">
+    <div class="cat-tail"></div>
+    <div class="cat-body">
+      <div class="cat-collar">BEANS</div>
+      <div class="cat-paws">
+        <div class="cat-paw"></div>
+        <div class="cat-paw"></div>
+      </div>
+    </div>
+    <div class="cat-head">
+      <div class="cat-ear cat-ear-l"></div>
+      <div class="cat-ear cat-ear-r"></div>
+      <div class="cat-eyes">
+        <div class="cat-eye"></div>
+        <div class="cat-eye"></div>
+      </div>
+      <div class="cat-nose"></div>
+      <div class="cat-whiskers">
+        <div class="cat-whisker wl1"></div>
+        <div class="cat-whisker wl2"></div>
+        <div class="cat-whisker wr1"></div>
+        <div class="cat-whisker wr2"></div>
+      </div>
+      <div class="cat-bubble" id="beans-bubble"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
