@@ -20,6 +20,9 @@ I'm the assistant manager for Orion's (Owl Astro) entire VPS operation. Every Cl
 | SSH key | `~/.ssh/id_ed25519` |
 | SSH alias | `hostinger-vps` |
 
+### Known Issue — Claude Code Sandbox (Linux web sessions)
+`ssh` and `scp` are not available as CLI commands inside the Claude Code sandbox environment. Direct VPS connections must be done from the user's local terminal. Claude can prepare deploy commands and scripts, but cannot execute them against the VPS directly.
+
 ### Known Issue — Windows SSH
 Windows IP `104.234.212.7` was blocked at banner exchange (Hostinger network-level block).
 **Fixes already applied on VPS:**
@@ -235,10 +238,10 @@ python run_daily.py --regen-characters # Regenerate Raven & Jax portraits
 ## Git & Dev Branch
 
 - **Repo:** `Burnt-Owl/universal369`
-- **Active dev branch:** `claude/build-agent-workforce-oXZ6m`
+- **Active dev branch:** `claude/organize-vps-directory-RM1D1`
 - **Remote:** `http://local_proxy@127.0.0.1:42725/git/Burnt-Owl/universal369`
 
-When starting a new task, always develop on `claude/build-agent-workforce-oXZ6m` unless the user says otherwise.
+When starting a new task, always develop on `claude/organize-vps-directory-RM1D1` unless the user says otherwise.
 
 ---
 
