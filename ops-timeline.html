@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orion's Operations — Mission Timeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060810;
+  --surface: #0a0d14;
+  --surface2: #0f1219;
+  --border: #1a1d2e;
+  --gold: #c9a84c;
+  --gold-dim: #8a7535;
+  --purple: #8b5cf6;
+  --purple-dim: #6b4cc6;
+  --cyan: #4db8c8;
+  --green: #4caf82;
+  --text: #cdc8d8;
+  --text-dim: #6a6578;
+  --text-bright: #f0eef5;
+  --red: #e05c6a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 1.7;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+#cosmos {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+.page { position: relative; z-index: 1; }
+
+/* ── HERO ── */
+.hero {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 2rem 2rem;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(139,92,246,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  margin-bottom: 1.2rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.2s forwards;
+}
+
+.hero-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2rem, 6vw, 3.8rem);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+  background: linear-gradient(135deg, var(--text-bright) 0%, var(--gold) 50%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.4s forwards;
+}
+
+.hero-sub {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  letter-spacing: 0.3em;
+  color: var(--purple);
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.6s forwards;
+}
+
+.hero-tagline {
+  font-style: italic;
+  color: var(--text-dim);
+  font-size: 1rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.8s forwards;
+}
+
+/* ── STATUS LEGEND ── */
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1.5rem 2rem;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 1s forwards;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+}
+
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── SITE CARDS ROW ── */
+.sites-row {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 2rem 4rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.site-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: transform 0.3s, border-color 0.3s;
+}
+
+.site-card:hover { transform: translateY(-4px); }
+
+.site-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.site-card:hover::before { opacity: 1; }
+
+.site-card.live::before { background: linear-gradient(90deg, var(--green), var(--cyan)); }
+.site-card.ready::before { background: linear-gradient(90deg, var(--gold), var(--purple)); }
+.site-card.running::before { background: linear-gradient(90deg, var(--purple), var(--cyan)); }
+.site-card.benchmark::before { background: linear-gradient(90deg, var(--text-dim), var(--border)); }
+
+.site-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+
+.site-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+}
+
+.site-status {
+  display: inline-block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2px;
+  margin-bottom: 0.8rem;
+}
+
+.status-live { background: rgba(76,175,130,0.15); color: var(--green); border: 1px solid rgba(76,175,130,0.3); }
+.status-ready { background: rgba(201,168,76,0.12); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+.status-running { background: rgba(139,92,246,0.15); color: var(--purple); border: 1px solid rgba(139,92,246,0.3); }
+.status-benchmark { background: rgba(106,101,120,0.15); color: var(--text-dim); border: 1px solid var(--border); }
+
+.site-desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ── SECTION HEADER ── */
+.section-header {
+  text-align: center;
+  padding: 3rem 2rem 2rem;
+}
+
+.section-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  color: var(--purple);
+  margin-bottom: 0.8rem;
+}
+
+.section-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.3rem, 3vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-bright);
+  margin-bottom: 1rem;
+}
+
+.section-line {
+  width: 60px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 0 auto;
+}
+
+/* ── TIMELINE ── */
+.timeline {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 2rem 6rem;
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--border) 5%, var(--border) 95%, transparent);
+  transform: translateX(-50%);
+}
+
+.tl-entry {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  gap: 0;
+  margin-bottom: 3rem;
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+/* alternate left/right */
+.tl-entry.left .tl-content { grid-column: 1; text-align: right; padding-right: 2rem; }
+.tl-entry.left .tl-node   { grid-column: 2; }
+.tl-entry.left .tl-empty  { grid-column: 3; }
+
+.tl-entry.right .tl-empty   { grid-column: 1; }
+.tl-entry.right .tl-node    { grid-column: 2; }
+.tl-entry.right .tl-content { grid-column: 3; text-align: left; padding-left: 2rem; }
+
+.tl-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.tl-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  margin-top: 0.35rem;
+  transition: box-shadow 0.3s;
+}
+
+.tl-entry:hover .tl-dot { box-shadow: 0 0 12px currentColor; }
+
+.dot-gold    { border-color: var(--gold); background: rgba(201,168,76,0.15); }
+.dot-purple  { border-color: var(--purple); background: rgba(139,92,246,0.15); }
+.dot-cyan    { border-color: var(--cyan); background: rgba(77,184,200,0.15); }
+.dot-green   { border-color: var(--green); background: rgba(76,175,130,0.15); }
+.dot-dim     { border-color: var(--text-dim); background: rgba(106,101,120,0.1); }
+
+.tl-date {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  margin-bottom: 0.4rem;
+}
+
+.tl-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-bright);
+  margin-bottom: 0.3rem;
+  line-height: 1.3;
+}
+
+.tl-tag {
+  display: inline-block;
+  font-family: 'Cinzel', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.tag-gold    { background: rgba(201,168,76,0.1);   color: var(--gold);     border: 1px solid rgba(201,168,76,0.25); }
+.tag-purple  { background: rgba(139,92,246,0.1);   color: var(--purple);   border: 1px solid rgba(139,92,246,0.25); }
+.tag-cyan    { background: rgba(77,184,200,0.1);   color: var(--cyan);     border: 1px solid rgba(77,184,200,0.25); }
+.tag-green   { background: rgba(76,175,130,0.1);   color: var(--green);    border: 1px solid rgba(76,175,130,0.25); }
+.tag-dim     { background: rgba(106,101,120,0.1);  color: var(--text-dim); border: 1px solid var(--border); }
+
+.tl-desc {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ── FOOTER ── */
+footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.footer-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+}
+
+.footer-note {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* ── DIVIDER ── */
+.divider {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0 0;
+}
+.divider svg { opacity: 0.25; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.pulsing { animation: pulse 2.5s ease-in-out infinite; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .timeline::before { left: 20px; }
+
+  .tl-entry {
+    grid-template-columns: 40px 1fr;
+  }
+
+  .tl-entry.left .tl-content,
+  .tl-entry.right .tl-content {
+    grid-column: 2;
+    text-align: left;
+    padding-left: 1rem;
+    padding-right: 0;
+  }
+  .tl-entry.left .tl-node,
+  .tl-entry.right .tl-node  { grid-column: 1; }
+  .tl-entry.left .tl-empty,
+  .tl-entry.right .tl-empty { display: none; }
+  .tl-entry { grid-template-columns: 40px 1fr; }
+
+  .sites-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="cosmos"></canvas>
+
+<div class="page">
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-badge">✦ OWL ASTRO · OPERATIONS DASHBOARD ✦</div>
+  <h1 class="hero-title">MISSION TIMELINE</h1>
+  <div class="hero-sub">ALL SITES · ALL PROJECTS · ALL STATUS</div>
+  <p class="hero-tagline">Every signal in the constellation — past, present, and incoming.</p>
+</section>
+
+<!-- ═══ LEGEND ═══ -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> LIVE</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div> READY TO DEPLOY</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div> RUNNING / ACTIVE</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div> IN PROGRESS</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--text-dim)"></div> REFERENCE</div>
+</div>
+
+<!-- ═══ SITE CARDS ═══ -->
+<div class="section-header" style="padding-top:1rem;">
+  <div class="section-badge">✦ ACTIVE PROJECTS ✦</div>
+  <h2 class="section-title">THE CONSTELLATION</h2>
+  <div class="section-line"></div>
+</div>
+
+<div class="sites-row">
+
+  <div class="site-card ready">
+    <div class="site-icon">🌌</div>
+    <div class="site-name">UNIVERSAL369.COM</div>
+    <span class="site-status status-ready">READY TO DEPLOY</span>
+    <p class="site-desc">Cosmic knowledge directory portal. 6 categories, 30 curated links. Video BG + canvas stars. Files local, needs SCP to VPS.</p>
+  </div>
+
+  <div class="site-card ready">
+    <div class="site-icon">🔮</div>
+    <div class="site-name">THESOULHUNTER.COM</div>
+    <span class="site-status status-ready">READY TO DEPLOY</span>
+    <p class="site-desc">Curated spiritual resource directory. 8 categories, 40 curated links. Built 2026-04-02. Vhost needed in CyberPanel.</p>
+  </div>
+
+  <div class="site-card running">
+    <div class="site-icon">🎬</div>
+    <div class="site-name">COMEDY FACTORY</div>
+    <span class="site-status status-running pulsing">RUNNING DAILY</span>
+    <p class="site-desc">Raven & Jax daily AI video pipeline. 10-agent system. GitHub Actions at 06:00 UTC. Output: YouTube Shorts + TikTok.</p>
+  </div>
+
+  <div class="site-card benchmark">
+    <div class="site-icon">⭐</div>
+    <div class="site-name">MYSTICOBLIVION.COM</div>
+    <span class="site-status status-benchmark">DESIGN BENCHMARK</span>
+    <p class="site-desc">Not Orion's — the aesthetic north star. Every site we build is measured against this. Premium, cinematic, ceremonial.</p>
+  </div>
+
+</div>
+
+<!-- ═══ DIVIDER ═══ -->
+<div class="divider">
+  <svg viewBox="0 0 120 40" width="120" height="40">
+    <line x1="0" y1="20" x2="45" y2="20" stroke="#c9a84c" stroke-width="0.5"/>
+    <circle cx="60" cy="20" r="8" fill="none" stroke="#c9a84c" stroke-width="0.5"/>
+    <circle cx="60" cy="20" r="3" fill="#c9a84c" opacity="0.4"/>
+    <line x1="75" y1="20" x2="120" y2="20" stroke="#c9a84c" stroke-width="0.5"/>
+  </svg>
+</div>
+
+<!-- ═══ TIMELINE ═══ -->
+<div class="section-header">
+  <div class="section-badge">✦ CHRONOLOGY ✦</div>
+  <h2 class="section-title">BUILD HISTORY</h2>
+  <div class="section-line"></div>
+</div>
+
+<div class="timeline">
+
+  <!-- ENTRY 1 -->
+  <div class="tl-entry left">
+    <div class="tl-content">
+      <div class="tl-date">MAR 18, 2026</div>
+      <div class="tl-title">VPS PROVISIONED</div>
+      <span class="tl-tag tag-green">INFRASTRUCTURE</span>
+      <p class="tl-desc">Hostinger VPS activated. CyberPanel + LiteSpeed installed. SSH on port 2222. fail2ban + UFW hardened. Shirly initialized.</p>
+    </div>
+    <div class="tl-node"><div class="tl-dot dot-green"></div></div>
+    <div class="tl-empty"></div>
+  </div>
+
+  <!-- ENTRY 2 -->
+  <div class="tl-entry right">
+    <div class="tl-empty"></div>
+    <div class="tl-node"><div class="tl-dot dot-gold"></div></div>
+    <div class="tl-content">
+      <div class="tl-date">MAR 18, 2026</div>
+      <div class="tl-title">UNIVERSAL369.COM — BUILT</div>
+      <span class="tl-tag tag-gold">WEBSITE</span>
+      <p class="tl-desc">Single-file HTML site built. Cosmic portal with 6 categories, 30 curated links, canvas stars, Tesla 369 theme. Video background added.</p>
+    </div>
+  </div>
+
+  <!-- ENTRY 3 -->
+  <div class="tl-entry left">
+    <div class="tl-content">
+      <div class="tl-date">MAR 18, 2026</div>
+      <div class="tl-title">THESOULHUNTER.COM — INITIATED</div>
+      <span class="tl-tag tag-purple">WEBSITE</span>
+      <p class="tl-desc">Project initialized. PAUL workflow started. Concept defined: curated spiritual directory for sincere seekers. Roadmap drafted.</p>
+    </div>
+    <div class="tl-node"><div class="tl-dot dot-purple"></div></div>
+    <div class="tl-empty"></div>
+  </div>
+
+  <!-- ENTRY 4 -->
+  <div class="tl-entry right">
+    <div class="tl-empty"></div>
+    <div class="tl-node"><div class="tl-dot dot-cyan"></div></div>
+    <div class="tl-content">
+      <div class="tl-date">MAR 25–26, 2026</div>
+      <div class="tl-title">COMEDY FACTORY — FIRST RUNS</div>
+      <span class="tl-tag tag-cyan">PIPELINE</span>
+      <p class="tl-desc">10-agent AI video pipeline executed first successful runs. Raven & Jax scripts generated, voiced, assembled. WW3 episode produced with cinematic gaming UI effects.</p>
+    </div>
+  </div>
+
+  <!-- ENTRY 5 -->
+  <div class="tl-entry left">
+    <div class="tl-content">
+      <div class="tl-date">MAR 27, 2026</div>
+      <div class="tl-title">COMEDY FACTORY — DAILY AUTOMATION</div>
+      <span class="tl-tag tag-cyan">PIPELINE</span>
+      <p class="tl-desc">GitHub Actions cron set to 06:00 UTC daily. Full pipeline: news → script → voice → visuals → video → effects → publish. YouTube Shorts + TikTok output.</p>
+    </div>
+    <div class="tl-node"><div class="tl-dot dot-cyan"></div></div>
+    <div class="tl-empty"></div>
+  </div>
+
+  <!-- ENTRY 6 -->
+  <div class="tl-entry right">
+    <div class="tl-empty"></div>
+    <div class="tl-node"><div class="tl-dot dot-purple"></div></div>
+    <div class="tl-content">
+      <div class="tl-date">APR 2, 2026</div>
+      <div class="tl-title">THESOULHUNTER.COM — FULLY BUILT</div>
+      <span class="tl-tag tag-purple">WEBSITE</span>
+      <p class="tl-desc">Complete site built: 8 categories, 40 curated spiritual links. Same cosmic DNA as universal369. Teachers, Texts, Meditation, Astrology, Sound, Creators & more. Ready to deploy.</p>
+    </div>
+  </div>
+
+  <!-- ENTRY 7 -->
+  <div class="tl-entry left">
+    <div class="tl-content">
+      <div class="tl-date">JUL 8, 2026</div>
+      <div class="tl-title">DEPLOY AGENT — SHIRLY UPGRADED</div>
+      <span class="tl-tag tag-gold">INFRASTRUCTURE</span>
+      <p class="tl-desc">SSH blocking from Claude Code environments documented and solved. Shirly now carries 4-method deploy protocol: GitHub Actions, CyberPanel API, hPanel terminal + git pull, File Manager. SSH key generated for Linux machine.</p>
+    </div>
+    <div class="tl-node"><div class="tl-dot dot-gold"></div></div>
+    <div class="tl-empty"></div>
+  </div>
+
+  <!-- ENTRY 8 — NEXT -->
+  <div class="tl-entry right">
+    <div class="tl-empty"></div>
+    <div class="tl-node"><div class="tl-dot dot-dim pulsing"></div></div>
+    <div class="tl-content">
+      <div class="tl-date">NEXT</div>
+      <div class="tl-title">DEPLOY BOTH SITES LIVE</div>
+      <span class="tl-tag tag-dim">PENDING</span>
+      <p class="tl-desc">Deploy universal369.com and thesoulhunter.com to VPS. Create CyberPanel vhosts, SCP files, issue SSL certs. Use hPanel terminal + git pull method.</p>
+    </div>
+  </div>
+
+  <!-- ENTRY 9 — FUTURE -->
+  <div class="tl-entry left">
+    <div class="tl-content">
+      <div class="tl-date">FUTURE</div>
+      <div class="tl-title">GITHUB ACTIONS AUTO-DEPLOY</div>
+      <span class="tl-tag tag-dim">PLANNED</span>
+      <p class="tl-desc">Set up deploy.yml workflow. Every push to main auto-deploys all sites. One-time VPS deploy key setup. End of manual deploys forever.</p>
+    </div>
+    <div class="tl-node"><div class="tl-dot dot-dim"></div></div>
+    <div class="tl-empty"></div>
+  </div>
+
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-title">OWL ASTRO · OPERATIONS</div>
+  <p class="footer-note">Generated by Shirly · Updated 2026-07-08 · Repo: Burnt-Owl/universal369</p>
+</footer>
+
+</div>
+
+<script>
+'use strict';
+
+/* ── Cosmos ── */
+function initCosmos() {
+  const canvas = document.getElementById('cosmos');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [];
+
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+  function mkStar() {
+    return {
+      x: Math.random() * W, y: Math.random() * H,
+      r: Math.random() * 1.1 + 0.2,
+      o: Math.random() * 0.4 + 0.1,
+      sp: Math.random() * 0.1 + 0.01,
+      tw: Math.random() * Math.PI * 2
+    };
+  }
+
+  resize();
+  stars = Array.from({ length: 180 }, mkStar);
+  window.addEventListener('resize', resize);
+
+  (function tick() {
+    ctx.clearRect(0, 0, W, H);
+    stars.forEach(s => {
+      s.tw += 0.018;
+      const o = s.o * (0.6 + Math.sin(s.tw) * 0.4);
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${o})`;
+      ctx.fill();
+      s.y -= s.sp;
+      if (s.y < -5) { s.y = H + 5; s.x = Math.random() * W; }
+    });
+    requestAnimationFrame(tick);
+  })();
+}
+
+/* ── Scroll Reveal ── */
+function initReveal() {
+  const items = document.querySelectorAll('.site-card, .tl-entry');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }, (e.target.dataset.delay || 0) * 1);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  items.forEach((el, i) => {
+    el.style.transition = `opacity 0.6s ease, transform 0.6s ease`;
+    el.dataset.delay = i * 60;
+    obs.observe(el);
+  });
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+  initCosmos();
+  initReveal();
+});
+</script>
+</body>
+</html>
