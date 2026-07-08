@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Dashboard — Universal 369</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ── Top Bar ──────────────────────────────────────── -->
+<div class="topbar">
+    <div class="topbar-left">
+        <span class="topbar-title">NETWORK DASHBOARD</span>
+        <div class="vps-indicator">
+            <span class="status-dot" id="vps-dot"></span>
+            <span id="vps-status-text">Connecting...</span>
+        </div>
+    </div>
+    <div class="topbar-right">
+        <span id="hostname-display"></span>
+        <span id="peer-count">0 peers</span>
+    </div>
+</div>
+
+<!-- ── Tabs ─────────────────────────────────────────── -->
+<div class="tab-bar">
+    <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+    <button class="tab-btn" data-tab="files">File Manager</button>
+    <button class="tab-btn" data-tab="messenger">Messenger</button>
+</div>
+
+<!-- ── Dashboard Tab ───────────────────────────────── -->
+<div class="tab-panel active" id="tab-dashboard">
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-label">CPU Usage</div>
+            <div class="metric-value" id="metric-cpu">—</div>
+            <div class="metric-sub" id="metric-load"></div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Memory</div>
+            <div class="metric-value" id="metric-mem">—</div>
+            <div class="metric-sub" id="metric-mem-detail"></div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Disk</div>
+            <div class="metric-value" id="metric-disk">—</div>
+            <div class="metric-sub" id="metric-disk-detail"></div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Uptime</div>
+            <div class="metric-value" id="metric-uptime" style="font-size:18px;">—</div>
+        </div>
+    </div>
+
+    <div class="section-title">Services</div>
+    <table class="data-table" id="services-table">
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="services-body">
+            <tr><td colspan="3" style="color:var(--text-dim)">Loading...</td></tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top:24px">
+        <div class="section-title">Connected Peers</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Hostname</th>
+                    <th>Address</th>
+                    <th>Status</th>
+                    <th>Last Seen</th>
+                </tr>
+            </thead>
+            <tbody id="peers-body">
+                <tr><td colspan="4" style="color:var(--text-dim)">Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top:24px">
+        <div class="section-title">Connection Log</div>
+        <div class="log-entries" id="connection-log">Loading...</div>
+    </div>
+</div>
+
+<!-- ── File Manager Tab ────────────────────────────── -->
+<div class="tab-panel" id="tab-files">
+    <div class="file-toolbar">
+        <div class="breadcrumb" id="breadcrumb"></div>
+        <div class="btn-group">
+            <button class="btn btn-small" id="upload-toggle-btn">Upload</button>
+            <button class="btn btn-small" id="mkdir-btn">New Folder</button>
+            <button class="btn btn-small" id="refresh-files-btn">Refresh</button>
+        </div>
+    </div>
+
+    <div class="upload-zone" id="upload-zone">
+        Drop files here or click to select
+        <input type="file" id="upload-input" style="display:none" multiple>
+    </div>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Size</th>
+                <th>Permissions</th>
+                <th>Modified</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="files-body">
+            <tr><td colspan="5" style="color:var(--text-dim)">Loading...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ── Messenger Tab ───────────────────────────────── -->
+<div class="tab-panel" id="tab-messenger">
+    <div class="chat-container">
+        <div class="chat-sidebar">
+            <div class="chat-sidebar-title">Online Peers</div>
+            <div id="chat-peers"></div>
+        </div>
+        <div class="chat-main">
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-bar">
+                <input type="text" class="chat-input" id="chat-input"
+                       placeholder="Type a message..." autocomplete="off">
+                <button class="chat-send" id="chat-send">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Editor Modal ────────────────────────────────── -->
+<div class="modal-overlay" id="editor-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="editor-title">Edit File</span>
+            <button class="modal-close" id="editor-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <textarea id="editor-content"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" id="editor-cancel">Cancel</button>
+            <button class="btn" id="editor-save">Save</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/dashboard.js"></script>
+<script src="/js/files.js"></script>
+<script src="/js/messenger.js"></script>
+
+</body>
+</html>

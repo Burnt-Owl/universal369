@@ -1,0 +1,5 @@
+.env
+dashboard.db
+__pycache__/
+*.pyc
+.venv/
