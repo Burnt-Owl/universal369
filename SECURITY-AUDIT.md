@@ -202,3 +202,182 @@ The `.env` file is gitignored. This is correct.
 4. **This week:** Fix YouTube OAuth to use stored refresh tokens.
 5. **This week:** Escape the FFmpeg ASS filter path.
 6. **Ongoing:** Tighten required-key validation in `config.py`.
+
+---
+
+# System & Network Deep Sweep
+**Date:** 2026-07-08
+**Scope:** Full container environment — processes, network, files, auth, integrity
+
+---
+
+## Rootkit & Backdoor Scan
+
+### SUID Binaries — CLEAN
+All SUID binaries are standard system utilities:
+`chfn`, `chsh`, `gpasswd`, `mount`, `newgrp`, `passwd`, `su`, `sudo`, `umount`,
+`dbus-daemon-launch-helper`, `polkit-agent-helper-1`
+
+No unexpected or rogue SUID binaries found.
+
+### Hidden Processes — CLEAN
+Cross-referenced `/proc/` PIDs against `ps` output. The only delta is kernel threads
+(PIDs 1–20), which is normal. No userspace processes hiding from `ps`.
+
+### LD_PRELOAD Hijack — CLEAN
+- `/etc/ld.so.preload` is empty (no library injection)
+- No `LD_PRELOAD` or `LD_LIBRARY_PATH` in environment
+- No rogue shared libraries in linker paths
+
+### Git Hooks — CLEAN
+All hooks in `.git/hooks/` are `.sample` files (inactive). No active hooks that could
+execute code on commit/push/checkout.
+
+### Shell Profiles — CLEAN
+Checked `/etc/profile`, `/etc/bash.bashrc`, `/root/.bashrc`, `/root/.profile`.
+Only standard `lesspipe` and `dircolors` eval calls found — both are default Ubuntu.
+No injected `curl`, `wget`, `python`, `nc`, or reverse shell commands.
+
+### Kernel Modules — CLEAN
+No loaded kernel modules (`lsmod` returns empty). Container runs on host kernel.
+
+---
+
+## Network Analysis
+
+### Listening Ports
+| Port | Binding | Purpose |
+|------|---------|---------|
+| 2024 | `0.0.0.0` | process_api (container control plane) |
+| 2025 | `0.0.0.0` | Container management |
+| 41729 | `127.0.0.1` | Git proxy (local only) |
+| 35135 | `127.0.0.1` | MCP server (local only) |
+
+Ports 2024/2025 are bound to all interfaces — this is expected for the Claude Code
+container orchestrator. Ports 41729/35135 are localhost-only (safe).
+
+### Active Connections — CLEAN
+All established connections go to two IPs over HTTPS (port 443):
+- `160.79.104.10` — Anthropic API infrastructure (~30 connections, expected)
+- `34.149.66.137` — Google Cloud (likely MCP or CDN, 1 connection)
+
+No connections to unknown IPs, no connections on suspicious ports (IRC 6667,
+C2 common ports 4444/8080/1337, crypto mining pools 3333/5555).
+
+### DNS — CLEAN
+`/etc/resolv.conf` points to `8.8.8.8` (Google DNS). No rogue nameservers.
+
+### /etc/hosts — CLEAN
+Only `127.0.0.1 localhost` and `127.0.0.1 vm`. No DNS hijacking entries.
+
+---
+
+## Authentication & Access
+
+### User Accounts with Shell Access
+| User | UID | Shell | Assessment |
+|------|-----|-------|------------|
+| `root` | 0 | `/bin/bash` | Expected |
+| `sync` | 4 | `/bin/sync` | System account, harmless |
+| `ubuntu` | 1000 | `/bin/bash` | Default Ubuntu user |
+| `postgres` | 102 | `/bin/bash` | PostgreSQL admin (has shell — note below) |
+| `claude` | 999 | `/bin/bash` | Claude Code agent user |
+
+**Note:** `postgres` has a login shell (`/bin/bash`). In production environments, database
+service accounts should use `/usr/sbin/nologin` to prevent interactive login.
+
+### SSH Keys — CLEAN
+No `authorized_keys` files found for any user. No SSH identity keys in `/home/` or `/root/.ssh/`.
+
+### Sudoers — FINDING
+```
+claude ALL=(ALL) NOPASSWD: ALL
+```
+The `claude` user has **passwordless root** via sudo. This is expected for the Claude Code
+container environment but would be a critical finding on a production server.
+
+### Cron Jobs — CLEAN
+Only standard system crons found:
+- `e2scrub_all` — filesystem scrub (standard)
+- `php` sessionclean — PHP session garbage collection (standard)
+
+No user crontabs. No suspicious scheduled tasks.
+
+---
+
+## Malware & Trojan Scan
+
+### Crypto Miners — CLEAN
+Scanned for: `xmrig`, `minerd`, `cryptonight`, mining pool connections.
+Zero matches in processes.
+
+### Reverse Shells — CLEAN
+Scanned for: `nc -l`, `bash -i`, `/dev/tcp`, `socat`, `mkfifo`, `nc -e`.
+Zero matches in processes or codebase.
+
+### Tunneling Tools — CLEAN
+Scanned for: `ngrok`, `chisel`, `frp`, `rathole`, `serveo`.
+Zero matches.
+
+### Obfuscated Payloads — CLEAN
+Scanned all `.py`, `.js`, `.html` files for:
+- `eval()` + `base64` decode chains — none found
+- `exec()` with dynamic input — none found
+- Suspicious URLs (pastebin, transfer.sh, paste.ee) — none found
+
+The only `base64` usage is legitimate:
+- `avatar_agent.py` — D-ID API Basic auth encoding
+- `visual_agent.py` — decoding Gemini Imagen API response data
+
+### Injected Scripts in HTML — CLEAN
+`index.html` contains no `<iframe>` tags and no external `<script src=...>` tags.
+
+---
+
+## File Integrity
+
+### Recently Modified System Binaries — CLEAN
+No files in `/usr/bin/` or `/usr/sbin/` modified in the last 7 days.
+
+### World-Writable Files — CLEAN
+No world-writable files found in the repository.
+
+### Suspicious Temp Files — LOW RISK
+```
+/tmp/147.0.7727.24/chromedriver/chromedriver-linux64/chromedriver
+```
+This is a Chromedriver binary, likely from a Puppeteer/Selenium installation. Not malicious,
+but should be cleaned up if unused.
+
+### Hidden Files in Repo — CLEAN
+Only `.env.example` found (expected). No hidden backdoor scripts.
+
+### PAM Modules — CLEAN
+PAM modules show as "UNPACKAGED" because `dpkg` database isn't fully available in the container,
+but the modules themselves (`pam_deny.so`, `pam_permit.so`, `pam_systemd.so`, etc.) are all
+standard Ubuntu/Debian PAM modules. No rogue authentication modules.
+
+### Systemd Services — CLEAN
+Services found: `docker`, `redis-server`, `postgresql`, `containerd`, `ssl-cert`, `getty`.
+All are standard infrastructure services. No suspicious ExecStart commands.
+
+---
+
+## Summary
+
+| Category | Status | Details |
+|----------|--------|---------|
+| Rootkits | CLEAN | No hidden processes, no LD_PRELOAD, no kernel modules |
+| Network | CLEAN | Only Anthropic + Google Cloud connections on port 443 |
+| Malware | CLEAN | No miners, reverse shells, or obfuscated payloads |
+| Auth | CLEAN | No unauthorized SSH keys, no rogue users |
+| File Integrity | CLEAN | No modified system binaries, no world-writable files |
+| Git Hooks | CLEAN | No active hooks (all .sample) |
+| Cron/Scheduled | CLEAN | Only standard system crons |
+| DNS/Hosts | CLEAN | Google DNS, no hijacking |
+
+### Informational Notes (not vulnerabilities)
+1. `postgres` user has a login shell — consider changing to `/usr/sbin/nologin` on prod
+2. `claude` user has passwordless sudo — expected in this container, not for prod
+3. Chromedriver binary in `/tmp/` — clean up if unused
+4. Ports 2024/2025 bound to `0.0.0.0` — expected for container orchestration
