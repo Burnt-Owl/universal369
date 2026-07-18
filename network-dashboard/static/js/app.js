@@ -14,7 +14,7 @@ async function initApp() {
     const data = await resp.json();
     App.hostname = data.hostname;
     document.getElementById('hostname-display').textContent = data.hostname;
-    updateVpsStatus(data.vps_status);
+    updateVpsStatus(data.vps_status, data.vps_error || '');
 
     initTabs();
     connectDashboardWs();
@@ -40,7 +40,7 @@ function initTabs() {
 
 // ── VPS Status ──────────────────────────────────
 
-function updateVpsStatus(status) {
+function updateVpsStatus(status, error) {
     App.vpsStatus = status;
     const dot = document.getElementById('vps-dot');
     const text = document.getElementById('vps-status-text');
@@ -50,7 +50,11 @@ function updateVpsStatus(status) {
         connecting: 'Connecting...',
         disconnected: 'VPS Disconnected',
     };
-    text.textContent = labels[status] || status;
+    let label = labels[status] || status;
+    if (status === 'disconnected' && error) {
+        label += ' — ' + error;
+    }
+    text.textContent = label;
 }
 
 // ── Dashboard WebSocket ─────────────────────────
@@ -63,7 +67,7 @@ function connectDashboardWs() {
     App.dashboardWs.onmessage = (e) => {
         const data = JSON.parse(e.data);
         if (data.type === 'vps_status') {
-            updateVpsStatus(data.status);
+            updateVpsStatus(data.status, data.error || '');
         } else if (data.type === 'metrics') {
             updateMetrics(data);
         } else if (data.type === 'peers') {

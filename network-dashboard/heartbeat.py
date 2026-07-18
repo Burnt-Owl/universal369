@@ -38,39 +38,44 @@ async def broadcast_chat(data: dict):
 
 async def vps_heartbeat():
     last_state = None
+
+    await asyncio.sleep(1)
+
     while True:
         try:
             if ssh.state == SSHState.CONNECTED:
                 try:
-                    ssh.exec("echo ok", timeout=5)
+                    loop = asyncio.get_event_loop()
+                    await loop.run_in_executor(None, ssh.exec, "echo ok", 5)
                     new_state = SSHState.CONNECTED
                 except Exception:
                     new_state = SSHState.DISCONNECTED
                     db.log_connection("vps", "disconnected")
-                    log.warning("VPS heartbeat failed, reconnecting...")
-                    loop = asyncio.get_event_loop()
-                    await loop.run_in_executor(None, ssh.reconnect)
-                    new_state = ssh.state
-                    if new_state == SSHState.CONNECTED:
-                        db.log_connection("vps", "reconnected")
+                    log.warning("VPS heartbeat failed, will reconnect...")
             else:
                 loop = asyncio.get_event_loop()
-                await loop.run_in_executor(None, ssh.reconnect)
-                new_state = ssh.state
-                if new_state == SSHState.CONNECTED:
+                connected = await loop.run_in_executor(None, ssh.connect)
+                if connected:
+                    new_state = SSHState.CONNECTED
                     db.log_connection("vps", "connected")
+                    ssh._backoff = 0
+                else:
+                    new_state = SSHState.DISCONNECTED
 
             if new_state != last_state:
                 last_state = new_state
                 await broadcast_dashboard({
                     "type": "vps_status",
                     "status": new_state.value,
+                    "error": ssh.last_error if new_state != SSHState.CONNECTED else "",
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                 })
+
         except Exception as e:
             log.error("Heartbeat error: %s", e)
 
-        await asyncio.sleep(config.HEARTBEAT_INTERVAL)
+        delay = ssh.get_reconnect_delay() if ssh.state != SSHState.CONNECTED else config.HEARTBEAT_INTERVAL
+        await asyncio.sleep(delay)
 
 
 async def metrics_loop():
@@ -92,6 +97,9 @@ async def peer_heartbeat():
     except ImportError:
         log.warning("httpx not installed — peer heartbeat disabled")
         return
+
+    await asyncio.sleep(2)
+
     while True:
         try:
             peers = db.get_peers()
@@ -111,8 +119,6 @@ async def peer_heartbeat():
                 "type": "peers",
                 "peers": updated_peers,
             })
-        except ImportError:
-            pass
         except Exception as e:
             log.error("Peer heartbeat error: %s", e)
 

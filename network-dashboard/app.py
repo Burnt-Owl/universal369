@@ -46,6 +46,7 @@ async def get_status():
         "hostname": config.HOSTNAME,
         "vps_status": ssh.state.value,
         "vps_host": config.VPS_HOST,
+        "vps_error": ssh.last_error,
         "dashboard_port": config.DASHBOARD_PORT,
     }
 

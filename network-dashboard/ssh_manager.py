@@ -25,29 +25,54 @@ class SSHManager:
         self.sftp: paramiko.SFTPClient | None = None
         self.state = SSHState.DISCONNECTED
         self._backoff = 0
+        self._last_error = ""
+
+    @property
+    def last_error(self):
+        return self._last_error
 
     def connect(self) -> bool:
         if self.state == SSHState.CONNECTED:
             return True
+
+        key_path = os.path.expanduser(config.SSH_KEY_PATH)
+        if not os.path.exists(key_path):
+            self._last_error = f"SSH key not found: {key_path}"
+            self.state = SSHState.DISCONNECTED
+            log.warning("SSH key not found at %s — VPS features disabled until key is available", key_path)
+            return False
+
         self.state = SSHState.CONNECTING
         try:
             self.client = paramiko.SSHClient()
             self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            key_path = os.path.expanduser(config.SSH_KEY_PATH)
             self.client.connect(
                 hostname=config.VPS_HOST,
                 port=config.VPS_PORT,
                 username=config.VPS_USER,
                 key_filename=key_path,
-                timeout=10,
-                banner_timeout=10,
+                timeout=8,
+                banner_timeout=8,
+                auth_timeout=8,
             )
             self.sftp = self.client.open_sftp()
             self.state = SSHState.CONNECTED
             self._backoff = 0
+            self._last_error = ""
             log.info("SSH connected to %s:%s", config.VPS_HOST, config.VPS_PORT)
             return True
+        except FileNotFoundError:
+            self._last_error = f"SSH key not found: {key_path}"
+            self.state = SSHState.DISCONNECTED
+            log.error("SSH key file not found: %s", key_path)
+            return False
+        except paramiko.AuthenticationException as e:
+            self._last_error = f"Authentication failed: {e}"
+            self.state = SSHState.DISCONNECTED
+            log.error("SSH auth failed: %s", e)
+            return False
         except Exception as e:
+            self._last_error = str(e)
             self.state = SSHState.DISCONNECTED
             log.error("SSH connection failed: %s", e)
             return False
@@ -64,13 +89,13 @@ class SSHManager:
         self.client = None
         self.state = SSHState.DISCONNECTED
 
+    def get_reconnect_delay(self) -> int:
+        delays = [2, 4, 8, 16, 30, 60]
+        return delays[min(self._backoff, len(delays) - 1)]
+
     def reconnect(self) -> bool:
         self.disconnect()
-        delays = [2, 4, 8, 16, 30, 60]
-        delay = delays[min(self._backoff, len(delays) - 1)]
         self._backoff += 1
-        log.info("Reconnecting in %ds (attempt %d)...", delay, self._backoff)
-        time.sleep(delay)
         return self.connect()
 
     def exec(self, cmd: str, timeout: int = 15) -> str:
