@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__github__pull_request_read",
+      "mcp__github__search_repositories",
+      "mcp__github__actions_list",
+      "mcp__github__get_job_logs",
+      "mcp__bf7c680d-5fdc-5ef4-b4a0-abadb619bf0a__get_session",
+      "mcp__bf7c680d-5fdc-5ef4-b4a0-abadb619bf0a__list_triggers",
+      "mcp__bf7c680d-5fdc-5ef4-b4a0-abadb619bf0a__list_environments"
+    ]
+  }
+}
