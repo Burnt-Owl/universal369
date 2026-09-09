@@ -57,8 +57,9 @@ the Routine runs every day, so no day-of-week shifting is needed.
 2. Confirm a commit lands: after a 21:00 close-out there should be a new
    `.shirly/LOG/YYYY-MM-DD.md` on origin. **That commit is the evidence S4 is
    waiting on** — a run reporting success is not.
-3. Delete the old broken Routine (`trig_01VMUuZT7692VFYvHcPzt4xm`), or the two will
-   double-fire. Keep it until the replacement is proven, then remove it.
+3. ~~Delete the old broken Routine~~ — **already deleted 2026-09-09.** There is no
+   Routine firing right now, so there is no double-fire risk and no check-ins until
+   you create this one.
 4. Mark S4 `DONE` in `TASKS.md` once step 2 passes — not before.
 
 ---
@@ -193,7 +194,7 @@ it, put it to him as the one thing to approve today rather than reporting it pen
 | Sources | **none** — the defect |
 | Record | ~24 fires, all `SUCCEEDED`, zero commits |
 
-Delete it once the replacement is proven.
+**Deleted 2026-09-09.** Final record: ~45 fires over 8 days, all `SUCCEEDED`, zero commits.
 
 ---
 *Spec written 2026-09-09. Ledger: `.shirly/TASKS.md`. Protocol: `.shirly/CHECKIN.md`.*

@@ -1,7 +1,7 @@
 # Task Ledger
 
 **Owner:** Orion (Owl Astro) · **Manager:** Shirly · **Timezone:** US Eastern
-**Last full sweep:** 2026-09-09
+**Last full sweep:** 2026-09-09 (Routine deleted this day — check-ins are OFF)
 
 **Live board:** https://claude.ai/code/artifact/172a2eba-3351-4322-bb49-e87711e41522
 The desk computes every age from the `since` date on each item, so it is never stale.
@@ -41,7 +41,7 @@ usually an unmade decision wearing a task's clothes.
 | S1 | Comedy Factory publishes a daily video | Daily 06:00 UTC | Latest `comedy-factory-daily.yml` run concluded `success` | **Never succeeded** — 0/22 runs; last attempt 2026-04-17 | `SILENT-FAIL` |
 | S2 | Repo receives work | Weekly | `git log -1 master` within 7 days | 2026-04-05 (~157 days) | `STALLED` |
 | S3 | VPS security posture verified | Monthly | UFW + fail2ban + cert expiry checks pass | **Never** — no baseline date exists | `STALLED` |
-| S4 | Shirly's check-ins produce durable output | 6×/day | New `.shirly/LOG/YYYY-MM-DD.md` on origin after each 21:00 close-out | **Never** — ~24 runs, zero commits | `SILENT-FAIL` |
+| S4 | Shirly's check-ins produce durable output | 6×/day | New `.shirly/LOG/YYYY-MM-DD.md` on origin after each 21:00 close-out | **Never** — ~45 runs, zero commits. Routine deleted 2026-09-09 | `BLOCKED` |
 
 S3 carries no day count on purpose. There is no evidence to measure from, and an
 unmeasured control is not a passing one — it is simply unmeasured.
@@ -93,23 +93,23 @@ unmeasured control is not a passing one — it is simply unmeasured.
 > screamed, so nothing got looked at. Fix this first: it's the only item here that
 > was actively lying about its own state.
 
-### S4 — Shirly's own check-ins produce no durable output
-- **Status:** `SILENT-FAIL`
-- **Age:** Since the Routine went live 2026-09-01. **8 days.**
-- **Evidence:** The Routine has fired ~24 times (6×/day, 2026-09-01 → 2026-09-09). Every run reports `ROUTINE_RUN_STATUS_SUCCEEDED`. Zero commits and zero `.shirly/LOG/` entries have reached origin — including four 21:00 close-outs that should each have written a file. Branch head sat unchanged at `40c614d` throughout.
-- **Root cause:** The trigger (`trig_01VMUuZT7692VFYvHcPzt4xm`) carries no git source. Its `session_request` has no `config.sources` block, unlike the WeekendMarket Routines on the same account, which each name a `git_repository` and do work correctly. The MCP `create_trigger` tool exposes no sources parameter, so this could not be set when the Routine was created.
-- **Evidence check:** a new `.shirly/LOG/YYYY-MM-DD.md` on origin after each 21:00 close-out
-- **Mitigation applied:** Her prompt now runs a preflight that checks for the repo, attempts a clone, and reports `BLOCKED` loudly rather than improvising a check-in over missing data — plus a push-verification step, since an unpushed commit dies with the container.
-- **Next action (Orion):** Recreate the Routine from the claude.ai Routines UI with `Burnt-Owl/universal369` attached. Full spec, settings and paste-ready prompt: **`.shirly/ROUTINE.md`**. Then delete the old trigger so the two don't double-fire.
+### S4 — Shirly's check-ins are off, pending a Routine with a repo
+- **Status:** `BLOCKED` — genuinely, as of today. Not an avoidance yet.
+- **Age:** Blocked since 2026-09-09. **0 days.** (The underlying defect ran 2026-09-01 → 2026-09-09.)
+- **What happened:** The original Routine (`trig_01VMUuZT7692VFYvHcPzt4xm`) fired ~45 times over 8 days. Every run reported `ROUTINE_RUN_STATUS_SUCCEEDED`. Zero commits and zero `.shirly/LOG/` entries ever reached origin — including seven 21:00 close-outs. Deleted 2026-09-09 rather than left running, since it was consuming six sessions a day to produce nothing.
+- **Root cause:** The trigger carried no git source. Its `session_request` had no `config.sources` block, unlike the five WeekendMarket Routines on the same account, which each name a `git_repository` and work correctly. Neither `create_trigger` nor `update_trigger` accepts a sources parameter, so this could neither be set at creation nor added afterward.
+- **Why not fixed in place:** The one programmatic route that attaches a repo is binding the Routine to a persistent session, and the server rejects `notifications` on that Routine type — it would have traded away the push notifications that were working. The claude.ai Routines UI is the only place a repo and notifications coexist.
+- **Blocker:** Requires the claude.ai Routines UI. **Workaround: none — this genuinely cannot be done from here.**
+- **Evidence check:** a new `.shirly/LOG/YYYY-MM-DD.md` on origin after a 21:00 close-out
+- **Next action (Orion):** Create the Routine per **`.shirly/ROUTINE.md`** — settings, both cron expressions, and the paste-ready prompt are all there.
 
-> **Shirly's read:** Found by turning the drift model on the manager. My check-ins
-> have been firing on time, reporting success, and producing nothing durable for
-> eight days — a green light over an empty room, which is precisely T3's failure
-> wearing my badge. The reports still reach Orion's phone, so this reads as working
-> from the outside; only the absent commits give it away. I am not exempt from my
-> own rules, so it sits on the board at the same severity as everything else. The
-> preflight makes the next occurrence loud. The real fix needs a source on the
-> trigger, and that is Orion's to click.
+> **Shirly's read:** I am off the air until this is rebuilt, and that is the right
+> trade — a Routine that reports success while producing nothing is worse than no
+> Routine, because it manufactures false confidence. `BLOCKED` is honest today: the
+> tooling genuinely cannot attach a repo, and the workaround column is empty for a
+> reason. But my own rule says watch for a blocker that outlives its excuse. If this
+> is still `BLOCKED` in seven days, it has become a stall, and it should be
+> reclassified without ceremony — the same judgment I applied to T1.
 
 ---
 
@@ -140,7 +140,7 @@ unmeasured control is not a passing one — it is simply unmeasured.
 | T1 universal369 | ~174 | Stall (mislabeled blocked) |
 | S2 repo activity | ~157 | Stall |
 | T3 comedy-factory | ~145 | Silent failure |
-| S4 Shirly's own output | 8 | Silent failure |
+| S4 Shirly's check-ins | 0 | Blocked (check-ins OFF) |
 | S3 VPS security | never measured | Stall |
 
 **Three projects, one shape.** T1, T2 and T3 all stopped inside a three-week window
@@ -148,9 +148,11 @@ in spring 2026 and nothing has moved since. That is not three independent lapses
 it's one interruption that nothing was in place to recover from. The check-ins exist
 to make the next interruption visible in hours instead of months.
 
-**And one of them is ours.** S4 is the same failure as T3, eight days old instead of
-five months, caught because something was finally watching. That is the system
-working — but it only counts once the fix lands.
+**And one of them was ours.** S4 was the same failure as T3 — a green light over an
+empty room — caught at eight days instead of five months because something was
+finally watching. The broken Routine is now deleted rather than left to accumulate
+false confidence. That is the system working. It only finishes working when the
+replacement lands and writes its first close-out log.
 
 ---
 *Shirly updates this file at the 06:00 and 21:00 sweeps. See `.shirly/CHECKIN.md`.*
