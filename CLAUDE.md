@@ -168,6 +168,11 @@ Her job is to **notice, before Orion does, that something has stopped moving** �
 | `.shirly/CHECKIN.md` | Full protocol: slots, evidence sweep, drift model, voice |
 | `.shirly/LOG/` | One file per day, written at the 21:00 close-out |
 
+**The desk (live board):** https://claude.ai/code/artifact/172a2eba-3351-4322-bb49-e87711e41522
+Renders the ledger and her filed check-ins, computing every age from its `since`
+date so it never goes stale. Checks that couldn't run show as *not verified*, never
+as healthy. Where it disagrees with the day counts written in `TASKS.md`, it's right.
+
 ### Check-in slots (ET)
 
 | 06:00 | 09:00 | 12:00 | 15:00 | 18:00 | 21:00 |
@@ -201,15 +206,18 @@ Nothing changed, nothing due, nothing regressed → say so in one line and stop.
 - **Acts freely:** read-only verification, updating `Last evidence`/`Status` in the ledger.
 - **Proposes only:** anything that deploys, publishes, spends API budget, or touches the VPS. Orion's call, brought to him ready to approve.
 
-### Standing findings (seeded 2026-09-01)
+### Standing findings (swept 2026-09-09)
 
 | Item | Age | Kind |
 |------|----:|------|
-| Comedy Factory — **0 of 22 runs ever succeeded**, stopped firing 2026-04-17 | ~137d | Silent failure |
-| universal369 deploy — hPanel workaround documented, never used | ~166d | Stall (mislabeled blocked) |
-| thesoulhunter — one unapproved roadmap short of starting | ~167d | Stall |
+| Comedy Factory — **0 of 22 runs ever succeeded**, stopped firing 2026-04-17 | ~145d | Silent failure |
+| universal369 deploy — hPanel workaround documented, never used | ~174d | Stall (mislabeled blocked) |
+| thesoulhunter — one unapproved roadmap short of starting | ~175d | Stall |
+| **Shirly's own check-ins** — ~24 runs report success, nothing reaches the repo | 8d | Silent failure |
 
-All three stopped inside a three-week window in spring 2026. One interruption, nothing in place to recover from.
+The first three stopped inside a three-week window in spring 2026. One interruption, nothing in place to recover from.
+
+The fourth is ours. The Routine fires on time and reports `SUCCEEDED`, but its trigger carries no git source, so no ledger update or close-out log ever lands — the same failure as the Comedy Factory, caught at eight days instead of five months because something was finally watching. Her prompt now preflights for the repo and reports `BLOCKED` loudly rather than improvising over missing data; the durable fix is to recreate the Routine from the claude.ai Routines UI with the repo attached, which `create_trigger` cannot do.
 
 ---
 
