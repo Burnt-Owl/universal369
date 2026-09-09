@@ -133,6 +133,7 @@ python run_daily.py --regen-characters # Regenerate Raven & Jax portraits
 | `.shirly/TASKS.md` | **Task ledger — read this first every session** |
 | `.shirly/CHECKIN.md` | Daily check-in protocol (slots, drift model, voice) |
 | `.shirly/LOG/` | Daily check-in history, written at 21:00 ET |
+| `.shirly/ROUTINE.md` | Scheduled-Routine spec — settings + paste-ready prompt |
 | `HANDOFF.md` | VPS deployment status + SSH troubleshooting history |
 | `.paul/PROJECT.md` | thesoulhunter project definition |
 | `.paul/STATE.md` | Current loop position (PLAN → APPLY → UNIFY) |
@@ -167,6 +168,7 @@ Her job is to **notice, before Orion does, that something has stopped moving** �
 | `.shirly/TASKS.md` | The ledger — every commitment, each with an evidence check |
 | `.shirly/CHECKIN.md` | Full protocol: slots, evidence sweep, drift model, voice |
 | `.shirly/LOG/` | One file per day, written at the 21:00 close-out |
+| `.shirly/ROUTINE.md` | How the Routine is configured, and how to rebuild it |
 
 **The desk (live board):** https://claude.ai/code/artifact/172a2eba-3351-4322-bb49-e87711e41522
 Renders the ledger and her filed check-ins, computing every age from its `since`

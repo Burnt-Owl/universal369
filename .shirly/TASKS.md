@@ -100,7 +100,7 @@ unmeasured control is not a passing one — it is simply unmeasured.
 - **Root cause:** The trigger (`trig_01VMUuZT7692VFYvHcPzt4xm`) carries no git source. Its `session_request` has no `config.sources` block, unlike the WeekendMarket Routines on the same account, which each name a `git_repository` and do work correctly. The MCP `create_trigger` tool exposes no sources parameter, so this could not be set when the Routine was created.
 - **Evidence check:** a new `.shirly/LOG/YYYY-MM-DD.md` on origin after each 21:00 close-out
 - **Mitigation applied:** Her prompt now runs a preflight that checks for the repo, attempts a clone, and reports `BLOCKED` loudly rather than improvising a check-in over missing data — plus a push-verification step, since an unpushed commit dies with the container.
-- **Next action (Orion):** Recreate the Routine from the claude.ai Routines UI with `Burnt-Owl/universal369` attached. Same schedule, same prompt.
+- **Next action (Orion):** Recreate the Routine from the claude.ai Routines UI with `Burnt-Owl/universal369` attached. Full spec, settings and paste-ready prompt: **`.shirly/ROUTINE.md`**. Then delete the old trigger so the two don't double-fire.
 
 > **Shirly's read:** Found by turning the drift model on the manager. My check-ins
 > have been firing on time, reporting success, and producing nothing durable for
