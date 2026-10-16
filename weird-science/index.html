@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weird Science — Resolved</title>
+<meta name="description" content="Everyday weird science resolved in three-panel comic strips. Screw heads, shoelaces, microwave doors, airplane windows and more. Drawn, not lectured.">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   WEIRD SCIENCE · RESOLVED · COMIC EDITION
+═══════════════════════════════════════════════ */
+:root {
+  --bg: #060810;
+  --surface: #0d1117;
+  --border: #1a1d2e;
+  --gold: #c9a84c;
+  --gold-dim: #8a7535;
+  --purple: #8b5cf6;
+  --purple-dim: #6b4cc6;
+  --cyan: #4db8c8;
+  --text: #cdc8d8;
+  --text-dim: #6a6578;
+  --text-bright: #f0eef5;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+#cosmos { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.6; }
+.page { position: relative; z-index: 1; }
+a { color: var(--cyan); text-decoration: none; transition: color 0.4s ease-in-out; }
+a:hover { color: var(--gold); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 78vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 3rem 1rem 2rem; position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 40%, rgba(139,92,246,0.16) 0%, transparent 55%);
+}
+.geometry {
+  position: absolute; top: 50%; left: 50%; width: min(90vw, 640px); height: min(90vw, 640px);
+  transform: translate(-50%, -50%); opacity: 0.09; z-index: -1; animation: slowspin 180s linear infinite;
+}
+@keyframes slowspin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+.hero-badge { font-family: 'Cinzel', serif; font-size: 0.68rem; letter-spacing: 0.45em; color: var(--gold); margin-bottom: 1.2rem; opacity: 0; animation: fadeUp 1s ease 0.2s forwards; }
+.hero-title {
+  font-family: 'Cinzel', serif; font-size: clamp(2.4rem, 8vw, 5.2rem); font-weight: 900; letter-spacing: 0.15em; line-height: 1.1;
+  background: linear-gradient(135deg, var(--text-bright) 0%, var(--gold) 50%, var(--purple) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  opacity: 0; animation: fadeUp 1s ease 0.4s forwards;
+}
+.hero-sub { font-family: 'Cinzel', serif; font-size: clamp(1rem, 3vw, 1.5rem); letter-spacing: 0.5em; color: var(--purple); margin: 0.5rem 0 1.4rem; opacity: 0; animation: fadeUp 1s ease 0.6s forwards; }
+.hero-tagline { font-size: 1.3rem; font-style: italic; opacity: 0; animation: fadeUp 1s ease 0.8s forwards; margin-bottom: 2rem; }
+.legend { display: flex; gap: 0.8rem; align-items: center; justify-content: center; flex-wrap: wrap; opacity: 0; animation: fadeUp 1s ease 1s forwards; }
+.legend span { font-family: 'Cinzel', serif; font-size: 0.62rem; letter-spacing: 0.3em; color: var(--text-dim); border: 1px solid var(--border); padding: 0.45rem 0.9rem; }
+.legend i { color: var(--gold-dim); font-style: normal; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── DOCKET ── */
+section { padding: 2rem 1rem 4rem; max-width: 1180px; margin: 0 auto; }
+.chips { display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2.5rem; }
+.chip {
+  font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--text-dim); border: 1px solid var(--border); background: transparent; padding: 0.5rem 1rem; cursor: pointer; transition: all 0.4s ease-in-out;
+}
+.chip:hover { color: var(--gold); border-color: var(--gold-dim); }
+.chip.active { color: var(--bg); background: var(--gold); border-color: var(--gold); }
+
+.strip { margin-bottom: 3.2rem; scroll-margin-top: 1.5rem; }
+.strip.hidden { display: none; }
+.strip-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 0.9rem; padding: 0 0.2rem; }
+.strip-num { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--gold); line-height: 1; }
+.strip-q { font-family: 'Cinzel', serif; font-size: clamp(0.95rem, 2.2vw, 1.25rem); font-weight: 600; letter-spacing: 0.05em; color: var(--text-bright); line-height: 1.35; }
+.panels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; }
+.panel {
+  position: relative; background: rgba(13,17,23,0.88); border: 1px solid var(--gold-dim);
+  padding: 0.9rem 0.9rem 1rem; transition: all 0.5s ease-in-out; display: flex; flex-direction: column;
+}
+.panel:hover { box-shadow: 0 0 22px rgba(201,168,76,0.22); border-color: var(--gold); }
+.panel-label { font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 0.35em; color: var(--purple); margin-bottom: 0.4rem; }
+.panel svg { width: 100%; aspect-ratio: 4 / 3; display: block; }
+.cap { font-size: 1.15rem; font-style: italic; color: var(--text-bright); margin-top: 0.6rem; line-height: 1.35; }
+.cap b { font-style: normal; font-weight: 600; color: var(--gold); }
+
+/* stamp */
+.stamp {
+  position: absolute; top: 0.9rem; right: 0.8rem; transform: rotate(-11deg);
+  font-family: 'Cinzel', serif; font-weight: 900; font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase;
+  padding: 0.35rem 0.55rem; border: 2px solid; box-shadow: inset 0 0 0 2px var(--bg), inset 0 0 0 3px currentColor; opacity: 0.92; pointer-events: none;
+}
+.stamp.resolved { color: var(--gold); border-color: var(--gold); }
+.stamp.busted { color: var(--purple); border-color: var(--purple); }
+.stamp.partial { color: var(--cyan); border-color: var(--cyan); }
+
+/* sources */
+.src { margin-top: 0.6rem; padding: 0 0.2rem; }
+.src summary { font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 0.3em; color: var(--text-dim); cursor: pointer; list-style: none; transition: color 0.3s ease-in-out; }
+.src summary::-webkit-details-marker { display: none; }
+.src summary:hover { color: var(--gold); }
+.src ul { list-style: none; display: flex; flex-wrap: wrap; gap: 0.3rem 1.3rem; margin-top: 0.4rem; }
+.src li { font-size: 0.95rem; }
+.src li::before { content: '◦ '; color: var(--gold-dim); }
+.empty { text-align: center; font-style: italic; color: var(--text-dim); padding: 3rem 1rem; display: none; }
+
+/* ── SVG INK ── */
+.ink { stroke: var(--gold); fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.ip { stroke: var(--purple); }
+.ic { stroke: var(--cyan); }
+.id { stroke: var(--text-dim); }
+.thin { stroke-width: 1.3; }
+.fg { fill: var(--gold); stroke: none; }
+.fp { fill: var(--purple); stroke: none; }
+.fc { fill: var(--cyan); stroke: none; }
+.fd { fill: var(--surface); }
+.fdark { fill: #03040a; stroke: none; }
+.ff { fill: rgba(139,92,246,0.18); stroke: none; }
+.fw { fill: rgba(77,184,200,0.22); stroke: none; }
+.t { font-family: 'Cinzel', serif; font-size: 8.5px; letter-spacing: 1px; fill: var(--gold); }
+.tc { fill: var(--cyan); }
+.tp { fill: var(--purple); }
+.td { fill: var(--text-dim); }
+.sfx { font-family: 'Cinzel', serif; font-weight: 900; font-size: 15px; fill: var(--purple); letter-spacing: 1px; }
+.q { font-family: 'Cinzel', serif; font-weight: 900; font-size: 30px; fill: var(--purple); }
+
+/* ── SUBMIT ── */
+.submit-wrap { border: 1px solid var(--border); background: rgba(13,17,23,0.85); padding: 2rem 1.4rem; max-width: 640px; margin: 0 auto; text-align: center; }
+.submit-wrap h2 { font-family: 'Cinzel', serif; font-size: 1.1rem; letter-spacing: 0.25em; color: var(--text-bright); margin-bottom: 1rem; }
+.submit-wrap textarea {
+  width: 100%; background: rgba(6,8,16,0.85); border: 1px solid var(--border); color: var(--text-bright);
+  font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; padding: 0.75rem 1rem; outline: none; resize: vertical; margin-bottom: 1rem; transition: all 0.4s ease-in-out;
+}
+.submit-wrap textarea:focus { border-color: var(--gold-dim); box-shadow: 0 0 16px rgba(201,168,76,0.12); }
+.btn {
+  display: inline-block; font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--gold); border: 1px solid var(--gold); padding: 0.85rem 2rem; background: transparent; cursor: pointer; transition: all 0.45s ease-in-out;
+}
+.btn:hover { background: var(--gold); color: var(--bg); box-shadow: 0 0 24px rgba(201,168,76,0.35); }
+
+footer { text-align: center; padding: 2.5rem 1rem; border-top: 1px solid rgba(201,168,76,0.15); font-size: 0.95rem; color: var(--text-dim); }
+footer .sig { font-family: 'Cinzel', serif; font-size: 0.62rem; letter-spacing: 0.4em; color: var(--gold); margin-bottom: 0.4rem; }
+
+@media (max-width: 820px) {
+  .panels { grid-template-columns: 1fr; }
+  .panel svg { max-height: 240px; }
+  .hero { min-height: 70vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  .hero-badge, .hero-title, .hero-sub, .hero-tagline, .legend { opacity: 1; }
+}
+</style>
+</head>
+<body>
+<canvas id="cosmos"></canvas>
+<div class="page">
+
+<!-- ═══════ HERO ═══════ -->
+<header class="hero">
+  <svg class="geometry" viewBox="0 0 200 200" fill="none" stroke="#c9a84c" stroke-width="0.4" aria-hidden="true">
+    <circle cx="100" cy="100" r="30"/><circle cx="100" cy="70" r="30"/><circle cx="100" cy="130" r="30"/>
+    <circle cx="74" cy="85" r="30"/><circle cx="126" cy="85" r="30"/><circle cx="74" cy="115" r="30"/><circle cx="126" cy="115" r="30"/>
+    <circle cx="100" cy="100" r="60"/><circle cx="100" cy="100" r="90"/>
+    <polygon points="100,10 178,145 22,145"/><polygon points="100,190 22,55 178,55"/>
+  </svg>
+  <div class="hero-badge">A UNIVERSAL 369 LABORATORY</div>
+  <h1 class="hero-title">WEIRD SCIENCE</h1>
+  <div class="hero-sub">RESOLVED</div>
+  <p class="hero-tagline">Nine everyday mysteries. Three panels each. No lectures.</p>
+  <div class="legend"><span>THE WEIRD</span><i>→</i><span>THE WHY</span><i>→</i><span>THE VERDICT</span></div>
+</header>
+
+<!-- ═══════ DOCKET ═══════ -->
+<section id="cases">
+  <div class="chips" id="chips">
+    <button class="chip active" data-cat="all">All Nine</button>
+    <button class="chip" data-cat="workshop">Workshop</button>
+    <button class="chip" data-cat="kitchen">Kitchen</button>
+    <button class="chip" data-cat="travel">Travel</button>
+    <button class="chip" data-cat="physics">Physics</button>
+    <button class="chip" data-cat="history">History</button>
+  </div>
+
+  <!-- ─────────── 01 SCREWS ─────────── -->
+  <article class="strip" id="case-1" data-cat="workshop history">
+    <div class="strip-head"><span class="strip-num">01</span><h2 class="strip-q">Phillips and flathead ruled forever. Then every new screw became a star. Why?</h2></div>
+    <div class="panels">
+      <div class="panel"><div class="panel-label">THE WEIRD</div>
+        <svg viewBox="0 0 200 150" aria-label="A slotted screw head from the 1400s and a Phillips head from 1936 with a question mark between them">
+          <circle cx="58" cy="78" r="30" class="ink"/><line x1="33" y1="78" x2="83" y2="78" class="ink" style="stroke-width:5"/>
+          <circle cx="142" cy="78" r="30" class="ink"/>
+          <path d="M142 54 l4 18 l18 4 l-18 4 l-4 18 l-4-18 l-18-4 l18-4 z" class="fg"/>
+          <text x="58" y="128" class="t" text-anchor="middle">1400s</text>
+          <text x="142" y="128" class="t" text-anchor="middle">1936</text>
+          <text x="100" y="48" class="q" text-anchor="middle">?</text>
+          <path d="M96 100 q4 10 8 0" class="ink ip thin"/>
+        </svg>
+        <p class="cap">Two heads. Five centuries. <b>Nobody asked why.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE WHY</div>
+        <svg viewBox="0 0 200 150" aria-label="A cordless impact driver whose Phillips bit jumps out of the screw with the sound effect SKRRT">
+          <path d="M18 62 h68 l6 8 v26 h-74 z" class="ink"/>
+          <path d="M34 96 l-6 40 h26 l-2-40" class="ink"/>
+          <rect x="92" y="68" width="16" height="22" class="ink"/>
+          <circle cx="64" cy="80" r="6" class="ink ip thin"/>
+          <line x1="108" y1="80" x2="124" y2="70" class="ink ip" style="stroke-width:4"/>
+          <line x1="124" y1="70" x2="142" y2="58" class="ink ip" style="stroke-width:4"/>
+          <circle cx="160" cy="104" r="16" class="ink"/>
+          <path d="M160 92 l2 10 l10 2 l-10 2 l-2 10 l-2-10 l-10-2 l10-2 z" class="fg"/>
+          <path d="M150 50 l6-10 M160 56 l10-8 M146 42 l2-12" class="ink ic thin"/>
+          <text x="118" y="36" class="sfx">SKRRT!</text>
+          <path d="M28 70 h20 M28 76 h12" class="ink id thin"/>
+        </svg>
+        <p class="cap">Impact drivers hit like hammers. <b>Phillips bits jump ship.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE VERDICT</div><div class="stamp partial">Partly True</div>
+        <svg viewBox="0 0 200 150" aria-label="A six-lobe star screw head with the bit seated and locked">
+          <circle cx="100" cy="82" r="36" class="ink"/>
+          <polygon points="124,82 112.1,89 112,102.8 100,96 88,102.8 87.9,89 76,82 87.9,75 88,61.2 100,68 112,61.2 112.1,75" class="fg"/>
+          <polygon points="124,82 112.1,89 112,102.8 100,96 88,102.8 87.9,89 76,82 87.9,75 88,61.2 100,68 112,61.2 112.1,75" class="ink ip"/>
+          <path d="M100 30 v10 M66 48 l8 6 M134 48 l-8 6" class="ink ic thin"/>
+          <text x="100" y="138" class="t" text-anchor="middle">LOCKED IN · 1967 DESIGN</text>
+        </svg>
+        <p class="cap">The star didn't beat Phillips. <b>Torque did.</b></p>
+      </div>
+    </div>
+    <details class="src"><summary>SOURCES ▸</summary><ul>
+      <li><a href="https://en.wikipedia.org/wiki/Cam_out" target="_blank" rel="noopener">Cam out, 1933 patent: "no tendency to cam out"</a></li>
+      <li><a href="https://www.ifixit.com/News/bit-history-the-phillips" target="_blank" rel="noopener">iFixit: Bit History, the Phillips</a></li>
+      <li><a href="https://thecanadianencyclopedia.ca/en/article/robertson-screwdriver-the-biggest-little-invention-of-the-20th-century-so-far-feature" target="_blank" rel="noopener">Canadian Encyclopedia: Robertson 1908</a></li>
+      <li><a href="https://en.wikipedia.org/wiki/Torx" target="_blank" rel="noopener">Torx, 1967</a></li>
+    </ul></details>
+  </article>
+
+  <!-- ─────────── 02 SHOELACES ─────────── -->
+  <article class="strip" id="case-2" data-cat="physics">
+    <div class="strip-head"><span class="strip-num">02</span><h2 class="strip-q">Why do shoelaces untie themselves?</h2></div>
+    <div class="panels">
+      <div class="panel"><div class="panel-label">THE WEIRD</div>
+        <svg viewBox="0 0 200 150" aria-label="A sneaker with a bow that is coming loose">
+          <path d="M14 112 C14 90 40 84 62 74 L100 54 C132 48 170 72 186 112 Z" class="ink"/>
+          <path d="M14 112 h172 v8 h-172 z" class="ink id thin"/>
+          <path d="M70 70 l26-12 M78 80 l26-12 M86 90 l26-12" class="ink thin"/>
+          <ellipse cx="86" cy="60" rx="12" ry="6" transform="rotate(-30 86 60)" class="ink ic"/>
+          <ellipse cx="108" cy="52" rx="12" ry="6" transform="rotate(20 108 52)" class="ink ic"/>
+          <path d="M96 58 q-14 14 -6 34 M100 56 q16 10 10 36" class="ink ic"/>
+          <text x="150" y="40" class="q" text-anchor="middle">?</text>
+        </svg>
+        <p class="cap">Double knot. <b>Still undone by lunch.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE WHY</div>
+        <svg viewBox="0 0 200 150" aria-label="A running foot striking the ground at seven g while the lace ends whip outward">
+          <path d="M60 10 l14 50 l-8 40" class="ink"/>
+          <path d="M60 100 C60 90 80 88 92 86 L112 84 C130 84 150 96 156 110 Z" class="ink"/>
+          <line x1="20" y1="120" x2="190" y2="120" class="ink id"/>
+          <path d="M70 128 l-6 10 M100 128 v12 M130 128 l6 10 M50 118 l-12 6 M160 118 l12 6" class="ink ip"/>
+          <text x="104" y="144" class="t tp" text-anchor="middle">7 × GRAVITY</text>
+          <ellipse cx="104" cy="86" rx="8" ry="4" class="ink ic thin"/>
+          <path d="M104 86 q30-30 60-26 M104 86 q-30-30-60-26" class="ink ic"/>
+          <path d="M160 56 l10 4 M158 50 l8 -4 M44 56 l-10 4 M46 50 l-8-4" class="ink ic thin"/>
+          <text x="126" y="34" class="sfx">WHIP!</text>
+        </svg>
+        <p class="cap">Stomp loosens. Swing whips. <b>Two strides, gone.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE VERDICT</div><div class="stamp resolved">Resolved</div>
+        <svg viewBox="0 0 200 150" aria-label="A crooked granny bow marked with an X beside a straight square bow marked with a check">
+          <ellipse cx="42" cy="78" rx="16" ry="8" transform="rotate(-40 42 78)" class="ink id"/>
+          <ellipse cx="66" cy="70" rx="16" ry="8" transform="rotate(-10 66 70)" class="ink id"/>
+          <path d="M54 76 q-6 20 2 34 M56 76 q12 10 8 36" class="ink id thin"/>
+          <text x="54" y="128" class="t td" text-anchor="middle">GRANNY</text>
+          <path d="M44 20 l20 20 M64 20 l-20 20" class="ink ip"/>
+          <ellipse cx="124" cy="74" rx="16" ry="8" transform="rotate(-18 124 74)" class="ink"/>
+          <ellipse cx="156" cy="74" rx="16" ry="8" transform="rotate(18 156 74)" class="ink"/>
+          <path d="M140 78 q-8 16 -4 32 M140 78 q8 16 4 32" class="ink thin"/>
+          <text x="140" y="128" class="t" text-anchor="middle">SQUARE</text>
+          <path d="M130 30 l8 10 l16-20" class="ink ic"/>
+        </svg>
+        <p class="cap">Square bow holds. <b>Granny bow quits.</b></p>
+      </div>
+    </div>
+    <details class="src"><summary>SOURCES ▸</summary><ul>
+      <li><a href="https://news.berkeley.edu/?p=61875" target="_blank" rel="noopener">UC Berkeley, 2017 study</a></li>
+      <li><a href="https://www.npr.org/sections/health-shots/2017/04/17/523636317/untangling-the-mystery-of-why-shoelaces-come-untied" target="_blank" rel="noopener">NPR coverage</a></li>
+    </ul></details>
+  </article>
+
+  <!-- ─────────── 03 MICROWAVE ─────────── -->
+  <article class="strip" id="case-3" data-cat="kitchen physics">
+    <div class="strip-head"><span class="strip-num">03</span><h2 class="strip-q">Microwaves can't get out the door. So how does light get in?</h2></div>
+    <div class="panels">
+      <div class="panel"><div class="panel-label">THE WEIRD</div>
+        <svg viewBox="0 0 200 150" aria-label="A microwave oven with a mesh door and a big eye peeking through it">
+          <rect x="18" y="34" width="164" height="90" class="ink"/>
+          <rect x="30" y="46" width="104" height="66" class="ink"/>
+          <path d="M40 46 v66 M52 46 v66 M64 46 v66 M76 46 v66 M88 46 v66 M100 46 v66 M112 46 v66 M124 46 v66 M30 58 h104 M30 70 h104 M30 82 h104 M30 94 h104 M30 106 h104" class="ink id thin" style="opacity:.6"/>
+          <ellipse cx="82" cy="79" rx="22" ry="13" class="ink ic"/><circle cx="82" cy="79" r="7" class="fc"/><circle cx="85" cy="76" r="2" class="fdark"/>
+          <circle cx="158" cy="60" r="7" class="ink thin"/><circle cx="158" cy="84" r="7" class="ink thin"/><rect x="150" y="100" width="16" height="10" class="ink thin"/>
+          <text x="100" y="22" class="q" text-anchor="middle">?</text>
+        </svg>
+        <p class="cap">You can watch the soup. <b>The waves can't watch you.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE WHY</div>
+        <svg viewBox="0 0 200 150" aria-label="A long purple microwave bouncing off the metal mesh while a tiny cyan light wave passes through a hole">
+          <path d="M100 14 v14 M100 36 v14 M100 58 v14 M100 80 v14 M100 102 v14 M100 124 v12" class="ink" style="stroke-width:5"/>
+          <path d="M18 60 q14-28 28 0 t28 0 t12 0" class="ink ip" style="stroke-width:3"/>
+          <path d="M86 60 l-10-8 M86 60 l-10 8" class="ink ip"/>
+          <path d="M80 86 q-14 28-28 0 t-28 0" class="ink ip thin" style="opacity:.7"/>
+          <text x="48" y="40" class="t tp" text-anchor="middle">12 CM</text>
+          <path d="M70 31 q2-4 4 0 t4 0 t4 0 t4 0 t4 0 t4 0 t4 0 t4 0 t4 0 t4 0 t4 0 t4 0 t4 0 t4 0 t4 0 t4 0" class="ink ic thin"/>
+          <path d="M134 31 l-6-4 M134 31 l-6 4" class="ink ic thin"/>
+          <text x="150" y="20" class="t tc" text-anchor="middle">LIGHT</text>
+          <text x="150" y="108" class="t" text-anchor="middle">HOLE: 1 MM</text>
+          <path d="M118 96 l-14-14" class="ink thin"/>
+        </svg>
+        <p class="cap">Long wave bounces. <b>Tiny wave slips through.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE VERDICT</div><div class="stamp resolved">Resolved</div>
+        <svg viewBox="0 0 200 150" aria-label="A smiling bowl of soup inside a cage of golden bars">
+          <path d="M40 30 v96 M60 30 v96 M80 30 v96 M100 30 v96 M120 30 v96 M140 30 v96 M160 30 v96 M40 30 h120 M40 126 h120" class="ink thin"/>
+          <path d="M62 86 q38 30 76 0" class="ink"/><line x1="56" y1="86" x2="144" y2="86" class="ink"/>
+          <path d="M78 76 q8-16 2-30 M100 76 q8-16 2-30 M122 76 q8-16 2-30" class="ink ic thin"/>
+          <circle cx="90" cy="96" r="2" class="fg"/><circle cx="110" cy="96" r="2" class="fg"/><path d="M92 104 q8 6 16 0" class="ink thin"/>
+          <text x="100" y="144" class="t" text-anchor="middle">FARADAY CAGE · INSIDE OUT</text>
+        </svg>
+        <p class="cap">A metal cage, <b>working in reverse.</b></p>
+      </div>
+    </div>
+    <details class="src"><summary>SOURCES ▸</summary><ul>
+      <li><a href="https://www.straightdope.com/21343269/what-keeps-microwave-radiation-from-leaking-out-the-oven-door" target="_blank" rel="noopener">The Straight Dope</a></li>
+      <li><a href="https://www.slashgear.com/1906854/microwaves-mesh-door-use-explained/" target="_blank" rel="noopener">SlashGear: the mesh door</a></li>
+    </ul></details>
+  </article>
+
+  <!-- ─────────── 04 AIRPLANE WINDOW ─────────── -->
+  <article class="strip" id="case-4" data-cat="travel physics">
+    <div class="strip-head"><span class="strip-num">04</span><h2 class="strip-q">What is the tiny hole in airplane windows for?</h2></div>
+    <div class="panels">
+      <div class="panel"><div class="panel-label">THE WEIRD</div>
+        <svg viewBox="0 0 200 150" aria-label="An airplane window with a tiny hole at the bottom and a question mark">
+          <rect x="56" y="22" width="88" height="110" rx="28" class="ink"/>
+          <rect x="66" y="32" width="68" height="90" rx="22" class="ink thin"/>
+          <path d="M80 60 q20-14 40 0" class="ink id thin"/><path d="M76 72 q24-12 48 0" class="ink id thin"/>
+          <circle cx="100" cy="112" r="2.6" class="fp"/>
+          <path d="M106 112 l26 6" class="ink ip thin"/>
+          <text x="152" y="124" class="q" text-anchor="middle">?</text>
+        </svg>
+        <p class="cap">A hole. In the window. <b>Of a plane.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE WHY</div>
+        <svg viewBox="0 0 200 150" aria-label="Cross-section of three window panes: cabin pressure pushes the outer pane, the middle pane has the hole and waits as a spare">
+          <text x="40" y="22" class="t" text-anchor="middle">CABIN</text><text x="166" y="22" class="t tc" text-anchor="middle">SKY</text>
+          <line x1="96" y1="30" x2="96" y2="130" class="ink id"/>
+          <line x1="118" y1="30" x2="118" y2="130" class="ink ip" style="stroke-width:3"/>
+          <line x1="140" y1="30" x2="140" y2="130" class="ink" style="stroke-width:4"/>
+          <circle cx="118" cy="108" r="3" class="fdark"/><circle cx="118" cy="108" r="3" class="ink ip thin"/>
+          <path d="M34 60 h48 M34 80 h48 M34 100 h48 M82 60 l-6-5 M82 60 l-6 5 M82 80 l-6-5 M82 80 l-6 5 M82 100 l-6-5 M82 100 l-6 5" class="ink thin"/>
+          <path d="M124 108 h14 M138 108 l-4-3 M138 108 l-4 3" class="ink ip thin"/>
+          <text x="118" y="42" class="t tp" text-anchor="middle">SPARE</text>
+          <text x="146" y="144" class="t" text-anchor="start">LOAD</text>
+          <text x="90" y="144" class="t td" text-anchor="end">SHIELD</text>
+        </svg>
+        <p class="cap">Outer pane takes the push. <b>Middle pane waits as spare.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE VERDICT</div><div class="stamp resolved">Resolved</div>
+        <svg viewBox="0 0 200 150" aria-label="A clear airplane window showing sun and clouds with no fog">
+          <rect x="56" y="22" width="88" height="110" rx="28" class="ink"/>
+          <circle cx="116" cy="56" r="12" class="ink ic"/><path d="M116 38 v-6 M134 56 h6 M129 43 l4-4 M129 69 l4 4" class="ink ic thin"/>
+          <path d="M70 96 q6-12 18-8 q6-12 20-4 q10-2 14 8 z" class="ink thin"/>
+          <circle cx="100" cy="116" r="2.4" class="fp"/>
+          <text x="100" y="146" class="t" text-anchor="middle">NO FOG · NO DRAMA</text>
+        </svg>
+        <p class="cap">Pressure balanced. Fog vented. <b>Spare pane ready.</b></p>
+      </div>
+    </div>
+    <details class="src"><summary>SOURCES ▸</summary><ul>
+      <li><a href="https://gizmodo.com/why-is-there-a-hole-in-airplane-windows-1703660371" target="_blank" rel="noopener">Gizmodo, GKN Aerospace engineer</a></li>
+      <li><a href="https://time.com/3903109/airplane-window-holes/" target="_blank" rel="noopener">TIME, pilot Mark Vanhoenacker</a></li>
+    </ul></details>
+  </article>
+
+  <!-- ─────────── 05 BREAD ─────────── -->
+  <article class="strip" id="case-5" data-cat="kitchen">
+    <div class="strip-head"><span class="strip-num">05</span><h2 class="strip-q">Why does bread go stale faster in the fridge?</h2></div>
+    <div class="panels">
+      <div class="panel"><div class="panel-label">THE WEIRD</div>
+        <svg viewBox="0 0 200 150" aria-label="A sad loaf of bread sitting on a refrigerator shelf">
+          <rect x="30" y="14" width="140" height="124" rx="4" class="ink"/>
+          <line x1="30" y1="60" x2="170" y2="60" class="ink id thin"/><line x1="30" y1="100" x2="170" y2="100" class="ink id thin"/>
+          <line x1="160" y1="26" x2="160" y2="48" class="ink thin"/>
+          <path d="M60 98 v-18 q0-14 14-14 h40 q14 0 14 14 v18 z" class="ink"/>
+          <path d="M74 66 q8-8 16 0 M92 66 q8-8 16 0 M110 66 q8-8 16 0" class="ink thin"/>
+          <circle cx="86" cy="80" r="2" class="fg"/><circle cx="114" cy="80" r="2" class="fg"/>
+          <path d="M90 92 q10-8 20 0" class="ink"/>
+          <path d="M118 84 q2 6 0 10" class="ink ic thin"/>
+          <text x="100" y="124" class="t tc" text-anchor="middle">4 °C</text>
+        </svg>
+        <p class="cap">Fridge bread. <b>Sad bread.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE WHY</div>
+        <svg viewBox="0 0 200 150" aria-label="A thermometer with the zero to five degree stale zone highlighted, and starch chains lining up into a crystal grid">
+          <rect x="30" y="18" width="14" height="100" rx="7" class="ink"/><circle cx="37" cy="124" r="11" class="ink"/>
+          <rect x="33" y="60" width="8" height="22" class="fp"/><circle cx="37" cy="124" r="7" class="fp"/><rect x="33" y="82" width="8" height="36" class="fp"/>
+          <text x="54" y="66" class="t tp">5 °C</text><text x="54" y="86" class="t tp">0 °C</text>
+          <text x="54" y="76" class="t tp">STALE ZONE</text>
+          <path d="M120 30 q8-10 16 0 t16 0 t16 0" class="ink ic thin"/>
+          <path d="M120 44 q8 10 16 0 t16 0 t16 0" class="ink ic thin"/>
+          <path d="M134 56 v14 M134 70 l-4-4 M134 70 l4-4" class="ink thin"/>
+          <path d="M120 82 h50 M120 96 h50 M120 110 h50 M120 124 h50 M120 82 v42 M136 82 v42 M152 82 v42 M170 82 v42" class="ink ic thin"/>
+          <text x="145" y="140" class="t tc" text-anchor="middle">CRYSTAL</text>
+        </svg>
+        <p class="cap">Starch recrystallises. <b>Fridge temp is its favourite.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE VERDICT</div><div class="stamp resolved">Resolved</div>
+        <svg viewBox="0 0 200 150" aria-label="A happy loaf of bread in the freezer with a snowflake, and a counter loaf for today">
+          <path d="M26 110 v-18 q0-14 14-14 h32 q14 0 14 14 v18 z" class="ink"/>
+          <circle cx="46" cy="92" r="2" class="fg"/><circle cx="66" cy="92" r="2" class="fg"/><path d="M48 100 q8 6 16 0" class="ink thin"/>
+          <text x="56" y="130" class="t" text-anchor="middle">TODAY</text>
+          <path d="M114 110 v-18 q0-14 14-14 h32 q14 0 14 14 v18 z" class="ink ic"/>
+          <circle cx="134" cy="92" r="2" class="fc"/><circle cx="154" cy="92" r="2" class="fc"/><path d="M136 100 q8 6 16 0" class="ink ic thin"/>
+          <path d="M144 32 v28 M130 46 h28 M134 36 l20 20 M154 36 l-20 20" class="ink ic thin"/>
+          <text x="144" y="130" class="t tc" text-anchor="middle">TOMORROW</text>
+        </svg>
+        <p class="cap">Counter today. Freezer tomorrow. <b>Never the fridge.</b></p>
+      </div>
+    </div>
+    <details class="src"><summary>SOURCES ▸</summary><ul>
+      <li><a href="https://www.scienceabc.com/eyeopeners/why-chips-soften-but-bread-hardens-staling-moisture-starch-unstale.html" target="_blank" rel="noopener">ScienceABC on retrogradation</a></li>
+      <li><a href="https://www.chowhound.com/1572579/never-store-bread-in-refrigerator" target="_blank" rel="noopener">Chowhound, 2021 fridge study</a></li>
+    </ul></details>
+  </article>
+
+  <!-- ─────────── 06 GAS PUMP ─────────── -->
+  <article class="strip" id="case-6" data-cat="workshop physics travel">
+    <div class="strip-head"><span class="strip-num">06</span><h2 class="strip-q">How does the gas pump know when your tank is full?</h2></div>
+    <div class="panels">
+      <div class="panel"><div class="panel-label">THE WEIRD</div>
+        <svg viewBox="0 0 200 150" aria-label="A fuel nozzle in a car filler neck with the sound effect CLICK">
+          <path d="M30 60 h60 v30 h-60 z" class="ink"/>
+          <path d="M44 90 l-8 34 h26 l-4-34" class="ink"/>
+          <path d="M90 66 h30 l14 12 v10 h-14" class="ink"/>
+          <path d="M134 78 h40 M174 78 v40 M124 100 q0 36 36 36 h20" class="ink id thin"/>
+          <text x="118" y="40" class="sfx">CLICK!</text>
+          <path d="M124 62 l-4-8 M134 58 l0-8 M144 62 l4-8" class="ink ip thin"/>
+          <text x="100" y="138" class="t td" text-anchor="middle">HOW?</text>
+        </svg>
+        <p class="cap">It just knows. <b>How does it know?</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE WHY</div>
+        <svg viewBox="0 0 200 150" aria-label="Cross-section of a nozzle: fuel squeezes through a venturi, a tiny tube runs to a hole at the tip, and rising fuel covers the hole">
+          <path d="M20 50 h40 l20 10 h20 l-20 10 h-20 l-40 0 z" class="ink" transform="translate(0,10)"/>
+          <path d="M100 60 h70 v20 h-70" class="ink"/>
+          <path d="M70 60 q-10 10 0 20" class="ink thin"/>
+          <text x="52" y="46" class="t" text-anchor="middle">VENTURI</text>
+          <path d="M80 80 q0 30 40 30 h44" class="ink ic thin"/>
+          <circle cx="166" cy="110" r="3" class="ink ic thin"/>
+          <path d="M150 120 q10 14 20 0 q10 10 20 0" class="ink ic"/>
+          <path d="M140 134 h50" class="ink ic thin"/>
+          <text x="166" y="98" class="t tc" text-anchor="middle">HOLE</text>
+          <path d="M60 100 q-20 0 -20 20 q20 0 20-20 z" class="ink ip thin"/>
+          <text x="46" y="138" class="t tp" text-anchor="middle">DIAPHRAGM</text>
+          <path d="M86 104 l-14 8 M72 112 l6-1 M72 112 l2-5" class="ink ip thin"/>
+        </svg>
+        <p class="cap">Fuel covers a tiny hole. <b>Vacuum snaps the valve shut.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE VERDICT</div><div class="stamp resolved">Resolved</div>
+        <svg viewBox="0 0 200 150" aria-label="A microchip crossed out beside a plain pipe, meaning pure plumbing and no electronics">
+          <rect x="36" y="50" width="44" height="44" class="ink id"/>
+          <path d="M36 60 h-8 M36 72 h-8 M36 84 h-8 M80 60 h8 M80 72 h8 M80 84 h8 M48 50 v-8 M60 50 v-8 M72 50 v-8 M48 94 v8 M60 94 v8 M72 94 v8" class="ink id thin"/>
+          <path d="M30 44 l56 56 M86 44 l-56 56" class="ink ip"/>
+          <path d="M110 58 h50 v10 h-50 z M160 58 l12 6 l-12 10" class="ink"/>
+          <path d="M118 88 q6-8 12 0 t12 0 t12 0" class="ink ic thin"/>
+          <text x="100" y="128" class="t" text-anchor="middle">PURE PLUMBING · SINCE THE 1940s</text>
+        </svg>
+        <p class="cap">No chips. No wires. <b>Just plumbing.</b></p>
+      </div>
+    </div>
+    <details class="src"><summary>SOURCES ▸</summary><ul>
+      <li><a href="https://www.scienceabc.com/pure-sciences/how-does-the-gas-pump-automatically-shut-off-when-the-tank-is-full.html" target="_blank" rel="noopener">ScienceABC</a></li>
+      <li><a href="https://patents.google.com/patent/US4098306A/en" target="_blank" rel="noopener">US Patent 4,098,306</a></li>
+    </ul></details>
+  </article>
+
+  <!-- ─────────── 07 QWERTY ─────────── -->
+  <article class="strip" id="case-7" data-cat="history">
+    <div class="strip-head"><span class="strip-num">07</span><h2 class="strip-q">Was QWERTY designed to slow typists down?</h2></div>
+    <div class="panels">
+      <div class="panel"><div class="panel-label">THE WEIRD</div>
+        <svg viewBox="0 0 200 150" aria-label="An old typewriter with its typebars tangled and the word JAM with a question mark">
+          <path d="M30 120 h140 l-10-30 h-120 z" class="ink"/>
+          <path d="M50 100 h100 M48 108 h104" class="ink id thin"/>
+          <path d="M60 90 v-20 M70 90 v-24 M80 90 v-22 M90 90 v-26 M100 90 v-24 M110 90 v-26 M120 90 v-22 M130 90 v-24 M140 90 v-20" class="ink thin"/>
+          <path d="M100 30 l-10 36 M100 30 l12 36 M100 30 l-2 36" class="ink ip"/>
+          <circle cx="100" cy="28" r="4" class="fp"/>
+          <path d="M40 62 h120" class="ink"/>
+          <text x="150" y="36" class="sfx">JAM?</text>
+        </svg>
+        <p class="cap">Legend says: scattered keys, <b>so the bars wouldn't jam.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE WHY</div>
+        <svg viewBox="0 0 200 150" aria-label="A telegraph operator wearing headphones, with Morse code showing that Z and S-E sounded almost alike">
+          <circle cx="60" cy="60" r="22" class="ink"/>
+          <path d="M38 56 q-8 0-8 10 q0 8 8 8 M82 56 q8 0 8 10 q0 8-8 8 M38 50 q22-26 44 0" class="ink"/>
+          <circle cx="53" cy="60" r="2" class="fg"/><circle cx="67" cy="60" r="2" class="fg"/><path d="M54 70 h12" class="ink thin"/>
+          <path d="M40 82 q20 16 40 0 v40 h-40 z" class="ink"/>
+          <text x="104" y="48" class="t tc">Z</text><circle cx="120" cy="45" r="2" class="fc"/><circle cx="128" cy="45" r="2" class="fc"/><circle cx="136" cy="45" r="2" class="fc"/><circle cx="150" cy="45" r="2" class="fc"/>
+          <text x="104" y="72" class="t tc">SE</text><circle cx="120" cy="69" r="2" class="fc"/><circle cx="128" cy="69" r="2" class="fc"/><circle cx="136" cy="69" r="2" class="fc"/><circle cx="150" cy="69" r="2" class="fc"/>
+          <text x="134" y="98" class="t tp" text-anchor="middle">SAME SOUND</text>
+          <path d="M104 110 h60 M164 110 l-5-4 M164 110 l-5 4" class="ink ip thin"/>
+          <text x="134" y="130" class="t" text-anchor="middle">PUT S NEAR Z AND E</text>
+        </svg>
+        <p class="cap">Telegraph operators shaped the keys. <b>For speed.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE VERDICT</div><div class="stamp busted">Myth Busted</div>
+        <svg viewBox="0 0 200 150" aria-label="A row of keys spelling QWERTY with a locked padlock below">
+          <g class="ink"><rect x="22" y="54" width="22" height="22"/><rect x="48" y="54" width="22" height="22"/><rect x="74" y="54" width="22" height="22"/><rect x="100" y="54" width="22" height="22"/><rect x="126" y="54" width="22" height="22"/><rect x="152" y="54" width="22" height="22"/></g>
+          <text x="33" y="70" class="t" text-anchor="middle">Q</text><text x="59" y="70" class="t" text-anchor="middle">W</text><text x="85" y="70" class="t" text-anchor="middle">E</text><text x="111" y="70" class="t" text-anchor="middle">R</text><text x="137" y="70" class="t" text-anchor="middle">T</text><text x="163" y="70" class="t" text-anchor="middle">Y</text>
+          <rect x="86" y="104" width="28" height="22" class="ink ip"/><path d="M92 104 v-8 q8-10 16 0 v8" class="ink ip"/>
+          <text x="100" y="142" class="t tp" text-anchor="middle">EVERYONE ALREADY LEARNED IT</text>
+        </svg>
+        <p class="cap">Not slow. <b>Just stuck with it.</b></p>
+      </div>
+    </div>
+    <details class="src"><summary>SOURCES ▸</summary><ul>
+      <li><a href="https://www.smithsonianmag.com/innovation/fact-of-fiction-the-legend-of-the-qwerty-keyboard-49863249/" target="_blank" rel="noopener">Smithsonian: the QWERTY legend</a></li>
+      <li><a href="https://languagelog.ldc.upenn.edu/nll/?p=68794" target="_blank" rel="noopener">Language Log on the Kyoto study</a></li>
+    </ul></details>
+  </article>
+
+  <!-- ─────────── 08 WET = DARKER ─────────── -->
+  <article class="strip" id="case-8" data-cat="physics">
+    <div class="strip-head"><span class="strip-num">08</span><h2 class="strip-q">Water is clear. So why do wet things look darker?</h2></div>
+    <div class="panels">
+      <div class="panel"><div class="panel-label">THE WEIRD</div>
+        <svg viewBox="0 0 200 150" aria-label="A sidewalk that is light on the dry half and dark on the wet half, with a puddle">
+          <rect x="20" y="70" width="80" height="50" class="ink" style="fill:rgba(201,168,76,0.12)"/>
+          <rect x="100" y="70" width="80" height="50" class="ink" style="fill:rgba(201,168,76,0.02)"/>
+          <path d="M26 110 h8 M40 96 h6 M60 104 h8 M80 90 h6" class="ink thin" style="opacity:.5"/>
+          <ellipse cx="140" cy="100" rx="26" ry="8" class="fw"/>
+          <path d="M128 40 q4 8 0 14 M140 30 q4 8 0 14 M152 44 q4 8 0 14" class="ink ic thin"/>
+          <text x="60" y="136" class="t" text-anchor="middle">DRY</text><text x="140" y="136" class="t tc" text-anchor="middle">WET</text>
+          <text x="100" y="40" class="q" text-anchor="middle">?</text>
+        </svg>
+        <p class="cap">Same concrete. <b>Darker when it rains.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE WHY</div>
+        <svg viewBox="0 0 200 150" aria-label="A ray of light enters a thin film of water, bounces up off the rough surface, reflects back down from the water's top and gets absorbed">
+          <path d="M20 100 l8-6 l8 6 l8-6 l8 6 l8-6 l8 6 l8-6 l8 6 l8-6 l8 6 l8-6 l8 6 l8-6 l8 6 l8-6 l8 6 l8-6 l8 6 l8-6 l8 6" class="ink"/>
+          <rect x="20" y="100" width="160" height="30" class="fdark"/>
+          <rect x="20" y="64" width="160" height="34" class="fw"/>
+          <line x1="20" y1="64" x2="180" y2="64" class="ink ic thin"/>
+          <text x="100" y="56" class="t tc" text-anchor="middle">WATER FILM</text>
+          <path d="M30 20 l40 76" class="ink"/>
+          <path d="M70 96 l34-30" class="ink"/>
+          <path d="M104 66 l34 32" class="ink ip"/>
+          <path d="M138 98 l20-24" class="ink ip thin" style="opacity:.6"/>
+          <path d="M158 74 l12 24" class="ink ip thin" style="opacity:.35"/>
+          <path d="M104 66 l-6-2 M104 66 l-1 6" class="ink thin"/>
+          <text x="150" y="124" class="t tp" text-anchor="middle">TRAPPED</text>
+        </svg>
+        <p class="cap">Light gets trapped under the film. <b>Each bounce, more absorbed.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE VERDICT</div><div class="stamp resolved">Resolved</div>
+        <svg viewBox="0 0 200 150" aria-label="An eye receiving many rays from a dry surface but only a few from a wet one">
+          <ellipse cx="100" cy="44" rx="30" ry="16" class="ink"/><circle cx="100" cy="44" r="9" class="fg"/><circle cx="103" cy="41" r="3" class="fdark"/>
+          <path d="M40 120 l40-60 M50 120 l36-60 M60 120 l32-60" class="ink thin"/>
+          <path d="M150 120 l-36-60" class="ink ic thin"/>
+          <text x="54" y="138" class="t" text-anchor="middle">DRY</text><text x="146" y="138" class="t tc" text-anchor="middle">WET</text>
+        </svg>
+        <p class="cap">Less light escapes. <b>Your eye calls it dark.</b></p>
+      </div>
+    </div>
+    <details class="src"><summary>SOURCES ▸</summary><ul>
+      <li><a href="https://ece.ncsu.edu/2024/why-do-things-look-darker-when-theyre-wet" target="_blank" rel="noopener">NC State, total internal reflection</a></li>
+      <li><a href="https://www.wgtn.ac.nz/scps/staff/pdf/darkerwhenwet.pdf" target="_blank" rel="noopener">Lekner &amp; Dorf, 1988</a></li>
+    </ul></details>
+  </article>
+
+  <!-- ─────────── 09 ICE ─────────── -->
+  <article class="strip" id="case-9" data-cat="physics kitchen">
+    <div class="strip-head"><span class="strip-num">09</span><h2 class="strip-q">Why does ice float? And why should you care?</h2></div>
+    <div class="panels">
+      <div class="panel"><div class="panel-label">THE WEIRD</div>
+        <svg viewBox="0 0 200 150" aria-label="A glass of water with an ice cube floating at the top and a question mark">
+          <path d="M60 30 l8 100 h64 l8-100" class="ink"/>
+          <path d="M66 70 h68" class="ink ic thin"/>
+          <rect x="64" y="70" width="72" height="56" class="fw" transform="skewX(0)"/>
+          <rect x="84" y="52" width="32" height="30" class="ink ic" style="fill:rgba(77,184,200,0.1)"/>
+          <path d="M90 58 l8 8 M100 56 l6 6" class="ink ic thin"/>
+          <text x="156" y="48" class="q" text-anchor="middle">?</text>
+          <text x="100" y="142" class="t tc" text-anchor="middle">SOLID · ON TOP</text>
+        </svg>
+        <p class="cap">A solid floating on its own liquid. <b>That's rare.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE WHY</div>
+        <svg viewBox="0 0 200 150" aria-label="An open hexagonal lattice of ice molecules on the left and crowded liquid molecules on the right, with the note nine percent more room">
+          <g class="ink ic thin"><polygon points="50,38 68,48 68,70 50,80 32,70 32,48"/><polygon points="86,48 104,58 104,80 86,90 68,70 68,48"/><polygon points="50,80 68,90 68,112 50,122 32,112 32,90"/></g>
+          <g class="fc"><circle cx="50" cy="38" r="3"/><circle cx="68" cy="48" r="3"/><circle cx="68" cy="70" r="3"/><circle cx="50" cy="80" r="3"/><circle cx="32" cy="70" r="3"/><circle cx="32" cy="48" r="3"/><circle cx="86" cy="48" r="3"/><circle cx="104" cy="58" r="3"/><circle cx="104" cy="80" r="3"/><circle cx="86" cy="90" r="3"/><circle cx="68" cy="90" r="3"/><circle cx="68" cy="112" r="3"/><circle cx="50" cy="122" r="3"/><circle cx="32" cy="112" r="3"/><circle cx="32" cy="90" r="3"/></g>
+          <text x="68" y="140" class="t tc" text-anchor="middle">ICE · OPEN</text>
+          <g class="fg"><circle cx="134" cy="46" r="3"/><circle cx="146" cy="54" r="3"/><circle cx="158" cy="44" r="3"/><circle cx="170" cy="56" r="3"/><circle cx="138" cy="64" r="3"/><circle cx="152" cy="70" r="3"/><circle cx="166" cy="72" r="3"/><circle cx="130" cy="80" r="3"/><circle cx="144" cy="86" r="3"/><circle cx="160" cy="88" r="3"/><circle cx="174" cy="84" r="3"/><circle cx="136" cy="100" r="3"/><circle cx="150" cy="104" r="3"/><circle cx="164" cy="102" r="3"/><circle cx="142" cy="118" r="3"/><circle cx="158" cy="116" r="3"/><circle cx="172" cy="112" r="3"/></g>
+          <text x="152" y="140" class="t" text-anchor="middle">WATER · PACKED</text>
+          <text x="100" y="20" class="t tp" text-anchor="middle">9% MORE ROOM</text>
+        </svg>
+        <p class="cap">Freezing builds an open lattice. <b>More room, less dense.</b></p>
+      </div>
+      <div class="panel"><div class="panel-label">THE VERDICT</div><div class="stamp resolved">Resolved</div>
+        <svg viewBox="0 0 200 150" aria-label="A lake frozen only on top with a happy fish swimming underneath">
+          <rect x="16" y="50" width="168" height="80" class="fw"/>
+          <rect x="16" y="50" width="168" height="14" class="ink ic" style="fill:rgba(77,184,200,0.3)"/>
+          <path d="M40 57 h10 M70 57 h8 M120 57 h12 M150 57 h8" class="ink ic thin"/>
+          <path d="M30 30 l4 4 M60 24 l-4 6 M172 30 l-6 2" class="ink ic thin"/>
+          <path d="M80 98 q20-18 44 0 q-20 18-44 0 z" class="ink"/>
+          <path d="M124 98 l14-10 v20 z" class="ink"/>
+          <circle cx="92" cy="95" r="2" class="fg"/><path d="M86 102 q4 3 8 0" class="ink thin"/>
+          <circle cx="106" cy="80" r="2" class="ink thin"/><circle cx="110" cy="72" r="1.5" class="ink thin"/>
+          <text x="100" y="144" class="t" text-anchor="middle">LAKES FREEZE TOP DOWN</text>
+        </svg>
+        <p class="cap">Lakes freeze from the top. <b>Fish live. So do we.</b></p>
+      </div>
+    </div>
+    <details class="src"><summary>SOURCES ▸</summary><ul>
+      <li><a href="https://www.revisiondojo.com/blog/why-does-ice-float-on-water" target="_blank" rel="noopener">Why ice floats, with the numbers</a></li>
+      <li><a href="https://next-cms.climatetrace.org/why-does-ice-float" target="_blank" rel="noopener">Climate TRACE</a></li>
+    </ul></details>
+  </article>
+
+  <p class="empty" id="empty">Nothing here yet. Send a question below.</p>
+</section>
+
+<!-- ═══════ SUBMIT ═══════ -->
+<section id="submit">
+  <form class="submit-wrap" id="askForm">
+    <h2>GOT A WEIRD ONE?</h2>
+    <textarea id="q" rows="2" required placeholder="Why does the shower curtain attack me?"></textarea>
+    <button class="btn" type="submit">Send it to the lab</button>
+  </form>
+</section>
+
+<footer>
+  <div class="sig">UNIVERSAL 369 · WEIRD SCIENCE · RESOLVED</div>
+  <p>Every verdict carries its sources.</p>
+</footer>
+</div>
+
+<script>
+/* ── COSMOS CANVAS ── */
+(function () {
+  const c = document.getElementById('cosmos'), ctx = c.getContext('2d');
+  let w, h, stars = [];
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function resize() {
+    w = c.width = window.innerWidth; h = c.height = window.innerHeight; stars = [];
+    const n = Math.min(220, Math.floor(w * h / 6000));
+    for (let i = 0; i < n; i++) stars.push({
+      x: Math.random() * w, y: Math.random() * h, r: Math.random() * 1.3 + 0.2, a: Math.random(),
+      da: (Math.random() * 0.008 + 0.002) * (Math.random() < 0.5 ? 1 : -1),
+      vx: (Math.random() - 0.5) * 0.05, vy: (Math.random() - 0.5) * 0.05,
+      hue: Math.random() < 0.15 ? '139,92,246' : (Math.random() < 0.2 ? '77,184,200' : '201,168,76')
+    });
+  }
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    for (const s of stars) {
+      s.a += s.da; if (s.a <= 0.05 || s.a >= 1) s.da *= -1;
+      s.x += s.vx; s.y += s.vy;
+      if (s.x < 0) s.x = w; if (s.x > w) s.x = 0; if (s.y < 0) s.y = h; if (s.y > h) s.y = 0;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(' + s.hue + ',' + (s.a * 0.8).toFixed(3) + ')'; ctx.fill();
+    }
+    if (!reduce) requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize); resize(); draw();
+})();
+
+/* ── FILTER ── */
+const strips = Array.from(document.querySelectorAll('.strip'));
+const chips = document.getElementById('chips'), empty = document.getElementById('empty');
+chips.addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  chips.querySelectorAll('.chip').forEach(x => x.classList.remove('active')); b.classList.add('active');
+  const cat = b.dataset.cat; let shown = 0;
+  strips.forEach(s => { const ok = cat === 'all' || s.dataset.cat.split(' ').includes(cat); s.classList.toggle('hidden', !ok); if (ok) shown++; });
+  empty.style.display = shown ? 'none' : 'block';
+});
+
+/* ── SUBMIT: MAILTO ── */
+document.getElementById('askForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const q = document.getElementById('q').value.trim();
+  location.href = 'mailto:ask@universal369.com?subject=' + encodeURIComponent('Weird Science case') + '&body=' + encodeURIComponent(q);
+});
+</script>
+</body>
+</html>
