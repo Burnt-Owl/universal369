@@ -50,12 +50,12 @@ curl -s -o /dev/null -w "%{http_code}" https://universal369.com
 
 ### 2. Weird Science — Resolved (universal369.com/weird-science/)
 - **Status:** Built locally (branch `claude/weird-science-qa-site-ouwemp`), not yet deployed
-- **Type:** Single-page static HTML Q&A site — nine "case files" that resolve everyday weird-science questions with evidence and sources
-- **Local file:** `weird-science/index.html` (44 KB, no media)
+- **Type:** Single-page static HTML comic site — nine everyday weird-science questions, each a three-panel strip (The Weird → The Why → The Verdict) drawn in inline SVG, one caption line per panel. No paragraphs by design (Orion's call).
+- **Local file:** `weird-science/index.html` (52 KB, no media)
 - **Headline case:** Phillips vs flathead vs star drives (Robertson 1908, Phillips 1930s, Torx 1967, impact-driver era)
-- **Features:** accordion case files, search + category chips, verdict stamps (Resolved / Myth Busted / Partly True), `#case-N` deep links, mailto submission form (`ask@universal369.com`)
+- **Features:** category chips, verdict stamps (Resolved / Myth Busted / Partly True), `#case-N` anchors, collapsed sources per strip, mailto form (`ask@universal369.com`)
 - **Deploy:** `scp -P [SSH_PORT] -r weird-science root@[VPS_IP]:/home/universal369.com/public_html/` then `chmod 755` the dir and `chmod 644` the file
-- **Adding a case:** copy one `<article class="case">` block, bump the number, set `data-cat` and `data-text` keywords, keep Short Answer → Full Resolution → Sources
+- **Adding a case:** copy one `<article class="strip">` block, bump the number and `id`, set `data-cat`, draw three 200×150 SVG panels using the `.ink` / `.ip` / `.ic` / `.t` / `.sfx` classes, keep captions to one line
 
 ### 3. thesoulhunter.com
 - **Status:** Pre-planning — NOT yet built or deployed
